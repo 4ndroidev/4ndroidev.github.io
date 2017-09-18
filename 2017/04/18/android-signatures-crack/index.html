@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Android Apk 签名破解"/>
+
+
+
+
+  <meta name="keywords" content="Android,反编译," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/04/18/android-signatures-crack/"/>
+
+
+<meta name="description" content="阅读本文前，应先了解反编译工具的使用，和smali代码的插桩修改  前提：应用厂商为防止二次打包发布，一般会校验签名，甚至使用签名作为网络请求起算参数，防止服务器资源被盗用作用：避免二次打包后签名校验导致无法运行问题，破解签名后，可插桩日志代码，分析应用请求接口破解方法：很简单，伪造正确签名，欺骗程序读取正确签名  步骤：  判断是否使用了签名校验 获取正确签名并保存 欺骗程序获取正确签名">
+<meta name="keywords" content="Android,反编译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Apk 签名破解">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/04/18/android-signatures-crack/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="阅读本文前，应先了解反编译工具的使用，和smali代码的插桩修改  前提：应用厂商为防止二次打包发布，一般会校验签名，甚至使用签名作为网络请求起算参数，防止服务器资源被盗用作用：避免二次打包后签名校验导致无法运行问题，破解签名后，可插桩日志代码，分析应用请求接口破解方法：很简单，伪造正确签名，欺骗程序读取正确签名  步骤：  判断是否使用了签名校验 获取正确签名并保存 欺骗程序获取正确签名">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-signatures-crack/find-all-signatures.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-signatures-crack/find-so-signatures.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-signatures-crack/context-method.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-signatures-crack/context-call.jpg">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Apk 签名破解">
+<meta name="twitter:description" content="阅读本文前，应先了解反编译工具的使用，和smali代码的插桩修改  前提：应用厂商为防止二次打包发布，一般会校验签名，甚至使用签名作为网络请求起算参数，防止服务器资源被盗用作用：避免二次打包后签名校验导致无法运行问题，破解签名后，可插桩日志代码，分析应用请求接口破解方法：很简单，伪造正确签名，欺骗程序读取正确签名  步骤：  判断是否使用了签名校验 获取正确签名并保存 欺骗程序获取正确签名">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-signatures-crack/find-all-signatures.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> Android Apk 签名破解 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android Apk 签名破解
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月18日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#判断是否使用了签名校验"><span class="toc-text">判断是否使用了签名校验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#获取正确签名并保存"><span class="toc-text">获取正确签名并保存</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#欺骗程序获取正确签名"><span class="toc-text">欺骗程序获取正确签名</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <p>阅读本文前，应先了解反编译工具的使用，和smali代码的插桩修改</p>
+<blockquote>
+<p>前提：应用厂商为防止二次打包发布，一般会校验签名，甚至使用签名作为网络请求起算参数，防止服务器资源被盗用<br>作用：避免二次打包后签名校验导致无法运行问题，破解签名后，可插桩日志代码，分析应用请求接口<br>破解方法：很简单，伪造正确签名，欺骗程序读取正确签名</p>
+</blockquote>
+<p>步骤：</p>
+<ol>
+<li>判断是否使用了签名校验</li>
+<li>获取正确签名并保存</li>
+<li>欺骗程序获取正确签名</li>
+</ol>
+<a id="more"></a>
+<h1 id="判断是否使用了签名校验"><a href="#判断是否使用了签名校验" class="headerlink" title="判断是否使用了签名校验"></a>判断是否使用了签名校验</h1><p>使用<code>~/.android/debug.keystore</code>对应用进行重新签名，安装，检测能否正常使用<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span><span class="bash"> 重新签名脚本</span></div><div class="line">apk=xxx.apk</div><div class="line">apk_sign=$&#123;apk%.*&#125;_sign.$&#123;apk##*.&#125;</div><div class="line">jarsigner -verbose -keystore ~/.android/debug.keystore -signedjar $apk_sign $apk androiddebugkey -storepass android</div><div class="line">adb install -r $apk_sign</div></pre></td></tr></table></figure></p>
+<p>如果还能正常使用，代表没作签名校验，如果不能正常使用，解压apk，<code>grep &quot;signatures&quot; -r .</code>找出所有<code>signatures</code>的，举例</p>
+<p><img src="/images/android-signatures-crack/find-all-signatures.jpg" alt="image"></p>
+<p>可见，应用可能在java和so中进行校验签名，由于欺骗java获取签名，使用<code>baksmali</code>和<code>smali</code>工具即可，难度在于欺骗so，下文主要讲如何欺骗so获取正确应用签名</p>
+<h1 id="获取正确签名并保存"><a href="#获取正确签名并保存" class="headerlink" title="获取正确签名并保存"></a>获取正确签名并保存</h1><p>安装过程，会调用<code>PagekManagerService</code>的<code>installPackage</code>方法，接着调用<code>PackageParser</code>对安装包进行解释，查看相应源码，我们可以知道，<code>PackageInfo</code>的<code>signatures</code>数组长度正常情况下为1，即只对<code>AndroidManifest.xml</code>签名进行保存，另外签名缓存路径为：<code>/data/system/packages.xml</code><br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">logSignature</span><span class="params">(String path)</span></span>&#123;</div><div class="line">  PackageManager packageManager = context.getPackageManager();</div><div class="line">  PackageInfo packageInfo = packageManager.getPackageArchiveInfo(path,</div><div class="line">                  PackageManager.GET_ACTIVITIES | PackageManager.GET_SIGNATURES);</div><div class="line">  Signatures[] signatures = packageInfo.signatures;</div><div class="line">  String signature = signatures[<span class="number">0</span>].toCharsString();</div><div class="line">  Log.e(<span class="string">"signature"</span>, signature); <span class="comment">//将signature字符串保存下来</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="欺骗程序获取正确签名"><a href="#欺骗程序获取正确签名" class="headerlink" title="欺骗程序获取正确签名"></a>欺骗程序获取正确签名</h1><blockquote>
+<p>通过apktool反编译的apk，smali可以随便改，而so不能随便修改，从获取签名函数可以看出，so获取系统签名，必须往下传<code>Context</code>实例，通过反射调用java方法，获取签名。因此，只需要对传给so的<code>Context</code>实例进行封装下，即可达到欺骗目的</p>
+</blockquote>
+<p>1 使用ida打开相关so文件，查找<code>signatures</code>，由于本文只是为了欺骗，不打算看汇编代码（主要是知识还老师了）</p>
+<p><img src="/images/android-signatures-crack/find-so-signatures.jpg" alt="image"></p>
+<p>2 查看<code>Context</code>相关反射调用，看so中的字符串常量即可，记录下来，封装时需要用到</p>
+<p><img src="/images/android-signatures-crack/context-method.jpg" alt="image"></p>
+<p>上图可见会调用<code>Context</code>的<code>getSystemService</code>，<code>getPackageName</code>和<code>getPackageManager</code>方法</p>
+<p>3 封装与调用</p>
+<p>3.1 封装<code>Context</code>对象，由于<code>Application</code>集成了<code>Context</code>，直接继承<code>Application</code>，重写相应方法比较方便，重写获取系统签名方法，需要继承三个类，分别是<code>Application</code>，<code>PackageManager</code>，<code>PackageInfo</code>，代码如下</p>
+<p><strong>FateApplication</strong>继承<strong>Application</strong><br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FakeApplication</span> <span class="keyword">extends</span> <span class="title">Application</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> Context context;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">FakeApplication</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.context = context;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">getSystemService</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> context.getSystemService(name);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> ApplicationInfo <span class="title">getApplicationInfo</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> context.getApplicationInfo();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> PackageManager <span class="title">getPackageManager</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FakePackageManager();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getPackageName</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> context.getPackageName();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>FakePackageManager</strong>继承<strong>PackageManager</strong><br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FakePackageManager</span> <span class="keyword">extends</span> <span class="title">PackageManager</span> </span>&#123;</div><div class="line">    </div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> PackageInfo <span class="title">getPackageInfo</span><span class="params">(String packageName, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> NameNotFoundException </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FakePackageInfo();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 此处省略一堆无关紧要的abstract方法的重写</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>FakePackageInfo</strong>继承<strong>PackageInfo</strong><br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FakePackageInfo</span> <span class="keyword">extends</span> <span class="title">PackageInfo</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String SIGNATURE = <span class="string">"$&#123;第二步保存的签名字符串&#125;"</span>;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">FakePackageInfo</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.signatures = <span class="keyword">new</span> Signature[]&#123;<span class="keyword">new</span> Signature(SIGNATURE)&#125;;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>3.2 调用</p>
+<p>使用<code>apktool</code>反编译apk，然后sublime text打开，搜索<code>loadLibrary</code>，找到java类，再查找传递context对象native函数，再调用此native函数时，创建<code>FakeApplication</code>对象</p>
+<p><img src="/images/android-signatures-crack/context-call.jpg" alt="image"></p>
+
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Android/">Android</a>
+            
+              <a href="/tags/反编译/">反编译</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/04/19/android-download-manager/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">安卓下载任务管理</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2017/04/17/android-decompile-tools/">
+        <span class="next-text nav-default">Android 反编译工具</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

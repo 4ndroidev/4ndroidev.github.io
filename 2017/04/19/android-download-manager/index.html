@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="安卓下载任务管理"/>
+
+
+
+
+  <meta name="keywords" content="Android,下载管理," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/04/19/android-download-manager/"/>
+
+
+<meta name="description" content="前言：上年开发了一个壁纸，音乐，应用，视频等资源浏览和下载安卓应用，准备分解功能模块做下笔记。下载页面UI设计参照 网易云音乐  下载功能  多任务并行下载 断点续传（需服务器支持）  项目地址：https://github.com/4ndroidev/DownloadManager.git">
+<meta name="keywords" content="Android,下载管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓下载任务管理">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/04/19/android-download-manager/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="前言：上年开发了一个壁纸，音乐，应用，视频等资源浏览和下载安卓应用，准备分解功能模块做下笔记。下载页面UI设计参照 网易云音乐  下载功能  多任务并行下载 断点续传（需服务器支持）  项目地址：https://github.com/4ndroidev/DownloadManager.git">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-download-manager/download-screenshot.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-download-manager/download-task-flow.png">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="安卓下载任务管理">
+<meta name="twitter:description" content="前言：上年开发了一个壁纸，音乐，应用，视频等资源浏览和下载安卓应用，准备分解功能模块做下笔记。下载页面UI设计参照 网易云音乐  下载功能  多任务并行下载 断点续传（需服务器支持）  项目地址：https://github.com/4ndroidev/DownloadManager.git">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-download-manager/download-screenshot.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> 安卓下载任务管理 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          安卓下载任务管理
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月19日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#实现原理"><span class="toc-text">实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#核心类分析"><span class="toc-text">核心类分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#类关联关系"><span class="toc-text">类关联关系</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#下载工作"><span class="toc-text">下载工作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#任务调度"><span class="toc-text">任务调度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用说明"><span class="toc-text">使用说明</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <blockquote>
+<p>前言：上年开发了一个壁纸，音乐，应用，视频等资源浏览和下载安卓应用，准备分解功能模块做下笔记。下载页面UI设计参照 <strong>网易云音乐</strong></p>
+</blockquote>
+<p>下载功能</p>
+<ul>
+<li>多任务并行下载</li>
+<li>断点续传（需服务器支持）</li>
+</ul>
+<p>项目地址：<a href="https://github.com/4ndroidev/DownloadManager.git" target="_blank" rel="external">https://github.com/4ndroidev/DownloadManager.git</a></p>
+<a id="more"></a>
+<p>效果图</p>
+<p><img src="/images/android-download-manager/download-screenshot.jpg" alt="image"></p>
+<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p>下载任务流程图</p>
+<p><img src="/images/android-download-manager/download-task-flow.png" alt="image"></p>
+<p>由上图可知，任务执行流程大致如下</p>
+<ol>
+<li>创建任务，并做准备，设置监听器等操作</li>
+<li>根据任务创建实际下载工作，添加到任务队列，等待或直接执行</li>
+<li>用户操作，进行暂停，恢复，或删除</li>
+</ol>
+<h1 id="核心类分析"><a href="#核心类分析" class="headerlink" title="核心类分析"></a>核心类分析</h1><table>
+<thead>
+<tr>
+<th>类</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DownloadTask</td>
+<td>下载任务，保存部分关键信息，非实际下载工作</td>
+</tr>
+<tr>
+<td>DownloadInfo</td>
+<td>下载信息，保存所有信息</td>
+</tr>
+<tr>
+<td>DownloadJob</td>
+<td>实现Runnable接口，实际下载工作，负责网络请求，数据库信息更新</td>
+</tr>
+<tr>
+<td>DownloadManager</td>
+<td>单例，创建下载任务，提供获取正在下载任务，所有下载信息，设置监听器等接口</td>
+</tr>
+<tr>
+<td>DownloadEngine</td>
+<td>负责创建线程池，根据任务创建下载工作，调度工作及通知</td>
+</tr>
+<tr>
+<td>DownloadProvider</td>
+<td>负责下载信息数据库增删查改</td>
+</tr>
+</tbody>
+</table>
+<h1 id="类关联关系"><a href="#类关联关系" class="headerlink" title="类关联关系"></a>类关联关系</h1><table>
+<thead>
+<tr>
+<th>关联</th>
+<th>关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DownloadTask</strong> - <strong>DownloadInfo</strong></td>
+<td>n - 1</td>
+</tr>
+<tr>
+<td><strong>DownloadTask</strong> - <strong>DownloadJob</strong></td>
+<td>n - 0…1</td>
+</tr>
+<tr>
+<td><strong>DownloadJob</strong> - <strong>DownloadInfo</strong></td>
+<td>1 - 1</td>
+</tr>
+</tbody>
+</table>
+<h1 id="下载工作"><a href="#下载工作" class="headerlink" title="下载工作"></a>下载工作</h1><p>断点续传的关键点：</p>
+<ul>
+<li>使用<strong>Range</strong>这个<strong>Header</strong>来指定开始下载位置</li>
+<li>文件读写则使用<strong>RandomAccessFile</strong>，可在指定偏移量读写文件</li>
+<li>注意<strong>RandomAccessFile</strong>打开模式不要加入<code>s</code>，同步模式会拖慢下载速度<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.grocery.download.library;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.io.File;</div><div class="line"><span class="keyword">import</span> java.io.IOException;</div><div class="line"><span class="keyword">import</span> java.io.InputStream;</div><div class="line"><span class="keyword">import</span> java.io.RandomAccessFile;</div><div class="line"><span class="keyword">import</span> java.net.HttpURLConnection;</div><div class="line"><span class="keyword">import</span> java.net.URL;</div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"><span class="keyword">import</span> java.util.List;</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.grocery.download.library.DownloadState.STATE_FAILED;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.grocery.download.library.DownloadState.STATE_FINISHED;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.grocery.download.library.DownloadState.STATE_PAUSED;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.grocery.download.library.DownloadState.STATE_RUNNING;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.grocery.download.library.DownloadState.STATE_WAITING;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * Created by 4ndroidev on 16/10/6.</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="comment">// one-to-one association with DownloadInfo</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DownloadJob</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> isPaused;</div><div class="line">  <span class="keyword">private</span> DownloadInfo info;</div><div class="line">  <span class="keyword">private</span> DownloadEngine engine;</div><div class="line">  <span class="keyword">private</span> List&lt;DownloadListener&gt; listeners;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> Runnable changeState = <span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">synchronized</span> (DownloadJob.class) &#123;</div><div class="line">        <span class="keyword">for</span> (DownloadListener listener : listeners) &#123;</div><div class="line">          listener.onStateChanged(info.key, DownloadJob.<span class="keyword">this</span>.info.state);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">switch</span> (info.state) &#123;</div><div class="line">          <span class="keyword">case</span> STATE_RUNNING:</div><div class="line">            engine.onJobStarted(info);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">          <span class="keyword">case</span> STATE_FINISHED:</div><div class="line">            engine.onJobCompleted(<span class="keyword">true</span>, info);</div><div class="line">            clear();</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">          <span class="keyword">case</span> STATE_FAILED:</div><div class="line">          <span class="keyword">case</span> STATE_PAUSED:</div><div class="line">            engine.onJobCompleted(<span class="keyword">false</span>, info);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> Runnable changeProgress = <span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">synchronized</span> (DownloadJob.class) &#123;</div><div class="line">        <span class="keyword">for</span> (DownloadListener listener : listeners) &#123;</div><div class="line">          listener.onProgressChanged(info.key, DownloadJob.<span class="keyword">this</span>.info.finishedLength, DownloadJob.<span class="keyword">this</span>.info.contentLength);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">DownloadJob</span><span class="params">(DownloadEngine engine, DownloadInfo info)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.engine = engine;</div><div class="line">    <span class="keyword">this</span>.info = info;</div><div class="line">    <span class="keyword">this</span>.listeners = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function">DownloadInfo <span class="title">getInfo</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> info;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">addListener</span><span class="params">(DownloadListener listener)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (DownloadJob.class) &#123;</div><div class="line">      <span class="keyword">if</span> (listener == <span class="keyword">null</span> || listeners.contains(listener)) <span class="keyword">return</span>;</div><div class="line">      listener.onStateChanged(info.key, info.state);</div><div class="line">      listeners.add(listener);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">removeListener</span><span class="params">(DownloadListener listener)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (DownloadJob.class) &#123;</div><div class="line">        <span class="keyword">if</span> (listener == <span class="keyword">null</span> || !listeners.contains(listener)) <span class="keyword">return</span>;</div><div class="line">        listeners.remove(listener);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isRunning</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> STATE_RUNNING == info.state;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">enqueue</span><span class="params">()</span> </span>&#123;</div><div class="line">    resume();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">pause</span><span class="params">()</span> </span>&#123;</div><div class="line">    isPaused = <span class="keyword">true</span>;</div><div class="line">    <span class="keyword">if</span> (info.state != STATE_WAITING) <span class="keyword">return</span>;</div><div class="line">    onStateChanged(STATE_PAUSED, <span class="keyword">false</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">resume</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (isRunning()) <span class="keyword">return</span>;</div><div class="line">    onStateChanged(STATE_WAITING, <span class="keyword">false</span>);</div><div class="line">    isPaused = <span class="keyword">false</span>;</div><div class="line">    engine.executor.submit(<span class="keyword">this</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</div><div class="line">    listeners.clear();</div><div class="line">    engine = <span class="keyword">null</span>;</div><div class="line">    info = <span class="keyword">null</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onStateChanged</span><span class="params">(<span class="keyword">int</span> state, <span class="keyword">boolean</span> updateDb)</span> </span>&#123;</div><div class="line">    info.state = state;</div><div class="line">    <span class="keyword">if</span> (updateDb) engine.provider.update(info);</div><div class="line">    engine.handler.removeCallbacks(changeState);</div><div class="line">    engine.handler.post(changeState);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onProgressChanged</span><span class="params">(<span class="keyword">long</span> finishedLength, <span class="keyword">long</span> contentLength)</span> </span>&#123;</div><div class="line">    info.finishedLength = finishedLength;</div><div class="line">    info.contentLength = contentLength;</div><div class="line">    engine.handler.removeCallbacks(changeProgress);</div><div class="line">    engine.handler.post(changeProgress);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">prepare</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (isPaused) &#123;</div><div class="line">      onStateChanged(STATE_PAUSED, <span class="keyword">false</span>);</div><div class="line">      <span class="keyword">if</span> (!engine.provider.exists(info)) &#123;</div><div class="line">        engine.provider.insert(info);</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        engine.provider.update(info);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      onStateChanged(STATE_RUNNING, <span class="keyword">false</span>);</div><div class="line">      onProgressChanged(info.finishedLength, info.contentLength);</div><div class="line">      <span class="keyword">if</span> (engine.interceptors != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">for</span> (DownloadManager.Interceptor interceptor : engine.interceptors) &#123;</div><div class="line">          interceptor.updateDownloadInfo(info);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (!engine.provider.exists(info)) &#123;</div><div class="line">        engine.provider.insert(info);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!prepare()) <span class="keyword">return</span>;</div><div class="line">    <span class="keyword">long</span> finishedLength = info.finishedLength;</div><div class="line">    <span class="keyword">long</span> contentLength = info.contentLength;</div><div class="line">    HttpURLConnection connection = <span class="keyword">null</span>;</div><div class="line">    InputStream inputStream = <span class="keyword">null</span>;</div><div class="line">    RandomAccessFile randomAccessFile = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      connection = (HttpURLConnection) <span class="keyword">new</span> URL(info.url).openConnection();</div><div class="line">      connection.setAllowUserInteraction(<span class="keyword">true</span>);</div><div class="line">      connection.setConnectTimeout(<span class="number">5000</span>);</div><div class="line">      connection.setReadTimeout(<span class="number">5000</span>);</div><div class="line">      connection.setRequestMethod(<span class="string">"GET"</span>);</div><div class="line">      <span class="keyword">if</span> (finishedLength != <span class="number">0</span> &amp;&amp; contentLength &gt; <span class="number">0</span>) &#123;</div><div class="line">        connection.setRequestProperty(<span class="string">"Range"</span>, <span class="string">"bytes="</span> + finishedLength + <span class="string">"-"</span> + contentLength);</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        contentLength = connection.getContentLength();</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">int</span> responseCode = connection.getResponseCode();</div><div class="line">      <span class="keyword">if</span> (contentLength &gt; <span class="number">0</span> &amp;&amp; (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_PARTIAL)) &#123;</div><div class="line">        inputStream = connection.getInputStream();</div><div class="line">        File file = <span class="keyword">new</span> File(info.path);</div><div class="line">        randomAccessFile = <span class="keyword">new</span> RandomAccessFile(file, <span class="string">"rw"</span>);</div><div class="line">        randomAccessFile.seek(finishedLength);</div><div class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">20480</span>];</div><div class="line">        <span class="keyword">int</span> len;</div><div class="line">        <span class="keyword">long</span> bytesRead = finishedLength;</div><div class="line">        <span class="keyword">while</span> (!<span class="keyword">this</span>.isPaused &amp;&amp; (len = inputStream.read(buffer)) != -<span class="number">1</span>) &#123;</div><div class="line">          randomAccessFile.write(buffer, <span class="number">0</span>, len);</div><div class="line">          bytesRead += len;</div><div class="line">          finishedLength = bytesRead;</div><div class="line">          onProgressChanged(finishedLength, contentLength);</div><div class="line">        &#125;</div><div class="line">        connection.disconnect();</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.isPaused) &#123;</div><div class="line">          onStateChanged(STATE_PAUSED, <span class="keyword">true</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">          info.finishTime = System.currentTimeMillis();</div><div class="line">          onStateChanged(STATE_FINISHED, <span class="keyword">true</span>);</div><div class="line">          <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        onStateChanged(STATE_FAILED, <span class="keyword">true</span>);</div><div class="line">      &#125;</div><div class="line">    &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> Exception e) &#123;</div><div class="line">      onStateChanged(STATE_FAILED, <span class="keyword">true</span>);</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">if</span> (randomAccessFile != <span class="keyword">null</span>)</div><div class="line">          randomAccessFile.close();</div><div class="line">        <span class="keyword">if</span> (inputStream != <span class="keyword">null</span>)</div><div class="line">          inputStream.close();</div><div class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (connection != <span class="keyword">null</span>)</div><div class="line">        connection.disconnect();</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="任务调度"><a href="#任务调度" class="headerlink" title="任务调度"></a>任务调度</h1>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.grocery.download.library;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.os.Environment;</div><div class="line"><span class="keyword">import</span> android.os.Handler;</div><div class="line"><span class="keyword">import</span> android.os.Looper;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.io.File;</div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"><span class="keyword">import</span> java.util.HashMap;</div><div class="line"><span class="keyword">import</span> java.util.List;</div><div class="line"><span class="keyword">import</span> java.util.Map;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.LinkedBlockingQueue;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.ThreadPoolExecutor;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * Created by 4ndroidev on 16/10/6.</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DownloadEngine</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getPath() + File.separator + <span class="string">"Download"</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CPU_COUNT = Runtime.getRuntime().availableProcessors();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CORE_POOL_SIZE = CPU_COUNT + <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> KEEP_ALIVE = <span class="number">10</span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * record all jobs those are not completed</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="keyword">private</span> Map&lt;String, DownloadJob&gt; jobs;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * record all download info</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="keyword">private</span> Map&lt;String, DownloadInfo&gt; infos;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * record all active jobs in order for notification, some jobs are created, but not running</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="keyword">private</span> List&lt;DownloadJob&gt; activeJobs;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> ThreadPoolExecutor singleExecutor;</div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * for some server, the url of resource if temporary</span></div><div class="line"><span class="comment">     * maybe need setting interceptor to update the url</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    List&lt;DownloadManager.Interceptor&gt; interceptors;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * download ThreadPoolExecutor</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    ThreadPoolExecutor executor;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * provider for inserting, deleting, querying or updating the download info with the database</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    DownloadProvider provider;</div><div class="line">    Handler handler;</div><div class="line">    Context context;</div><div class="line"></div><div class="line">    DownloadEngine(Context context, <span class="keyword">int</span> maxTask) &#123;</div><div class="line">      <span class="keyword">this</span>.context = context.getApplicationContext();</div><div class="line">      jobs = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">      infos = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">      activeJobs = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">      interceptors = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">      handler = <span class="keyword">new</span> Handler(Looper.getMainLooper());</div><div class="line">      <span class="keyword">if</span> (maxTask &gt; CORE_POOL_SIZE) maxTask = CORE_POOL_SIZE;</div><div class="line">      executor = <span class="keyword">new</span> ThreadPoolExecutor(maxTask, maxTask, KEEP_ALIVE, TimeUnit.SECONDS, <span class="keyword">new</span> LinkedBlockingQueue());</div><div class="line">      executor.allowCoreThreadTimeOut(<span class="keyword">true</span>);</div><div class="line">      singleExecutor = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>, KEEP_ALIVE, TimeUnit.SECONDS, <span class="keyword">new</span> LinkedBlockingQueue());</div><div class="line">      singleExecutor.allowCoreThreadTimeOut(<span class="keyword">true</span>);</div><div class="line">      provider = <span class="keyword">new</span> DownloadProvider(<span class="keyword">this</span>.context);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * prepare for the task, while creating a task, should callback the download info to the listener</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">prepare</span><span class="params">(DownloadTask task)</span> </span>&#123;</div><div class="line">      String key = task.key;</div><div class="line">      <span class="keyword">if</span> (!infos.containsKey(key)) &#123;  <span class="comment">// do not contain this info, means that it will create a download job</span></div><div class="line">        <span class="keyword">if</span> (task.listener == <span class="keyword">null</span>) <span class="keyword">return</span>;</div><div class="line">        task.listener.onStateChanged(key, DownloadState.STATE_UNKNOWN);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">      &#125;</div><div class="line">      DownloadInfo info = infos.get(key);</div><div class="line">      task.size = info.contentLength;</div><div class="line">      task.createTime = info.createTime;</div><div class="line">      <span class="keyword">if</span> (!jobs.containsKey(key)) &#123;  <span class="comment">// uncompleted jobs do not contain this job, means the job had completed</span></div><div class="line">        <span class="keyword">if</span> (task.listener == <span class="keyword">null</span>) <span class="keyword">return</span>;</div><div class="line">        task.listener.onStateChanged(key, info.state); <span class="comment">// info.state == DownloadState.STATE_FINISHED</span></div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        jobs.get(key).addListener(task.listener);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * if downloadJobs contains the relative job, and the job is not running, enqueue it</span></div><div class="line"><span class="comment">     * otherwise create the job and enqueue it</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(DownloadTask task)</span> </span>&#123;</div><div class="line">      String key = task.key;</div><div class="line">      <span class="keyword">if</span> (jobs.containsKey(key)) &#123;                   <span class="comment">// has existed uncompleted job</span></div><div class="line">        DownloadJob job = jobs.get(key);</div><div class="line">        <span class="keyword">if</span> (job.isRunning()) <span class="keyword">return</span>;</div><div class="line">        job.enqueue();</div><div class="line">        activeJobs.add(job);</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">if</span> (infos.containsKey(key)) <span class="keyword">return</span>;         <span class="comment">// means the job had completed</span></div><div class="line">        DownloadInfo info = task.generateInfo();</div><div class="line">        DownloadJob job = <span class="keyword">new</span> DownloadJob(<span class="keyword">this</span>, info);</div><div class="line">        infos.put(key, info);</div><div class="line">        jobs.put(key, job);</div><div class="line">        job.addListener(task.listener);</div><div class="line">        job.enqueue();</div><div class="line">        activeJobs.add(job);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * remove the downloadJob and delete the relative info</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">(DownloadTask task)</span> </span>&#123;</div><div class="line">      String key = task.key;</div><div class="line">      <span class="keyword">if</span> (!jobs.containsKey(key)) <span class="keyword">return</span>;</div><div class="line">      DownloadJob job = jobs.remove(task.key);</div><div class="line">      delete(job.getInfo());</div><div class="line">      <span class="keyword">if</span> (!activeJobs.contains(job)) <span class="keyword">return</span>;</div><div class="line">      activeJobs.remove(job);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * pause the downloadJob</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pause</span><span class="params">(DownloadTask task)</span> </span>&#123;</div><div class="line">      String key = task.key;</div><div class="line">      <span class="keyword">if</span> (!jobs.containsKey(key)) <span class="keyword">return</span>;</div><div class="line">      jobs.get(key).pause();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * resume the downloadJob if it has not been running</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">resume</span><span class="params">(DownloadTask task)</span> </span>&#123;</div><div class="line">      String key = task.key;</div><div class="line">      <span class="keyword">if</span> (!jobs.containsKey(key)) <span class="keyword">return</span>;</div><div class="line">      DownloadJob job = jobs.get(key);</div><div class="line">      <span class="keyword">if</span> (job.isRunning()) <span class="keyword">return</span>;</div><div class="line">      job.resume();</div><div class="line">      activeJobs.add(job);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * delete download info, remove file</span></div><div class="line"><span class="comment">     * <span class="doctag">@param</span> info</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">final</span> DownloadInfo info)</span> </span>&#123;</div><div class="line">      <span class="keyword">if</span> (info == <span class="keyword">null</span> || !infos.containsValue(info)) <span class="keyword">return</span>;</div><div class="line">      infos.remove(info.key);</div><div class="line">      <span class="keyword">if</span> (isMainThread()) &#123;</div><div class="line">        singleExecutor.submit(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">          <span class="meta">@Override</span></div><div class="line">          <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            provider.delete(info);</div><div class="line">            File file = <span class="keyword">new</span> File(info.path);</div><div class="line">            <span class="keyword">if</span> (file.exists()) file.delete();</div><div class="line">          &#125;</div><div class="line">        &#125;);</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        provider.delete(info);</div><div class="line">        File file = <span class="keyword">new</span> File(info.path);</div><div class="line">        <span class="keyword">if</span> (file.exists()) file.delete();</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"><span class="comment">     * <span class="doctag">@return</span> whether is in main thread</span></div><div class="line"><span class="comment">     */</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isMainThread</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">return</span> Looper.getMainLooper() == Looper.myLooper();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h1>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//创建任务</span></div><div class="line">DownloadTask task = DownloadManager.get(context)</div><div class="line">  .download(id, url, name).listener(listener).create();</div><div class="line"></div><div class="line"><span class="comment">//启动任务</span></div><div class="line">task.start();</div><div class="line"></div><div class="line"><span class="comment">//暂停任务</span></div><div class="line">task.pause();</div><div class="line"></div><div class="line"><span class="comment">//恢复任务</span></div><div class="line">task.resume();</div><div class="line"></div><div class="line"><span class="comment">//删除任务</span></div><div class="line">task.delete();</div><div class="line"></div><div class="line"><span class="comment">//暂停监听, 当activity或fragment onPause时调用</span></div><div class="line">task.pauseListener();</div><div class="line"></div><div class="line"><span class="comment">//恢复监听，当activity或fragment onResume时调用</span></div><div class="line">task.resumeListener();</div><div class="line"></div><div class="line"><span class="comment">//清理监听，当activity或fragment onDestroy时调用</span></div><div class="line">task.clear();</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Android/">Android</a>
+            
+              <a href="/tags/下载管理/">下载管理</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/04/26/android-binder-note/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Android IPC机制</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2017/04/18/android-signatures-crack/">
+        <span class="next-text nav-default">Android Apk 签名破解</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

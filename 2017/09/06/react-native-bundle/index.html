@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="react-native bundle 解释与拆解"/>
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/09/06/react-native-bundle/"/>
+
+
+<meta name="description" content="0. 成果 声明: 避免修改 RN 依赖下面代码，fork facebook/metro-bundler 进行修改github: https://github.com/4ndroidev/metro-bundler  原理： 细心分析， bundle 文件中每一行都是一个Module.js对应的数据结构；打包过程中，在分析依赖时，引入base.js先进行基础依赖遍历，并对Module元素标记bas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="react-native bundle 解释与拆解">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/09/06/react-native-bundle/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="0. 成果 声明: 避免修改 RN 依赖下面代码，fork facebook/metro-bundler 进行修改github: https://github.com/4ndroidev/metro-bundler  原理： 细心分析， bundle 文件中每一行都是一个Module.js对应的数据结构；打包过程中，在分析依赖时，引入base.js先进行基础依赖遍历，并对Module元素标记bas">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/react-native-bundle/bundle-result.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/react-native-bundle/bundle-structure.png">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="react-native bundle 解释与拆解">
+<meta name="twitter:description" content="0. 成果 声明: 避免修改 RN 依赖下面代码，fork facebook/metro-bundler 进行修改github: https://github.com/4ndroidev/metro-bundler  原理： 细心分析， bundle 文件中每一行都是一个Module.js对应的数据结构；打包过程中，在分析依赖时，引入base.js先进行基础依赖遍历，并对Module元素标记bas">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/react-native-bundle/bundle-result.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> react-native bundle 解释与拆解 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          react-native bundle 解释与拆解
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年9月6日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-成果"><span class="toc-text">0. 成果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-需求"><span class="toc-text">1. 需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-目标"><span class="toc-text">2. 目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-分析"><span class="toc-text">3. 分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-bundle-结构分析"><span class="toc-text">3.1 bundle 结构分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-bundle-代码分析"><span class="toc-text">3.2 bundle 代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-bundle-依赖分析"><span class="toc-text">3.3 bundle 依赖分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-拆包实现"><span class="toc-text">4. 拆包实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-总结"><span class="toc-text">5. 总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-展望"><span class="toc-text">6. 展望</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-附加"><span class="toc-text">7. 附加</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <h2 id="0-成果"><a href="#0-成果" class="headerlink" title="0. 成果"></a>0. 成果</h2><blockquote>
+<p>声明: 避免修改 RN 依赖下面代码，fork <a href="https://github.com/facebook/metro-bundler" target="_blank" rel="external">facebook/metro-bundler</a> 进行修改<br>github: <a href="https://github.com/4ndroidev/metro-bundler" target="_blank" rel="external">https://github.com/4ndroidev/metro-bundler</a></p>
+</blockquote>
+<p>原理：</p>
+<p>细心分析， bundle 文件中每一行都是一个<code>Module.js</code>对应的数据结构；打包过程中，在分析依赖时，引入<code>base.js</code>先进行基础依赖遍历，并对<code>Module</code>元素标记<code>base: true</code>，然后再对入口文件进行依赖分析，这种先后顺序能保证基础模块 id 在前，业务模块 id 在后；在打包输出时，将标记<code>base: true</code>的<code>Module</code>打包到<code>base.bundle</code>，否则打包到<code>business bundle</code></p>
+<p>使用方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"># 安装打包工具</div><div class="line">npm install rocket-bundler</div><div class="line"></div><div class="line"># or</div><div class="line"></div><div class="line">yarn add rocket-bundler</div><div class="line"></div><div class="line"># 打包bundle</div><div class="line"></div><div class="line">test ! -d output &amp;&amp; mkdir output</div><div class="line"></div><div class="line">node node_modules/rocket-bundler/src/cli.js bundle \</div><div class="line">  --dev false \</div><div class="line">  --platform android \</div><div class="line">  --entry-file index.android.js \</div><div class="line">  --bundle-output output/index.android.bundle \</div><div class="line">  --base-file base.js \</div><div class="line">  --base-output output/base.bundle \</div><div class="line">  --assets-dest output/ \</div><div class="line">  --sourcemap-output output/sourcemap.txt \</div></pre></td></tr></table></figure>
+<p>结果：</p>
+<p><img src="/images/react-native-bundle/bundle-result.png" alt="bundle-result"></p>
+<a id="more"></a>
+<p>android 加载示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//不修改源码，不通过反射方式加载，事实上加载脚本的代码是 JSCExecutor.cpp 的 evaluateScript 方法</span></div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseBundleLoader</span> <span class="keyword">extends</span> <span class="title">JSBundleLoader</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> String bundleLocation;</div><div class="line"></div><div class="line">  BaseBundleLoader(String location) &#123;</div><div class="line">    bundleLocation = location;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">existAssetBaseBundle</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      String[] assets = application.getAssets().list(BUNDLE_ASSET_FOLDER);</div><div class="line">      <span class="keyword">for</span> (String asset : assets) &#123;</div><div class="line">        <span class="keyword">if</span> (BASE_BUNDLE_NAME.equals(asset))</div><div class="line">          <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">      e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">loadScript</span><span class="params">(CatalystInstanceImpl instance)</span> </span>&#123;</div><div class="line">    File bundle = <span class="keyword">new</span> File(bundleLocation);</div><div class="line">    File base = <span class="keyword">new</span> File(bundle.getParent(), BASE_BUNDLE_NAME);</div><div class="line">    <span class="keyword">if</span> (base.exists()) &#123;</div><div class="line">      JSBundleLoader.createFileLoader(base.getPath()).loadScript(instance);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (existAssetBaseBundle()) &#123;</div><div class="line">      JSBundleLoader.createAssetLoader(application, BASE_BUNDLE_ASSET, <span class="keyword">false</span>).loadScript(instance);</div><div class="line">    &#125;</div><div class="line">    JSBundleLoader.createFileLoader(bundleLocation).loadScript(instance);</div><div class="line">    <span class="keyword">return</span> bundleLocation;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="1-需求"><a href="#1-需求" class="headerlink" title="1. 需求"></a>1. 需求</h2><p>在实际 RN 开发中，往往涉及多个业务，业务间可能不存在耦合，而且业务需要独立的<code>bundle</code>，由此就会出现多个<code>bundle</code>的情况，而每个<code>bundle</code>基本上都包含<code>react</code>和<code>react-native</code>依赖，导致总体积较大；一般存在线上下发需求，还会耗费用户流量。</p>
+<p>由经验可知，JS 中的<code>react</code>和<code>react-native</code>依赖版本基本上与原生 RN 版本对应， 可以抽离这两个依赖打包成<code>base.bundle</code>内置于<code>app</code>中</p>
+<h2 id="2-目标"><a href="#2-目标" class="headerlink" title="2. 目标"></a>2. 目标</h2><ul>
+<li>抽离<code>react</code>和<code>react-native</code>打包成<code>base.bundle</code></li>
+<li>减小线上下发业务<code>bundle</code>体积，节省用户流量</li>
+<li>可预加载<code>base.bundle</code>，提升打开页面速度</li>
+</ul>
+<h2 id="3-分析"><a href="#3-分析" class="headerlink" title="3. 分析"></a>3. 分析</h2><blockquote>
+<p>通过分析bundle结构和依赖查找，最终可以通过标记法进行分包，下文逐一讲解</p>
+</blockquote>
+<h3 id="3-1-bundle-结构分析"><a href="#3-1-bundle-结构分析" class="headerlink" title="3.1 bundle 结构分析"></a>3.1 bundle 结构分析</h3><p><img src="/images/react-native-bundle/bundle-structure.png" alt="image"></p>
+<ul>
+<li>polyfills : 最早执行的一些function，声明es语法新增的接口，定义模块声明方法<code>__d</code>等</li>
+<li>module difinitations : 模块声明，以<code>__d</code>开头，每一行代表一个JS的定义</li>
+<li>require calls : 执行<code>InitializeCore</code>和<code>Entry File</code>，最后一行<code>require(0);</code></li>
+</ul>
+<h3 id="3-2-bundle-代码分析"><a href="#3-2-bundle-代码分析" class="headerlink" title="3.2 bundle 代码分析"></a>3.2 bundle 代码分析</h3><p>由 3.1 可知，JSLoader加载<code>bundle</code>时，优先执行 <code>polyfill function</code>，然后定义<code>JS模块</code>，接着使用 <code>require</code> 调用 <code>init</code> 和 <code>入口文件</code></p>
+<p><code>Resolver/polyfills/require.js</code> 分析 （代码缩略展示）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"></div><div class="line">type FactoryFn = (</div><div class="line">  global: <span class="built_in">Object</span>,</div><div class="line">  <span class="built_in">require</span>: RequireFn,</div><div class="line">  moduleObject: &#123;<span class="attr">exports</span>: &#123;&#125;&#125;,</div><div class="line">  exports: &#123;&#125;,</div><div class="line">  dependencyMap: ?DependencyMap,</div><div class="line">) =&gt; <span class="keyword">void</span>;</div><div class="line"></div><div class="line">global.require = <span class="built_in">require</span>;</div><div class="line">global.__d = define;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">define</span>(<span class="params"></span></span></div><div class="line"><span class="function"><span class="params">  factory: FactoryFn,</span></span></div><div class="line"><span class="function"><span class="params">  moduleId: number,</span></span></div><div class="line"><span class="function"><span class="params">  dependencyMap?: DependencyMap,</span></span></div><div class="line"><span class="function"><span class="params"></span>) </span>&#123;</div><div class="line">  ...</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">require</span>(<span class="params">moduleId: ModuleID | VerboseModuleNameForDev</span>) </span>&#123;</div><div class="line">  ....</div><div class="line">&#125;</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>由上述代码可知，</p>
+<ul>
+<li><code>__d</code>实际是<code>require.js</code>的<code>define</code>方法，</li>
+<li><code>__d</code>参数列表为(<code>factory: FactoryFn</code>, <code>moduleId: number</code>, <code>dependencyMap?: DependencyMap</code>)</li>
+</ul>
+<p>再贴上混淆打包后的入口模块代码，分析其意义</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">__d(<span class="function"><span class="keyword">function</span>(<span class="params">e,t,r,i</span>)</span>&#123;<span class="string">"use strict"</span>;<span class="keyword">var</span> n=t(<span class="number">24</span>),p=t(<span class="number">279</span>),s=babelHelpers.interopRequireDefault(p);n.AppRegistry.registerComponent(<span class="string">"index"</span>,s.default)&#125;,<span class="number">0</span>);</div></pre></td></tr></table></figure>
+<ul>
+<li><code>__d</code> : require.js 的 define 方法</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>__d参数</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>function(e, t, r, i)</td>
+<td>factory方法</td>
+</tr>
+<tr>
+<td>0</td>
+<td>模块id，目前入口文件的id必为0，id按照深度遍历方式递增</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>factory参数</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>e</td>
+<td>global对象</td>
+</tr>
+<tr>
+<td>t</td>
+<td>require方法</td>
+</tr>
+<tr>
+<td>r</td>
+<td>模块对象</td>
+</tr>
+<tr>
+<td>i</td>
+<td>模块暴露</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-bundle-依赖分析"><a href="#3-3-bundle-依赖分析" class="headerlink" title="3.3 bundle 依赖分析"></a>3.3 bundle 依赖分析</h3><blockquote>
+<p>打包bundle时，根据entryFile进行深度遍历依赖分析，模块id不断递增，即越早引用的模块，id越小<br>下文针对0.46.0+代码为抽离<code>react</code>和<code>react-native</code>作<code>base.bundle</code>分析</p>
+</blockquote>
+<p>从 <code>node node_modules/react-native/local-cli/cli.js bundle ....</code>出发，调用链如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// package: react-native  file: cli.js</span></div><div class="line"><span class="comment">// 开始执行</span></div><div class="line">cliEntry.run(); </div><div class="line"></div><div class="line"><span class="comment">// package: react-native  file: cliEntry.js</span></div><div class="line"><span class="comment">// 解释命令</span></div><div class="line">commander.parse(process.argv); </div><div class="line"></div><div class="line"><span class="comment">// package: react-native  file: bundle.js</span></div><div class="line"><span class="comment">// 开始打包bundle</span></div><div class="line">buildBundle(args, config, output, packagerInstance); </div><div class="line"></div><div class="line"><span class="comment">// package: react-native  file: buildBundle.js</span></div><div class="line"><span class="comment">// 创建 packagerInstance，调用metro-bundler的build方法，packagerInstance接着会查找依赖</span></div><div class="line">packagerInstance = <span class="keyword">new</span> Server(options);</div><div class="line">output.build(packagerInstance, requestOpts); </div><div class="line"></div><div class="line"><span class="comment">// package: metro-bundler  file: Server/index.js</span></div><div class="line"><span class="comment">// 根据 entryFile 查找依赖</span></div><div class="line">getDependencies(</div><div class="line">    options: DependencyOptions,</div><div class="line">  ): <span class="built_in">Promise</span>&lt;ResolutionResponse&lt;Module, *&gt;&gt; &#123;</div><div class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">      <span class="keyword">const</span> platform =</div><div class="line">        options.platform != <span class="literal">null</span></div><div class="line">          ? options.platform</div><div class="line">          : parsePlatformFilePath(options.entryFile, <span class="keyword">this</span>._platforms).platform;</div><div class="line">      <span class="keyword">const</span> &#123;entryFile, dev, minify, hot, rootEntryFile&#125; = options;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>._bundler.getDependencies(&#123;</div><div class="line">        entryFile,</div><div class="line">        platform,</div><div class="line">        dev,</div><div class="line">        minify,</div><div class="line">        hot,</div><div class="line">        generateSourceMaps: <span class="literal">false</span>,</div><div class="line">        rootEntryFile,</div><div class="line">      &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line"><span class="comment">// package: metro-bundler  file: Bundler.js</span></div><div class="line"><span class="comment">// 作为中转，叫小弟Resolver进行依赖查找，中间有自己的一些操作，不详介绍</span></div><div class="line"><span class="keyword">async</span> getDependencies(&#123;</div><div class="line">    entryFile,</div><div class="line">    platform,</div><div class="line">    dev = <span class="literal">true</span>,</div><div class="line">    minify = !dev,</div><div class="line">    hot = <span class="literal">false</span>,</div><div class="line">    recursive = <span class="literal">true</span>,</div><div class="line">    generateSourceMaps = <span class="literal">false</span>,</div><div class="line">    isolateModuleIDs = <span class="literal">false</span>,</div><div class="line">    rootEntryFile,</div><div class="line">    onProgress,</div><div class="line">  &#125;): <span class="built_in">Promise</span>&lt;ResolutionResponse&lt;Module, BundlingOptions&gt;&gt; &#123;</div><div class="line">    ...</div><div class="line"></div><div class="line">    <span class="keyword">const</span> resolver = <span class="keyword">await</span> <span class="keyword">this</span>._resolverPromise;</div><div class="line">    <span class="keyword">const</span> response = <span class="keyword">await</span> resolver.getDependencies(</div><div class="line">      entryFile,</div><div class="line">      &#123;dev, platform, recursive&#125;,</div><div class="line">      bundlingOptions,</div><div class="line">      onProgress,</div><div class="line">      isolateModuleIDs ? createModuleIdFactory() : <span class="keyword">this</span>._getModuleId,</div><div class="line">    );</div><div class="line">    <span class="keyword">return</span> response;</div><div class="line">  &#125;</div><div class="line"></div><div class="line"><span class="comment">// package: metro-bundler  file: Resolver/index.js</span></div><div class="line"><span class="comment">// 作为中转，叫小弟DependencyGraph进行依赖查找，中间有自己的一些操作，不详介绍</span></div><div class="line">getDependencies&lt;T: ContainsTransformerOptions&gt;(</div><div class="line">  entryPath: string,</div><div class="line">  options: &#123;<span class="attr">platform</span>: ?string, recursive?: boolean&#125;,</div><div class="line">  bundlingOptions: T,</div><div class="line">  onProgress?: ?<span class="function">(<span class="params">finishedModules: number, totalModules: number</span>) =&gt;</span> mixed,</div><div class="line">  getModuleId: mixed,</div><div class="line">): <span class="built_in">Promise</span>&lt;ResolutionResponse&lt;Module, T&gt;&gt; &#123;</div><div class="line">  <span class="keyword">const</span> &#123;platform, recursive = <span class="literal">true</span>&#125; = options;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">this</span>._depGraph</div><div class="line">    .getDependencies(&#123;</div><div class="line">      entryPath,</div><div class="line">      platform,</div><div class="line">      options: bundlingOptions,</div><div class="line">      recursive,</div><div class="line">      onProgress,</div><div class="line">    &#125;)</div><div class="line">    .then(<span class="function"><span class="params">resolutionResponse</span> =&gt;</span> &#123;</div><div class="line">      <span class="keyword">this</span>._getPolyfillDependencies(platform)</div><div class="line">        .reverse()</div><div class="line">        .forEach(<span class="function"><span class="params">polyfill</span> =&gt;</span> resolutionResponse.prependDependency(polyfill));</div><div class="line"></div><div class="line">        resolutionResponse.getModuleId = getModuleId;</div><div class="line">        <span class="keyword">return</span> resolutionResponse.finalize();</div><div class="line">    &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// package: metro-bundler  file: DependencyGraph</span></div><div class="line"><span class="comment">// 劳动人民，这个很关键，可作为抽离base.bundle入口</span></div><div class="line">getDependencies&lt;T: &#123;+transformer: JSTransformerOptions&#125;&gt;(&#123;</div><div class="line">    entryPath,</div><div class="line">    options,</div><div class="line">    platform,</div><div class="line">    onProgress,</div><div class="line">    recursive = <span class="literal">true</span>,</div><div class="line">  &#125;): <span class="built_in">Promise</span>&lt;ResolutionResponse&lt;Module, T&gt;&gt; &#123;</div><div class="line">    platform = <span class="keyword">this</span>._getRequestPlatform(entryPath, platform);</div><div class="line">    <span class="keyword">const</span> absPath = <span class="keyword">this</span>._getAbsolutePath(entryPath);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> entry = <span class="keyword">this</span>._moduleCache.getModule(absPath);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> response = <span class="keyword">new</span> ResolutionResponse(options);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> req = <span class="keyword">new</span> ResolutionRequest(&#123;</div><div class="line">      moduleResolver: <span class="keyword">this</span>._moduleResolver,</div><div class="line">      entryPath: absPath,</div><div class="line">      helpers: <span class="keyword">this</span>._helpers,</div><div class="line">      platform: platform != <span class="literal">null</span> ? platform : <span class="literal">null</span>,</div><div class="line">      moduleCache: <span class="keyword">this</span>._moduleCache,</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> req.getOrderedDependencies(&#123;</div><div class="line">      response,</div><div class="line">      transformOptions: options.transformer,</div><div class="line">      onProgress,</div><div class="line">      recursive,</div><div class="line">    &#125;)</div><div class="line">    .then(<span class="function"><span class="params">()</span>=&gt;</span>response);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<h2 id="4-拆包实现"><a href="#4-拆包实现" class="headerlink" title="4. 拆包实现"></a>4. 拆包实现</h2><blockquote>
+<p>上文说到使用标记法进行分包，是指在分析依赖期间，标记哪些模块属于base.bundle，哪些模块属于业务bundle；<br>特别地，polyfills属于base.bundle，require-calls和entry-file属于业务bundle</p>
+</blockquote>
+<p>实现： 在<code>DependencyGraph.js</code>的<code>getDependencies</code>方法中，引入<code>base.js</code>，先收集base.bundle的模块，标记成base，接着再根据<code>entryFile</code>进行依赖收集，保证了base.bundle的模块id都在前面。<a href="https://github.com/4ndroidev/metro-bundler/commit/f6f45a3cf0572e97b83adc7c6d5aa9d18cc0cebc" target="_blank" rel="external">最少修改代码实现</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">// package: rocket-bundler  file: DependencyGraph</span></div><div class="line">getDependencies&lt;T: &#123;+transformer: JSTransformerOptions&#125;&gt;(&#123;</div><div class="line">    entryPath,</div><div class="line">    options,</div><div class="line">    platform,</div><div class="line">    onProgress,</div><div class="line">    recursive = <span class="literal">true</span>,</div><div class="line">  &#125;): <span class="built_in">Promise</span>&lt;ResolutionResponse&lt;Module, T&gt;&gt; &#123;</div><div class="line">    platform = <span class="keyword">this</span>._getRequestPlatform(entryPath, platform);</div><div class="line">    <span class="keyword">const</span> absPath = <span class="keyword">this</span>._getAbsolutePath(entryPath);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> entry = <span class="keyword">this</span>._moduleCache.getModule(absPath);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> response = <span class="keyword">new</span> ResolutionResponse(options);</div><div class="line"></div><div class="line">    response.pushDependency(entry);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> seen = <span class="keyword">new</span> <span class="built_in">Set</span>([entry]);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> req = <span class="keyword">new</span> ResolutionRequest(&#123;</div><div class="line">      moduleResolver: <span class="keyword">this</span>._moduleResolver,</div><div class="line">      entryPath: absPath,</div><div class="line">      helpers: <span class="keyword">this</span>._helpers,</div><div class="line">      platform: platform != <span class="literal">null</span> ? platform : <span class="literal">null</span>,</div><div class="line">      moduleCache: <span class="keyword">this</span>._moduleCache,</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> basePath = global.baseFile ? <span class="keyword">this</span>._getAbsolutePath(global.baseFile) : <span class="literal">undefined</span>;</div><div class="line"></div><div class="line">    <span class="keyword">const</span> basePromise = !basePath ? <span class="built_in">Promise</span>.resolve(<span class="literal">true</span>) : </div><div class="line">      <span class="keyword">new</span> ResolutionRequest(&#123;</div><div class="line">        moduleResolver: <span class="keyword">this</span>._moduleResolver,</div><div class="line">        entryPath: basePath,</div><div class="line">        helpers: <span class="keyword">this</span>._helpers,</div><div class="line">        platform: platform != <span class="literal">null</span> ? platform : <span class="literal">null</span>,</div><div class="line">        moduleCache: <span class="keyword">this</span>._moduleCache,</div><div class="line">      &#125;).getOrderedDependencies(&#123;</div><div class="line">        response,</div><div class="line">        transformOptions: options.transformer,</div><div class="line">        onProgress,</div><div class="line">        recursive,</div><div class="line">        base: <span class="literal">true</span>,</div><div class="line">        seen,</div><div class="line">      &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> basePromise.then(<span class="function"><span class="params">()</span>=&gt;</span>req.getOrderedDependencies(&#123;</div><div class="line">      response,</div><div class="line">      transformOptions: options.transformer,</div><div class="line">      onProgress,</div><div class="line">      recursive,</div><div class="line">      base: <span class="literal">false</span>,</div><div class="line">      seen,</div><div class="line">    &#125;))</div><div class="line">    .then(<span class="function"><span class="params">()</span>=&gt;</span>response);</div><div class="line">  &#125;</div><div class="line"></div><div class="line"><span class="comment">// package: rocket-bundler  file: ResolutionRequest</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">traverse</span>(<span class="params">dependencies</span>) </span>&#123;</div><div class="line">  dependencies.forEach(<span class="function"><span class="params">dependency</span> =&gt;</span> &#123;</div><div class="line">    <span class="keyword">if</span> (seen.has(dependency)) &#123;</div><div class="line">      <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    dependency.base = base;</div><div class="line">    seen.add(dependency);</div><div class="line">    response.pushDependency(dependency);</div><div class="line">    traverse(moduleDependencies.get(dependency));</div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出bundle文件代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// package:rocket-bundler  file: BundleBase.js</span></div><div class="line">getBase(options: GetSourceOptions) &#123;</div><div class="line">  <span class="keyword">this</span>.assertFinalized();</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>._base) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>._base;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">this</span>._base = <span class="keyword">this</span>.__modules.filter(<span class="function"><span class="params">module</span> =&gt;</span> <span class="built_in">module</span>.base).map(<span class="function"><span class="params">module</span> =&gt;</span> <span class="built_in">module</span>.code).join(<span class="string">'\n'</span>);</div><div class="line">  <span class="keyword">return</span> <span class="keyword">this</span>._base;</div><div class="line">&#125;</div><div class="line"></div><div class="line">getSource(options: GetSourceOptions) &#123;</div><div class="line">  <span class="keyword">this</span>.assertFinalized();</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>._source) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>._source;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">this</span>._source = <span class="keyword">this</span>.__modules.filter(<span class="function"><span class="params">module</span> =&gt;</span> !<span class="built_in">module</span>.base).map(<span class="function"><span class="params">module</span> =&gt;</span> <span class="built_in">module</span>.code).join(<span class="string">'\n'</span>);</div><div class="line">  <span class="keyword">return</span> <span class="keyword">this</span>._source;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// package: rocket-bundler  file: bundle.js</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">saveBundleAndMap</span>(<span class="params"></span></span></div><div class="line"><span class="function"><span class="params">  bundle: Bundle,</span></span></div><div class="line"><span class="function"><span class="params">  options: OutputOptions,</span></span></div><div class="line"><span class="function"><span class="params">  log: (...args: Array&lt;string&gt;</span>) =&gt; </span>&#123;&#125;,</div><div class="line">): <span class="built_in">Promise</span>&lt;&gt; &#123;</div><div class="line">  <span class="keyword">const</span> &#123;</div><div class="line">    bundleOutput,</div><div class="line">    bundleEncoding: encoding,</div><div class="line">    dev,</div><div class="line">    sourcemapOutput,</div><div class="line">    sourcemapSourcesRoot,</div><div class="line">  &#125; = options;</div><div class="line"></div><div class="line">  log(<span class="string">'start'</span>);</div><div class="line">  <span class="keyword">const</span> base = createBase(bundle, !!dev);</div><div class="line">  <span class="keyword">const</span> origCodeWithMap = createCodeWithMap(bundle, !!dev, sourcemapSourcesRoot);</div><div class="line">  <span class="keyword">const</span> codeWithMap = bundle.postProcessBundleSourcemap(&#123;</div><div class="line">    ...origCodeWithMap,</div><div class="line">    outFileName: bundleOutput,</div><div class="line">  &#125;);</div><div class="line">  log(<span class="string">'finish'</span>);</div><div class="line"></div><div class="line">  log(<span class="string">'Writing bundle output to:'</span>, bundleOutput);</div><div class="line"></div><div class="line">  <span class="keyword">const</span> &#123;code&#125; = codeWithMap;</div><div class="line">  <span class="keyword">const</span> baseOutput = options.baseFile ? options.baseOutput : <span class="literal">undefined</span>;</div><div class="line">  <span class="keyword">const</span> writeBase = baseOutput ? writeFile(baseOutput, base.code, encoding) : <span class="built_in">Promise</span>.resolve(<span class="literal">true</span>);</div><div class="line">  <span class="keyword">const</span> writeBundle = writeFile(bundleOutput, code, encoding);</div><div class="line">  <span class="keyword">const</span> writeMetadata = writeFile(</div><div class="line">    bundleOutput + <span class="string">'.meta'</span>,</div><div class="line">    meta(code, encoding),</div><div class="line">    <span class="string">'binary'</span>);</div><div class="line">  <span class="built_in">Promise</span>.all([writeBase, writeBundle, writeMetadata])</div><div class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> log(<span class="string">'Done writing bundle output'</span>));</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (sourcemapOutput) &#123;</div><div class="line">    log(<span class="string">'Writing sourcemap output to:'</span>, sourcemapOutput);</div><div class="line">    <span class="keyword">const</span> map = <span class="keyword">typeof</span> codeWithMap.map !== <span class="string">'string'</span></div><div class="line">      ? <span class="built_in">JSON</span>.stringify(codeWithMap.map)</div><div class="line">      : codeWithMap.map;</div><div class="line">    <span class="keyword">const</span> writeMap = writeFile(sourcemapOutput, map, <span class="literal">null</span>);</div><div class="line">    writeMap.then(<span class="function"><span class="params">()</span> =&gt;</span> log(<span class="string">'Done writing sourcemap output'</span>));</div><div class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.all([writeBundle, writeMetadata, writeMap]);</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">return</span> writeBundle;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>优点： </p>
+<ul>
+<li>一次性打出base.bundle和业务bundle，效率高</li>
+<li>可自定义哪些模块属于base.bundle</li>
+<li>原生代码，可预加载base.bundle</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>维护成本较高</li>
+<li>事实上，直接引用<code>react-native</code>作为基础，可能会引入一些你用不到的模块。其实我不推介直接引用<code>react-native</code>，用到其中模块直接引用，这样也能减小部分体积</li>
+</ul>
+<p>总体来说，利大于弊，目前真没看到几个开发同事不直接引<code>react-native</code>，哈哈</p>
+<h2 id="6-展望"><a href="#6-展望" class="headerlink" title="6. 展望"></a>6. 展望</h2><p>从上述分包方案，理论上可以制定规则，解耦业务，根据不同业务模块，划分更多bundle，每个bundle的模块id按照某个值开始，避免重复，类似android插件化处理资源id策略，按需加载业务bundle，另外可能带来管理困难的问题。</p>
+<h2 id="7-附加"><a href="#7-附加" class="headerlink" title="7. 附加"></a>7. 附加</h2><p>事实上，还有更易于维护的方法，前后对<code>base.js</code>和<code>index.js</code>进行<code>bundle</code>，然后以这两个bundle作为输入，进行字符串操作，输出最后我们想要的分包结果。但前提是：<code>index.js</code>最开始的依赖引用必须与<code>base.js</code>一致，保证两者打包的基础模块 id 一致。分包代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>);</div><div class="line"><span class="keyword">const</span> os = <span class="built_in">require</span>(<span class="string">'os'</span>); </div><div class="line"><span class="keyword">const</span> readline = <span class="built_in">require</span>(<span class="string">'readline'</span>);</div><div class="line"><span class="keyword">const</span> REQUIRE_CALL_PATTERN = <span class="regexp">/^;require\(\d+\);$/</span></div><div class="line"><span class="keyword">const</span> ENTRY_FILE_PATTERN = <span class="regexp">/^__d\(.*,0\);$/</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">readcontent</span>(<span class="params">path, filter</span>)</span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>)</span>&#123;</div><div class="line">    <span class="keyword">if</span>(!fs.existsSync(path)) &#123;</div><div class="line">      reject(<span class="string">'fileNotFound: '</span>+ path);</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">      <span class="keyword">var</span> lines = [];</div><div class="line">      <span class="keyword">var</span> stream = fs.createReadStream(path);</div><div class="line">      <span class="keyword">var</span> lineInterface = readline.createInterface(&#123;<span class="attr">input</span>: stream&#125;);</div><div class="line">      lineInterface.on(<span class="string">'line'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">line</span>)</span>&#123;</div><div class="line">        <span class="keyword">if</span>(!filter || filter(line))</div><div class="line">          lines.push(line); </div><div class="line">      &#125;);</div><div class="line">      lineInterface.on(<span class="string">'close'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; </div><div class="line">        resolve(lines); </div><div class="line">      &#125;);</div><div class="line">    &#125;</div><div class="line">  &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">cut</span>(<span class="params">contents</span>)</span>&#123;</div><div class="line">  <span class="keyword">var</span> base = contents[<span class="number">0</span>];</div><div class="line">  <span class="keyword">var</span> business = contents[<span class="number">1</span>];</div><div class="line">  <span class="keyword">var</span> temp = []; <span class="comment">// avoid problem of read and write synchronously </span></div><div class="line">  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;business.length;i++)&#123;</div><div class="line">    <span class="keyword">var</span> line = business[i];</div><div class="line">    <span class="keyword">if</span>(base.indexOf(line)&gt;=<span class="number">0</span>) <span class="keyword">continue</span>;</div><div class="line">    temp.push(line);</div><div class="line">  &#125;</div><div class="line">  business.splice(<span class="number">0</span>);</div><div class="line">  business = temp;</div><div class="line">  <span class="keyword">return</span> [base, business];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span>(<span class="params">paths, bundles</span>)</span>&#123;</div><div class="line">  paths.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">path, pathIndex</span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> stream = fs.createWriteStream(path);</div><div class="line">    bundles[pathIndex].forEach(<span class="function"><span class="keyword">function</span>(<span class="params">line, lineIndex</span>)</span>&#123;</div><div class="line">      <span class="keyword">if</span>(!!lineIndex) stream.write(os.EOL);</div><div class="line">      stream.write(line);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params">paths</span>)</span>&#123;</div><div class="line">  <span class="keyword">if</span>(paths.length!=<span class="number">2</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'you can only pass two arguments, one is `path of base.bundle`, the other is `path of business bundle`!'</span>);</div><div class="line">  <span class="keyword">var</span> basefile = paths[<span class="number">0</span>];</div><div class="line">  <span class="keyword">var</span> businessfile = paths[<span class="number">1</span>];</div><div class="line">  <span class="keyword">var</span> basefilter = <span class="function"><span class="keyword">function</span>(<span class="params">line</span>)</span>&#123; <span class="keyword">return</span> !REQUIRE_CALL_PATTERN.test(line) &amp;&amp; !ENTRY_FILE_PATTERN.test(line); &#125;</div><div class="line">  <span class="built_in">Promise</span>.all([</div><div class="line">    readcontent(basefile, basefilter), </div><div class="line">    readcontent(businessfile)</div><div class="line">  ])</div><div class="line">  .then(<span class="function"><span class="keyword">function</span>(<span class="params">contents</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> cut(contents);</div><div class="line">  &#125;)</div><div class="line">  .then(<span class="function"><span class="keyword">function</span>(<span class="params">bundles</span>)</span>&#123; </div><div class="line">    save(paths, bundles); </div><div class="line">  &#125;)</div><div class="line">  .catch(<span class="function"><span class="keyword">function</span>(<span class="params">reason</span>)</span>&#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(reason);</div><div class="line">  &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>)</span>&#123;</div><div class="line">  run(process.argv.splice(<span class="number">2</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">if</span> (<span class="built_in">require</span>.main === <span class="built_in">module</span>) &#123;</div><div class="line">  main();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  run: run</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2017/08/11/python-wallpaper/">
+        <span class="next-text nav-default">爱壁纸爬虫</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

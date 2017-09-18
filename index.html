@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Justice ^_^"/>
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/"/>
+
+
+<meta name="description" content="Justice ^_^">
+<meta property="og:type" content="website">
+<meta property="og:title" content="4ndroidev Note">
+<meta property="og:url" content="http://4ndroidev.github.io/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="Justice ^_^">
+<meta property="og:locale" content="zh-cn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="4ndroidev Note">
+<meta name="twitter:description" content="Justice ^_^">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts">
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/09/06/react-native-bundle/">react-native bundle 解释与拆解</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年9月6日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <h2 id="0-成果"><a href="#0-成果" class="headerlink" title="0. 成果"></a>0. 成果</h2><blockquote>
+<p>声明: 避免修改 RN 依赖下面代码，fork <a href="https://github.com/facebook/metro-bundler" target="_blank" rel="external">facebook/metro-bundler</a> 进行修改<br>github: <a href="https://github.com/4ndroidev/metro-bundler" target="_blank" rel="external">https://github.com/4ndroidev/metro-bundler</a></p>
+</blockquote>
+<p>原理：</p>
+<p>细心分析， bundle 文件中每一行都是一个<code>Module.js</code>对应的数据结构；打包过程中，在分析依赖时，引入<code>base.js</code>先进行基础依赖遍历，并对<code>Module</code>元素标记<code>base: true</code>，然后再对入口文件进行依赖分析，这种先后顺序能保证基础模块 id 在前，业务模块 id 在后；在打包输出时，将标记<code>base: true</code>的<code>Module</code>打包到<code>base.bundle</code>，否则打包到<code>business bundle</code></p>
+<p>使用方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"># 安装打包工具</div><div class="line">npm install rocket-bundler</div><div class="line"></div><div class="line"># or</div><div class="line"></div><div class="line">yarn add rocket-bundler</div><div class="line"></div><div class="line"># 打包bundle</div><div class="line"></div><div class="line">test ! -d output &amp;&amp; mkdir output</div><div class="line"></div><div class="line">node node_modules/rocket-bundler/src/cli.js bundle \</div><div class="line">  --dev false \</div><div class="line">  --platform android \</div><div class="line">  --entry-file index.android.js \</div><div class="line">  --bundle-output output/index.android.bundle \</div><div class="line">  --base-file base.js \</div><div class="line">  --base-output output/base.bundle \</div><div class="line">  --assets-dest output/ \</div><div class="line">  --sourcemap-output output/sourcemap.txt \</div></pre></td></tr></table></figure>
+<p>结果：</p>
+<p><img src="/images/react-native-bundle/bundle-result.png" alt="bundle-result"></p>
+          <div class="read-more">
+            <a href="/2017/09/06/react-native-bundle/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/08/11/python-wallpaper/">爱壁纸爬虫</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年8月11日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <p>声明：</p>
+<blockquote>
+<p>如有侵权，邮件<code>627014295@qq.com</code>告知，四十八小时内删除<br>涉及图片格式，需要安装PIL</p>
+</blockquote>
+          <div class="read-more">
+            <a href="/2017/08/11/python-wallpaper/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/06/04/java-interview-programming/">笔试题</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年6月4日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <h2 id="第n个无平方数因数的数"><a href="#第n个无平方数因数的数" class="headerlink" title="第n个无平方数因数的数"></a>第n个无平方数因数的数</h2><p>如果一个正整数不能被大于1的完全平方数所整除，那么我们就将该数称为无平方数因子的数。例如，靠前的一些无平方数因数的数是{1,2,3,5,6,7,10,11,13,14,15,17,19…}。给出一个整数n,返回第n个无平方数因子的数。</p>
+<p>输入:</p>
+<blockquote>
+<p>输入一个整数n. n 的取值范围为1到1,000,000(其中包括1和1,000,000)</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>返回第n个无平方数因数的数</p>
+</blockquote>
+<p>举例:</p>
+<blockquote>
+<p>n = 13, 返回19.</p>
+</blockquote>
+<p>思路:</p>
+<blockquote>
+<p>统计 start = 1 到 end = n 中平方数倍数的个数cnt（注意避免重复），如果cnt&gt;0， 继续统计 start = end+1 到 end = end+cnt 中平方数倍数的个数k，直至 cnt==0，输出 end </p>
+</blockquote>
+          <div class="read-more">
+            <a href="/2017/06/04/java-interview-programming/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/05/02/android-decompile-share-1/">Android反编译分享</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年5月2日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <blockquote>
+<p>声明：本文仅供学习使用，如有侵犯，请通知我，24小时内删除！<br>前言：反编译工作特点：1.体力活  2.需要耐心  3.坚持不懈  4.熟能生巧</p>
+</blockquote>
+<p>纲目</p>
+<ul>
+<li>反编译作用</li>
+<li>反编译工具</li>
+<li>Smali简介</li>
+<li>代码插桩</li>
+<li>实战例子（如何获取网易云音乐接口，查看整个反编译流程）</li>
+</ul>
+          <div class="read-more">
+            <a href="/2017/05/02/android-decompile-share-1/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/04/26/android-binder-note/">Android IPC机制</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月26日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <blockquote>
+<p>摘自 《Android 技术内幕》系统卷 – 杨丰盛 著， 好记性不如烂笔头</p>
+</blockquote>
+<h2 id="Binder概述"><a href="#Binder概述" class="headerlink" title="Binder概述"></a>Binder概述</h2><p>Linux系统中，以进程为单位分配和管理资源的。处于保护机制，一个进程不能直接访问另一个进程的资源，也就是说，进程间互相封闭。但是，一个复杂的应用系统中，通常会使用多个相关进程来共同完成一项任务，因此要求进程之间必须能够互相通信。从而共享资源和信息。所以，操作系统内核必须提供进程间的通信机制（IPC）。</p>
+<p>应用程序虽然是以独立的进程来运行的，但是相互之间还是需要通信的，比如，在多进程的环境下，应用程序和后台服务通常会运行在不同的进程中，有着独立的地址空间，但是因为需要相互协助，彼此间又必须进行通信和数据共享，这就需要进程通信来完成。在Linux系统中，进程间通信的方式有socket、named pipe、message queue、signal、share memory等；Java系统中的进程间通信方式也有socket、named pipe等，所以Android可以选择的进程通信的方式也很多，但是主要包括以下几种方式</p>
+<ul>
+<li>标准Linux Kernel IPC接口</li>
+<li>标准D-BUS接口</li>
+<li>Binder接口</li>
+</ul>
+          <div class="read-more">
+            <a href="/2017/04/26/android-binder-note/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/04/19/android-download-manager/">安卓下载任务管理</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月19日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <blockquote>
+<p>前言：上年开发了一个壁纸，音乐，应用，视频等资源浏览和下载安卓应用，准备分解功能模块做下笔记。下载页面UI设计参照 <strong>网易云音乐</strong></p>
+</blockquote>
+<p>下载功能</p>
+<ul>
+<li>多任务并行下载</li>
+<li>断点续传（需服务器支持）</li>
+</ul>
+<p>项目地址：<a href="https://github.com/4ndroidev/DownloadManager.git" target="_blank" rel="external">https://github.com/4ndroidev/DownloadManager.git</a></p>
+          <div class="read-more">
+            <a href="/2017/04/19/android-download-manager/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/04/18/android-signatures-crack/">Android Apk 签名破解</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月18日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <p>阅读本文前，应先了解反编译工具的使用，和smali代码的插桩修改</p>
+<blockquote>
+<p>前提：应用厂商为防止二次打包发布，一般会校验签名，甚至使用签名作为网络请求起算参数，防止服务器资源被盗用<br>作用：避免二次打包后签名校验导致无法运行问题，破解签名后，可插桩日志代码，分析应用请求接口<br>破解方法：很简单，伪造正确签名，欺骗程序读取正确签名</p>
+</blockquote>
+<p>步骤：</p>
+<ol>
+<li>判断是否使用了签名校验</li>
+<li>获取正确签名并保存</li>
+<li>欺骗程序获取正确签名</li>
+</ol>
+          <div class="read-more">
+            <a href="/2017/04/18/android-signatures-crack/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/04/17/android-decompile-tools/">Android 反编译工具</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月17日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <h2 id="Apktool"><a href="#Apktool" class="headerlink" title="Apktool"></a>Apktool</h2><blockquote>
+<p>将Apk反编译成资源文件及<code>smali</code>代码，将Jar反编译<code>smali</code>代码</p>
+</blockquote>
+<ul>
+<li><p>github: <a href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="external">https://github.com/iBotPeaches/Apktool</a></p>
+</li>
+<li><p>website: <a href="https://ibotpeaches.github.io/Apktool" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool</a></p>
+</li>
+<li><p>usage: <a href="https://ibotpeaches.github.io/Apktool/documentation/" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool/documentation/</a></p>
+</li>
+<li><p>smali syntax: <a href="http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html" target="_blank" rel="external">http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html</a></p>
+</li>
+</ul>
+          <div class="read-more">
+            <a href="/2017/04/17/android-decompile-tools/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    
+    
+  </nav>
+
+
+          </div>
+          
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

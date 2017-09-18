@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Android 反编译工具"/>
+
+
+
+
+  <meta name="keywords" content="Android,反编译," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/04/17/android-decompile-tools/"/>
+
+
+<meta name="description" content="Apktool 将Apk反编译成资源文件及smali代码，将Jar反编译smali代码   github: https://github.com/iBotPeaches/Apktool  website: https://ibotpeaches.github.io/Apktool  usage: https://ibotpeaches.github.io/Apktool/documentation">
+<meta name="keywords" content="Android,反编译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 反编译工具">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/04/17/android-decompile-tools/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="Apktool 将Apk反编译成资源文件及smali代码，将Jar反编译smali代码   github: https://github.com/iBotPeaches/Apktool  website: https://ibotpeaches.github.io/Apktool  usage: https://ibotpeaches.github.io/Apktool/documentation">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-tools/jd-gui.jpg">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android 反编译工具">
+<meta name="twitter:description" content="Apktool 将Apk反编译成资源文件及smali代码，将Jar反编译smali代码   github: https://github.com/iBotPeaches/Apktool  website: https://ibotpeaches.github.io/Apktool  usage: https://ibotpeaches.github.io/Apktool/documentation">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-decompile-tools/jd-gui.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> Android 反编译工具 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android 反编译工具
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年4月17日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Apktool"><span class="toc-text">Apktool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dex2jar"><span class="toc-text">dex2jar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JD-GUI"><span class="toc-text">JD-GUI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDA"><span class="toc-text">IDA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HexEdit"><span class="toc-text">HexEdit</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <h2 id="Apktool"><a href="#Apktool" class="headerlink" title="Apktool"></a>Apktool</h2><blockquote>
+<p>将Apk反编译成资源文件及<code>smali</code>代码，将Jar反编译<code>smali</code>代码</p>
+</blockquote>
+<ul>
+<li><p>github: <a href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="external">https://github.com/iBotPeaches/Apktool</a></p>
+</li>
+<li><p>website: <a href="https://ibotpeaches.github.io/Apktool" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool</a></p>
+</li>
+<li><p>usage: <a href="https://ibotpeaches.github.io/Apktool/documentation/" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool/documentation/</a></p>
+</li>
+<li><p>smali syntax: <a href="http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html" target="_blank" rel="external">http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html</a></p>
+</li>
+</ul>
+<a id="more"></a>
+<p>常用命令<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span> 反编译</div><div class="line">apktool d xxx.apk</div><div class="line"></div><div class="line"><span class="meta">#</span> 回编译</div><div class="line">apktool b xxx</div><div class="line"></div><div class="line"><span class="meta">#</span> 参数</div><div class="line"><span class="meta">#</span> -r,--no-res             忽略资源文件</div><div class="line"><span class="meta">#</span> -s,--no-src             忽略代码文件</div></pre></td></tr></table></figure></p>
+<h2 id="dex2jar"><a href="#dex2jar" class="headerlink" title="dex2jar"></a>dex2jar</h2><blockquote>
+<p>将dex文件反编译成<code>*.class</code>集合的jar文件，之后可以使用<code>JD-GUI</code>工具查看</p>
+</blockquote>
+<ul>
+<li>github: <a href="https://github.com/pxb1988/dex2jar" target="_blank" rel="external">https://github.com/pxb1988/dex2jar</a></li>
+</ul>
+<p>常用命令: sh d2j-dex2jar.sh classes.dex</p>
+<h2 id="JD-GUI"><a href="#JD-GUI" class="headerlink" title="JD-GUI"></a>JD-GUI</h2><blockquote>
+<p>用于查看<code>*.class</code>集合的jar文件，如第三方sdk的jar包，或者dex2jar转换得到的jar文件</p>
+</blockquote>
+<p><img src="/images/android-decompile-tools/jd-gui.jpg" alt="image"></p>
+<h2 id="IDA"><a href="#IDA" class="headerlink" title="IDA"></a>IDA</h2><blockquote>
+<p>用于查看so文件汇编指令，一般用于破解apk签名</p>
+</blockquote>
+<h2 id="HexEdit"><a href="#HexEdit" class="headerlink" title="HexEdit"></a>HexEdit</h2><blockquote>
+<p>用于十六进制修改字符串或者部分指令，一般用于破解apk签名</p>
+</blockquote>
+
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Android/">Android</a>
+            
+              <a href="/tags/反编译/">反编译</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/04/18/android-signatures-crack/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Android Apk 签名破解</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

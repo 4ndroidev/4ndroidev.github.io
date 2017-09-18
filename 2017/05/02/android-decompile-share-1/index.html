@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Android反编译分享"/>
+
+
+
+
+  <meta name="keywords" content="Android,反编译," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/05/02/android-decompile-share-1/"/>
+
+
+<meta name="description" content="声明：本文仅供学习使用，如有侵犯，请通知我，24小时内删除！前言：反编译工作特点：1.体力活  2.需要耐心  3.坚持不懈  4.熟能生巧  纲目  反编译作用 反编译工具 Smali简介 代码插桩 实战例子（如何获取网易云音乐接口，查看整个反编译流程）">
+<meta name="keywords" content="Android,反编译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android反编译分享">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/05/02/android-decompile-share-1/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="声明：本文仅供学习使用，如有侵犯，请通知我，24小时内删除！前言：反编译工作特点：1.体力活  2.需要耐心  3.坚持不懈  4.熟能生巧  纲目  反编译作用 反编译工具 Smali简介 代码插桩 实战例子（如何获取网易云音乐接口，查看整个反编译流程）">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-tools/jd-gui.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-lucky-money-insertcode.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-capture-netease-request.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-capture-netease-response.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-jd-gui-netease-string-encrypt.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-jd-gui-netease-base64.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-sublime-text-netease-params.jpg">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-ida-netease-neutil.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-hexedit-netease-poison.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-decompile-share-1/android-netease-screenshot.jpg">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android反编译分享">
+<meta name="twitter:description" content="声明：本文仅供学习使用，如有侵犯，请通知我，24小时内删除！前言：反编译工作特点：1.体力活  2.需要耐心  3.坚持不懈  4.熟能生巧  纲目  反编译作用 反编译工具 Smali简介 代码插桩 实战例子（如何获取网易云音乐接口，查看整个反编译流程）">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-decompile-tools/jd-gui.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> Android反编译分享 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android反编译分享
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年5月2日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反编译作用"><span class="toc-text">反编译作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反编译工具"><span class="toc-text">反编译工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Apktool"><span class="toc-text">Apktool</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dex2jar"><span class="toc-text">dex2jar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JD-GUI"><span class="toc-text">JD-GUI</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Smali简介"><span class="toc-text">Smali简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码插桩"><span class="toc-text">代码插桩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战例子"><span class="toc-text">实战例子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抓包"><span class="toc-text">抓包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反编译"><span class="toc-text">反编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#清理障碍"><span class="toc-text">清理障碍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#破解签名"><span class="toc-text">破解签名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回编译"><span class="toc-text">回编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态分析"><span class="toc-text">静态分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写程序"><span class="toc-text">编写程序</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <blockquote>
+<p>声明：本文仅供学习使用，如有侵犯，请通知我，24小时内删除！<br>前言：反编译工作特点：1.体力活  2.需要耐心  3.坚持不懈  4.熟能生巧</p>
+</blockquote>
+<p>纲目</p>
+<ul>
+<li>反编译作用</li>
+<li>反编译工具</li>
+<li>Smali简介</li>
+<li>代码插桩</li>
+<li>实战例子（如何获取网易云音乐接口，查看整个反编译流程）</li>
+</ul>
+<a id="more"></a>
+<h2 id="反编译作用"><a href="#反编译作用" class="headerlink" title="反编译作用"></a>反编译作用</h2><p>对于公司而言</p>
+<ul>
+<li>了解行业内对手特点功能的实现原理。</li>
+<li>修改应用，添加作弊插件（常见于游戏公司）。</li>
+</ul>
+<p>对于个人而言</p>
+<ul>
+<li>集成广告二次打包发布市场，挣广告费（最常见）。</li>
+<li>修改系统应用，添加功能，制作特色刷机包。</li>
+<li>单纯为了学习（我）。</li>
+</ul>
+<h2 id="反编译工具"><a href="#反编译工具" class="headerlink" title="反编译工具"></a>反编译工具</h2><p>主要工具： Apktool，dex2jar，JD-GUI</p>
+<p>额外工具： ida，HexEdit</p>
+<h3 id="Apktool"><a href="#Apktool" class="headerlink" title="Apktool"></a>Apktool</h3><blockquote>
+<p>功能：将Apk反编译得到资源文件及<code>smali</code>代码，将Jar反编译得到<code>smali</code>代码，以及回编译。其中将<code>dex</code>文件反编译成<code>smali</code>的工具为<code>baksmali.jar</code>，回编译<code>smali</code>成<code>dex</code>的为<code>smali.jar</code></p>
+</blockquote>
+<ul>
+<li><p>github: <a href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="external">https://github.com/iBotPeaches/Apktool</a></p>
+</li>
+<li><p>website: <a href="https://ibotpeaches.github.io/Apktool" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool</a></p>
+</li>
+<li><p>usage: <a href="https://ibotpeaches.github.io/Apktool/documentation/" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool/documentation/</a></p>
+</li>
+<li><p>smali syntax: <a href="http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html" target="_blank" rel="external">http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html</a></p>
+</li>
+<li><p>smali/baksmali github : <a href="https://github.com/JesusFreke/smali.git" target="_blank" rel="external">https://github.com/JesusFreke/smali.git</a> </p>
+</li>
+</ul>
+<p>常用命令</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span> 反编译</div><div class="line">apktool d xxx.apk</div><div class="line"></div><div class="line"><span class="meta">#</span> 回编译</div><div class="line">apktool b xxx</div><div class="line"></div><div class="line"><span class="meta">#</span> 参数</div><div class="line"><span class="meta">#</span> -r,--no-res             忽略资源文件</div><div class="line"><span class="meta">#</span> -s,--no-src             忽略代码文件</div></pre></td></tr></table></figure>
+<h3 id="dex2jar"><a href="#dex2jar" class="headerlink" title="dex2jar"></a>dex2jar</h3><blockquote>
+<p>将dex文件反编译成<code>*.class</code>集合的jar文件，之后可以使用<code>JD-GUI</code>工具查看</p>
+</blockquote>
+<ul>
+<li>github: <a href="https://github.com/pxb1988/dex2jar" target="_blank" rel="external">https://github.com/pxb1988/dex2jar</a></li>
+</ul>
+<p>常用命令: sh d2j-dex2jar.sh classes.dex</p>
+<h3 id="JD-GUI"><a href="#JD-GUI" class="headerlink" title="JD-GUI"></a>JD-GUI</h3><blockquote>
+<p>用于查看<code>*.class</code>集合的jar文件，如第三方sdk的jar包，或者dex2jar转换得到的jar文件</p>
+</blockquote>
+<p><img src="/images/android-decompile-tools/jd-gui.jpg" alt="image"></p>
+<h2 id="Smali简介"><a href="#Smali简介" class="headerlink" title="Smali简介"></a>Smali简介</h2><blockquote>
+<p>摘自<a href="http://blog.csdn.net/wdaming1986/article/details/8299996" target="_blank" rel="external">http://blog.csdn.net/wdaming1986/article/details/8299996</a><br>Davlik字节码中，寄存器都是32位的，能够支持任何类型，64位类型（Long/Double）用2个寄存器表示；<br>Dalvik字节码有两种类型：原始类型；引用类型（包括对象和数组）</p>
+</blockquote>
+<p>原始类型</p>
+<table>
+<thead>
+<tr>
+<th>标记</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V</td>
+<td>void， 只用于返回值</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>B</td>
+<td>byte</td>
+</tr>
+<tr>
+<td>S</td>
+<td>short</td>
+</tr>
+<tr>
+<td>C</td>
+<td>char</td>
+</tr>
+<tr>
+<td>I</td>
+<td>int</td>
+</tr>
+<tr>
+<td>J</td>
+<td>long(64bits)</td>
+</tr>
+<tr>
+<td>F</td>
+<td>float</td>
+</tr>
+<tr>
+<td>D</td>
+<td>double(64bits)</td>
+</tr>
+</tbody>
+</table>
+<p>对象类型</p>
+<blockquote>
+<p>Lpackage/className;  </p>
+</blockquote>
+<ul>
+<li>L：表示这是一个对象类型</li>
+<li>package：该对象所在的包名</li>
+<li>className： 类的simpleName</li>
+</ul>
+<p>数组的表示形式：<br>[I  :表示一个整形的一维数组，相当于java的int[];<br>对于多维数组，只要增加[ 就行了，[[I = int[][];注：每一维最多255个； </p>
+<p>对象数组的表示形式：<br>[Ljava/lang/String    表示一个String的对象数组；</p>
+<p>方法的表示形式：<br>Lpackage/className;—&gt;methodName(III)Z  详解如下：<br>Lpackage/className  表示类型<br>methodName   表示方法名<br>III   表示参数（这里表示为3个整型参数）<br>说明：方法的参数是一个接一个的，中间没有隔开；</p>
+<p>字段的表示形式：<br>Lpackage/className;—&gt;fieldName:Ljava/lang/String;<br>即表示： 包名，字段名和各字段类型</p>
+<p>有两种方式指定一个方法中有多少寄存器是可用的：<br>.registers  指令指定了方法中寄存器的总数<br>.locals     指令表明了方法中非参寄存器的总数，出现在方法中的第一行</p>
+<p>举例：</p>
+<p>java源码<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.decompile;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.os.Bundle;</div><div class="line"><span class="keyword">import</span> android.support.v7.app.AppCompatActivity;</div><div class="line"><span class="keyword">import</span> android.util.Log;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">        </div><div class="line">        log(<span class="string">"使用私有对象方法，p0是MainActivity.this这个对象实例，p1是第一个参数"</span>);</div><div class="line"></div><div class="line">        sLog(<span class="string">"使用公有静态方法，p0是第一个参数"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(Object o)</span> </span>&#123;</div><div class="line">        Log.e(<span class="string">"private object method"</span>, String.valueOf(o));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sLog</span><span class="params">(Object o)</span> </span>&#123;</div><div class="line">        Log.e(<span class="string">"public static method"</span>, String.valueOf(o));</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>smali代码<br>  <figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">.method</span><span class="keyword"> private</span> log(<span class="class">Ljava/lang/Object;</span>)V</div><div class="line"><span class="keyword">    .locals</span> 2</div><div class="line"><span class="keyword">    .param</span> p1, <span class="string">"o"</span>    <span class="comment"># Ljava/lang/Object;</span></div><div class="line"></div><div class="line"><span class="keyword">    .prologue</span></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"private object method"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;p1&#125;, <span class="class">Ljava/lang/String;</span>-&gt;valueOf(<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v1</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;v0, v1&#125;, <span class="class">Landroid/util/Log;</span>-&gt;e(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)I</div><div class="line"></div><div class="line">    return-void</div><div class="line"><span class="keyword">.end method</span></div><div class="line"></div><div class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> static</span> sLog(<span class="class">Ljava/lang/Object;</span>)V</div><div class="line"><span class="keyword">    .locals</span> 2</div><div class="line"><span class="keyword">    .param</span> p0, <span class="string">"o"</span>    <span class="comment"># Ljava/lang/Object;</span></div><div class="line"></div><div class="line"><span class="keyword">    .prologue</span></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"public static method"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;p0&#125;, <span class="class">Ljava/lang/String;</span>-&gt;valueOf(<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v1</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;v0, v1&#125;, <span class="class">Landroid/util/Log;</span>-&gt;e(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)I</div><div class="line"></div><div class="line">    return-void</div><div class="line"><span class="keyword">.end method</span></div><div class="line"></div><div class="line"><span class="comment"># virtual methods</span></div><div class="line"><span class="keyword">.method</span><span class="keyword"> protected</span> onCreate(<span class="class">Landroid/os/Bundle;</span>)V</div><div class="line"><span class="keyword">    .locals</span> 1</div><div class="line"><span class="keyword">    .param</span> p1, <span class="string">"savedInstanceState"</span>    <span class="comment"># Landroid/os/Bundle;</span></div><div class="line"></div><div class="line"><span class="keyword">    .prologue</span></div><div class="line">   <span class="built_in"> invoke-super </span>&#123;p0, p1&#125;, <span class="class">Landroid/support/v7/app/AppCompatActivity;</span>-&gt;onCreate(<span class="class">Landroid/os/Bundle;</span>)V</div><div class="line"></div><div class="line">   <span class="built_in"> const </span>v0, 0x7f04001b</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0, v0&#125;, <span class="class">Lcom/decompile/MainActivity;</span>-&gt;setContentView(I)V</div><div class="line"></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"\u4f7f\u7528\u79c1\u6709\u5bf9\u8c61\u65b9\u6cd5\uff0cp0\u662fMainActivity.this\u8fd9\u4e2a\u5bf9\u8c61\u5b9e\u4f8b\uff0cp1\u662f\u7b2c\u4e00\u4e2a\u53c2\u6570"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-direct </span>&#123;p0, v0&#125;, <span class="class">Lcom/decompile/MainActivity;</span>-&gt;log(<span class="class">Ljava/lang/Object;</span>)V</div><div class="line"></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"\u4f7f\u7528\u516c\u6709\u9759\u6001\u65b9\u6cd5\uff0cp0\u662f\u7b2c\u4e00\u4e2a\u53c2\u6570"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;v0&#125;, <span class="class">Lcom/decompile/MainActivity;</span>-&gt;sLog(<span class="class">Ljava/lang/Object;</span>)V</div><div class="line"></div><div class="line">    return-void</div><div class="line"><span class="keyword">.end method</span></div></pre></td></tr></table></figure></p>
+<p>对象方法调用：<br>  <figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(invoke-direct|invoke-virtual) &#123;xx, ...params&#125;, <span class="class">Lpackage/className;</span>-&gt;methodName(...paramTypes)returnType</div></pre></td></tr></table></figure></p>
+<p>invoke-direct除了用于对象私有方法，还可以用于对象的初始化<br>invoke-virtual用于对象公有方法</p>
+<p>xx：Lpackage/className的实例<br>params：为参数列表<br>paramType：参数列表对应类型<br>returnType：返回值类型</p>
+<p>静态方法调用：<br>  <figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">invoke-static &#123;...params&#125;, <span class="class">Lpackage/className;</span>-&gt;methodName(...paramTypes)returnType</div></pre></td></tr></table></figure></p>
+<p>invok-static用于调用静态方法<br>静态方法与对象方法，区别是参数列表第一个参数不是Lpackage/className的实例对象</p>
+<h2 id="代码插桩"><a href="#代码插桩" class="headerlink" title="代码插桩"></a>代码插桩</h2><p>经过上述java和smali代码对照，再查看一下smali语法，由于我们没有java源码，无法调试，只能静态分析代码，然后通过一些log进行跟踪分析别人的代码逻辑，很容易联想到代码插桩。通过代码插桩，我们可以修改第三方应用，实现某些功能。目前市面上基本上通过xposed来实现自动抢红包，实际上，也可以通过反编译修改微信应用达到效果，之前实现过，但不想维护，没玩下去。</p>
+<p>代码插桩，需要讲究技巧。在Android Studio和Eclipe中编写好自己的逻辑代码，让其生成apk，然后同时反编译第三方应用和自己的逻辑代码应用，然后对代码进行合并。</p>
+<p>如之前弄的微信红包（由于之前没考虑6.0系统运行时权限问题，后面取消了这个微信红包分享文章）。</p>
+<p><img src="/images/android-decompile-share-1/android-lucky-money-insertcode.jpg" alt="image"></p>
+<p>由上图可知，我所谓的技巧有</p>
+<ol>
+<li>伪造所依赖的类和字段，标上<code>@Deprecated</code>注解，表示这部分代码无需进行插桩，只是为了Android Studio能正常编译，生成插桩代码应用</li>
+<li>在目标类，编写相关逻辑代码，当然方法名必须清晰，避免以后找不回来</li>
+<li>反编译目标应用和插桩代码应用，进行smali代码合并</li>
+<li>然后在目标类中的关联方法中调用我们自己写的逻辑方法，达到效果</li>
+</ol>
+<h2 id="实战例子"><a href="#实战例子" class="headerlink" title="实战例子"></a>实战例子</h2><blockquote>
+<p>因为很久之前就反编译获取了网易云音乐接口，例子应用：neteasecloudmusic_v3.3.2.apk</p>
+</blockquote>
+<h3 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h3><blockquote>
+<p>使用手机端PacketCapture或者电脑端Charles进行抓包，查看网络请求详情，注意，不一定能抓到包，有些应用做了仿代理访问，抓不了包的。</p>
+</blockquote>
+<p><img src="/images/android-decompile-share-1/android-capture-netease-request.png" alt="image"><img src="/images/android-decompile-share-1/android-capture-netease-response.png" alt="image"></p>
+<p>这个请求为点击启动页面的<strong>立即体验</strong>按钮发出，从图可知，请求参数只有<code>params</code>这个加密表单数据，关键字为<code>params</code>，另外请求头<code>Cookie</code>看上去需要组装<code>deviceId</code>等参数。根据最后反编译结果，这里返回结果中的<code>Set-Cookie</code>中的cookie字段是用于后续请求的。即这个请求在启动时必须发起，后续请求都需要<code>MUSIC_A</code>和<code>__csrf</code>这两个cookie</p>
+<h3 id="反编译"><a href="#反编译" class="headerlink" title="反编译"></a>反编译</h3><p>使用Apktool将neteasecloudmusic_v3.3.2.apk反编译成资源文件和smali代码文件</p>
+<blockquote>
+<p>apktool d neteasecloudmusic_v3.3.2.apk</p>
+</blockquote>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">➜  org  tree -L 1</div><div class="line">.</div><div class="line">├── AndroidManifest.xml</div><div class="line">├── apktool.yml</div><div class="line">├── assets</div><div class="line">├── lib</div><div class="line">├── original</div><div class="line">├── res</div><div class="line">├── smali</div><div class="line">├── smali_classes2</div><div class="line">└── unknown</div><div class="line"></div><div class="line">7 directories, 2 files</div></pre></td></tr></table></figure>
+<p>使用dex2jar将neteasecloudmusic_v3.3.2.apk的dex文件转成jar文件，使用jd-gui查看</p>
+<blockquote>
+<p>sh dex2jar.sh classes.dex<br>sh dex2jar.sh classes2.dex</p>
+</blockquote>
+<p><img src="/images/android-decompile-share-1/android-jd-gui-netease-string-encrypt.jpg" alt="image"></p>
+<h3 id="清理障碍"><a href="#清理障碍" class="headerlink" title="清理障碍"></a>清理障碍</h3><p>刚才我们知道<code>params</code>是请求的关键字，那么使用<code>sublime text</code>编辑器搜索<code>&quot;params&quot;</code>，你会发现搜索不到任何结果，上一张图jd-gui的图<code>System.loadLibrary</code>方法，会调用<code>a.c</code>方法处理字符串。那意思就是网易云音乐将所有字符串都加密了，通过<code>a.auu.a.c</code>方法进行解密。</p>
+<p><img src="/images/android-decompile-share-1/android-jd-gui-netease-base64.jpg" alt="image"></p>
+<p>打开<code>a.auu.a</code>这个类，我们随便拖拖界面，发现有<code>bad base64</code>，那么可以猜到这个字符串加密为<code>base64</code>加密，当然也有它的一些逻辑。</p>
+<p>使用jd-gui能够将dex2jar生成的jar文件，保存成可阅读的java文件，那么导出。接着编写java程序（随便写写，达到目的即可），将所有机密字符串解密。</p>
+<p>根据smali语法看混淆代码静态分析，最终解密字符串代码如下：<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">decode</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">  <span class="keyword">byte</span>[] bytes = Base64.decode(str, Base64.DEFAULT);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> String(xor(bytes));</div><div class="line">  &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] xor(<span class="keyword">byte</span>[] source) &#123;</div><div class="line">  <span class="keyword">int</span> len = source.length;</div><div class="line">  <span class="keyword">int</span> len2 = <span class="string">"Encrypt"</span>.length();</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>; i &lt; len; i++, j++) &#123;</div><div class="line">    j %= len2;</div><div class="line">    source[i] = (<span class="keyword">byte</span>) (source[i] ^ <span class="string">"Encrypt"</span>.charAt(j));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> source;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">encode</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">  <span class="keyword">return</span> Base64.encodeToString(xor(str.getBytes()), Base64.DEFAULT);</div><div class="line">&#125;</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> String key = <span class="string">"a.auu.a.c"</span>;</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">handleLine</span><span class="params">(String source)</span></span>&#123;</div><div class="line">  <span class="keyword">try</span>&#123;</div><div class="line">  <span class="keyword">while</span>(source.indexOf(key)!=-<span class="number">1</span>)&#123;</div><div class="line">    <span class="keyword">int</span> index = source.indexOf(key);</div><div class="line">    String end = source.substring(index);</div><div class="line">    String gone = source.substring(index, index+end.indexOf(<span class="string">")"</span>)+<span class="number">1</span>);</div><div class="line">    String encrypt = gone.substring(gone.indexOf(<span class="string">"\""</span>)+<span class="number">1</span>, gone.lastIndexOf(<span class="string">"\""</span>));</div><div class="line">    source = source.replace(gone, <span class="string">"\""</span>+decode(encrypt)+<span class="string">"\""</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">while</span>(source.indexOf(<span class="string">"a.c(\""</span>)!=-<span class="number">1</span>)&#123;</div><div class="line">    <span class="keyword">int</span> index = source.indexOf(<span class="string">"a.c(\""</span>);</div><div class="line">    String end = source.substring(index);</div><div class="line">    String gone = source.substring(index, index+end.indexOf(<span class="string">")"</span>)+<span class="number">1</span>);</div><div class="line">    String encrypt = gone.substring(gone.indexOf(<span class="string">"\""</span>)+<span class="number">1</span>, gone.lastIndexOf(<span class="string">"\""</span>));</div><div class="line">    source = source.replace(gone, <span class="string">"\""</span>+decode(encrypt)+<span class="string">"\""</span>);</div><div class="line">  &#125;</div><div class="line">  &#125;<span class="keyword">catch</span>(Exception e)&#123;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> source;</div><div class="line">&#125;</div><div class="line">  </div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(File file)</span></span>&#123;</div><div class="line">  File[] files = file.listFiles();</div><div class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;files.length;i++)&#123;</div><div class="line">    File f = files[i];</div><div class="line">    <span class="keyword">if</span>(f.isDirectory())&#123;</div><div class="line">      process(f);</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">      handleFile(f);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line">  </div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleFile</span><span class="params">(File source)</span></span>&#123;</div><div class="line">  String path = source.getPath();</div><div class="line">  File file = <span class="keyword">new</span> File(path+<span class="string">"bak"</span>);</div><div class="line">  source.renameTo(file);</div><div class="line">  <span class="keyword">try</span>&#123;</div><div class="line">    InputStream is = <span class="keyword">new</span> FileInputStream(file);</div><div class="line">    BufferedReader br = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(is));</div><div class="line">    String line;</div><div class="line">    File dest = <span class="keyword">new</span> File(path);</div><div class="line">    OutputStream os = <span class="keyword">new</span> FileOutputStream(dest);</div><div class="line">    BufferedWriter bw = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> OutputStreamWriter(os));</div><div class="line">    <span class="keyword">while</span>((line=br.readLine())!=<span class="keyword">null</span>)&#123;</div><div class="line">      bw.write(handleLine(line)); </div><div class="line">      bw.write(<span class="string">"\n"</span>);</div><div class="line">    &#125;</div><div class="line">    bw.close();</div><div class="line">    br.close();</div><div class="line">  &#125;<span class="keyword">catch</span>(IOException e)&#123;</div><div class="line">    System.out.println(e.getMessage());</div><div class="line">  &#125;</div><div class="line">  file.delete();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">  process(<span class="keyword">new</span> File(<span class="string">"保存的java文件路径"</span>));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>再次使用<code>sublime text</code>搜索<code>&quot;params&quot;</code>字段，你会发现有结果，如下：</p>
+<p><img src="/images/android-decompile-share-1/android-sublime-text-netease-params.jpg" alt="image"></p>
+<p>从图，我们看到了曙光，因为只要在这个地方通过代码插桩，就能把加密前整个请求参数列表全部打印出来，然后分析每个参数的来源。</p>
+<p>插桩代码得到的log（这是提前揭晓的结果，中间还有障碍）<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">05-03 14:45:58.556 2137-2185/? E/params: &#123;&quot;\/api\/cdns&quot;:&quot;&quot;,&quot;\/api\/v1\/vehiclefm\/visible&quot;:&quot;&quot;,&quot;\/api\/log\/mam\/freq\/get&quot;:&quot;&quot;,&quot;\/api\/android\/version&quot;:&quot;&#123;\&quot;carrier\&quot;:\&quot;unicom\&quot;,\&quot;ismiui\&quot;:false&#125;&quot;,&quot;\/api\/copyright\/pay_fee_message\/config&quot;:&quot;&quot;,&quot;header&quot;:&#123;&quot;MUSIC_A&quot;:&quot;47e30a9b79cacd30979d5c02186a8611851676624cde1c280b151856c9fd0d5c7c829645fe34e3c88d2e96001ea988b7446253d594d49cc2093469c45a9b7fe670500f1ae8f45856590694c120e20fee05dbee31830798be75c7cd93f1d9b7ac87577e38f566c25a80bec5f4143606251f977bdb2e8a00e70493e93303df938bbf122d59fa1ed6a2&quot;,&quot;__csrf&quot;:&quot;0f2529b2f4466890e77e1a176a39ba7d&quot;,&quot;deviceId&quot;:&quot;MzUyODI0MDYwNzk1OTU5CTAwOmVlOmJkOjQ0OmI3OmQ2CThjM2JhNGY3MjNmNjlhM2YJSEM0NlNXWTAxMjI0&quot;,&quot;appver&quot;:&quot;3.3.2&quot;,&quot;os&quot;:&quot;android&quot;,&quot;osver&quot;:&quot;5.0.2&quot;,&quot;mobilename&quot;:&quot;HTCM8Sw&quot;,&quot;resolution&quot;:&quot;1776x1080&quot;,&quot;channel&quot;:&quot;google&quot;,&quot;requestId&quot;:&quot;1493793958567_865&quot;&#125;&#125;</div><div class="line">05-03 14:45:58.556 2137-2185/? E/params: /api/batch</div><div class="line">05-03 14:45:58.566 2137-2185/? E/params: C561B86F974CBA39FB9AB3222AC3E77103E75A6A409D4B3CC17C4A7671C9FAD03F74A144F4E75C97B372C380BC2A6329450A2E19AC4BA84F673435A636D90439DD4D5E0E685EC201677DF834E5CD93103AFFEEA66517CD5A6593811E02F1A4BF3257B48D3EBBA5B7B7792621CB9A484E5C39FE31174DD5284BDAE946FC9D308912E015DA16629D64D53F3EE0236203C0B1690A2AE6BDC47B8BB040C746DD8AB746E2AA107B1AE8C4BC452B9C82470F6C771CAF0396B00AD43C2884E25DB41A49FEF1ED8294EDC325C712EC63145D211BFF041BF51003503DEA806F0AF6039F2FB4E2098D15592353D76485D102A81D5CA3304EFFF3044027E2855539BAA021073D049A4F894E560E4E95BCDC7E7E98988599215CD80D429C9EEAB3CE7C1B2D9034CB31BE681634B95201F0E181125F1ED5FECFC6D5B2D07CA8B98324994248E9403A5F7A65B34EEE8BE8B6E0316B943DD3B62BFEB042C119BC9C86896CCB6F70306FE1646792E2E4769E8DD453078DBEABD7285E77B6B41F6CF8217ACB795CA0214CBE467637D253A97A30F1D91BCCD13D9EEC5611018645B3F4BEC780FE4EA0B11209EC9CC951504A083DAA6877CD216C815EE33CC33EE0D0F10EF02B3F3C630DBDFB365D6FF61C6EEA398C13BAF5BAA6CE0E34786855FD85DE360A227D0F52FED554FB63B8044E6E21E494E92CAFAA63DB0FB4C5201DB5646F2A03D40AEEA031452D4D0B72B1775DC7BFE04EBD8B1E78E7067B31569460F1CA15890998592E2B0B18A540D3D46F671B82E601688C79A3D30CF201A89520E030E5823B568CDC1DF69493E31B49AA82DA5A1C5F5279BF8425F96A5DE841EEC729B2C81DD3C3E70BE4F336A685E96CE3B47CA3A4AA9E8ACABBCD2D040153E20C6EEA33D7E1ECBE7850B450C1A3DC60C66BD777A3ED4823023EEB3E3342542DDCF4743D12D9086544D78643FEDFE6D5C80666652F90CE073F293CBF179F6046A82C307EDD9B462E468A2F7D57A9BB8EFB173B08E1CB19AE98FB44334BECEA542C07CC5B8E977066262269CBD13E2B457EF60FDC6AA5560152569686C9FE8CA57387CF42E422D3AC2F5C4BD9CE1F2A3D1FD72269DCF4DCA3C200917A3C83B848CFDCFE97274BE7E1DBE65AF9FE0A466F2B218E6E65C50BBFDD2C8A19858AFFB401A0FC9B3942BC19B8869F796BA28AA09D98F64B35953970E25FB4705EC886D68861A2FECAA9AE64</div></pre></td></tr></table></figure></p>
+<p>第一行为加密前的参数<br>第二行为请求的接口路劲<br>第三行为加密后的params字段值</p>
+<h3 id="破解签名"><a href="#破解签名" class="headerlink" title="破解签名"></a>破解签名</h3><p>上述说到中间还有障碍，指的是很多第三方apk往往会在so校验应用的签名，或者用应用的签名作为请求参数加密的一些参数，加大接口被调用的难度。当代码插桩添加log后，使用apktool回编，然后签名，你会发现应用打开就crash。因此必须要解决签名问题。</p>
+<p>继续分析，从上一张图，可以看出，加密参数调用的是<code>NeteaseMusicUtils.serialdata</code>函数<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">// NeteaseMusicUtils.java</span></div><div class="line"><span class="keyword">static</span></div><div class="line">&#123;</div><div class="line">  UtilInterface.load(<span class="string">"poison"</span>);</div><div class="line">  nativeInit(NeteaseMusicApplication.a());</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// UtilInterface.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UtilInterface</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">  <span class="keyword">static</span></div><div class="line">  &#123;</div><div class="line">    System.loadLibrary(<span class="string">"neutil"</span>);</div><div class="line">  &#125;</div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">l</span><span class="params">(String paramString)</span></span>;</div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">load</span><span class="params">(String paramString)</span></span></div><div class="line"><span class="function">  </span>&#123;</div><div class="line">    l(paramString);</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// so文件列表</span></div><div class="line">armeabi</div><div class="line">├── libFMProcessor.so</div><div class="line">├── libMP3Encoder.so</div><div class="line">├── libbitmaps.so</div><div class="line">├── libblur.so</div><div class="line">├── libfpGenerate.so</div><div class="line">├── libgifimage.so</div><div class="line">├── libijkffmpeg.so</div><div class="line">├── libijkplayer.so</div><div class="line">├── libijksdl.so</div><div class="line">├── libimagepipeline.so</div><div class="line">├── liblocSDK3.so</div><div class="line">├── libmemchunk.so</div><div class="line">├── libndkbitmap.so</div><div class="line">├── libneutil.so</div><div class="line">├── libwakeup.so</div><div class="line">├── libwebp.so</div><div class="line">└── libwebpimage.so</div></pre></td></tr></table></figure></p>
+<p>从代码看来，貌似加载了个<code>libneutil.so</code>，然后通过<code>libpoison.so</code>文件，只有<code>libneutil.so</code>文件，并没有<code>libpoison.so</code>这个文件。</p>
+<p>通过使用ida调试，目前貌似只能在windows机器上面调试so文件，教程：<a href="http://www.gimoo.net/t/1512/5677d68a4a1c5.html" target="_blank" rel="external">使用IDA Pro动态调试so文件</a></p>
+<p>另外<code>libneutil.so</code>做了反调试处理，需要跳过反调试，教程：<a href="http://www.gimoo.net/t/1512/5677cda2844d9.html" target="_blank" rel="external">在JNI_Onload 函数处下断点避开针对IDA Pro的反调试</a></p>
+<p>在调试过程中，你会发现<code>libneutil.so</code>会使用<code>dlopen</code>和<code>dlsym</code>的方法加载了另外的<code>libpoison.so</code>。</p>
+<p><img src="/images/android-decompile-share-1/android-ida-netease-neutil.png" alt="image"></p>
+<p>生成目录为：/data/data/com.netease.cloudmusic/.cache/libpoision${pid}.so</p>
+<p>如果你要提取这个文件，需要是root手机权限。当然我手机root过，直接拷贝出来，后面用于加密参数。</p>
+<p>以上还没有说到如何破解签名，因为破解签名是在libpoison.so里面，libneutil.so仅仅是加了反调试和解密<code>assets</code>目录下的<code>data.db</code>生成<code>libpoison.so</code></p>
+<p>如何破解<code>libpoison.so</code>里面的签名验证？</p>
+<p>因为获取签名只有java方法<code>context.getPackageManager().getPackageInfo().signatures</code>，因此，肯定会从java层传递一个<code>context</code>对象到jni，jni又只能反射调用java方法，字符串的定义，在so也是一目了然，可以使用HexEdit工具修改的。因此，我们可以欺骗so，让他获取正确的应用签名，而不是二次打包应用后的签名。</p>
+<p>由于libpoison.so还是用了<code>MessageDigest.getInstance(&quot;MD5&quot;).update(signature)</code>这个静态方法对应用签名进行md5校验，因此，直接修改<code>libpoison.so</code>里面的<code>MessageDigest</code>类引用为自己的java类<code>com.netease.cloudmusic.Hack</code>，在<code>com.netease.cloudmusic.Hack</code>里面给它正确结果即可，类名长度和MessageDigest长度一样，并保证被so反射调用到的方法都补全。</p>
+<p>代码如下：<br>  <figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">package com.netease.cloudmusic;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by 4ndroidev on 16/7/31.</div><div class="line"> * cheat the poison.so to load signature from here rather than apk</div><div class="line"> */</div><div class="line">public class Hack &#123;</div><div class="line"></div><div class="line"> <span class="keyword"> private</span><span class="keyword"> static</span> Hack<span class="built_in"> instance </span>=<span class="built_in"> new </span>Hack();</div><div class="line"></div><div class="line"> <span class="keyword"> private</span> Hack() &#123;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  /**</div><div class="line">   * how to get netease.signature?</div><div class="line">   * &lt;code&gt;</div><div class="line">   * PackageManager packageManager = getPackageManager();</div><div class="line">   * PackageInfo info = packageManager.getPackageInfo(<span class="string">"com.netease.cloudmusic"</span>, PackageManager.GET_SIGNATURES);</div><div class="line">   * Signature[] signatures = info.signatures;</div><div class="line">   * FileOutStream os =<span class="built_in"> new </span>FileOutputStream(new File('netease.signature'));</div><div class="line">   * os.write(signatures[0].toByteArray());</div><div class="line">   * os.close();</div><div class="line">   * &lt;/code&gt;</div><div class="line">   */</div><div class="line"> <span class="keyword"> public</span><span class="keyword"> static</span> Hack getInstance(String useless) &#123;</div><div class="line">   <span class="built_in"> return </span>instance;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  //just for native call</div><div class="line"> <span class="keyword"> public</span> void update(byte[] bytes) &#123;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  /**</div><div class="line">   * directly<span class="built_in"> return </span>the result of md5(signature); actually you should follow the steps</div><div class="line">   * 1. covert assets/netease.signature to byte<span class="built_in"> array </span>variable `signature`</div><div class="line">   * 2.</div><div class="line">   * &lt;code&gt;</div><div class="line">   * MessageDigest md = MessageDigest.getInstance(<span class="string">"MD5"</span>).update(signature)</div><div class="line">   * md.update(signature);</div><div class="line">   * byte[] digest = md.digest();</div><div class="line">   * &lt;/code&gt;</div><div class="line">   */</div><div class="line"> <span class="keyword"> public</span> byte[] digest() &#123;</div><div class="line">    byte[] digest = &#123;-38, 107, 6, -99, -95, -30, -104, 45, -77, -29, -122, 35, 63, 104, -41, 109&#125;;</div><div class="line">   <span class="built_in"> return </span>digest; // hardcode: digest = md5(signature);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><img src="/images/android-decompile-share-1/android-hexedit-netease-poison.png" alt="image"></p>
+<p>也可以用另外的破解签名方法，可参照另外一篇分享：<a href="http://androidev.coding.me/2017/04/18/android-signatures-crack" target="_blank" rel="external">Android Apk 签名破解</a></p>
+<h3 id="回编译"><a href="#回编译" class="headerlink" title="回编译"></a>回编译</h3><p>由于我们获取了<code>libpoison.so</code>，以及破解了<code>libpoison.so</code>的签名验证，即可使用<code>System.loadLibrary(&quot;poison&quot;);</code>代替<code>UtilInterface.load(&quot;poison&quot;);</code>，避免回编重签导致奔溃问题。</p>
+<p>回编译，由于插桩log，我们便得一个个请求，同理，可以找出返回结果，添加log。</p>
+<h3 id="静态分析"><a href="#静态分析" class="headerlink" title="静态分析"></a>静态分析</h3><p>虽然打出了每个请求参数的log，事实还有很多工作，例如参数的来源，这些需要看混淆代码获得，至于怎么快速定位，那就是通过完整的类名+方法名，或者类名+属性名进行搜索。</p>
+<p>只要熟悉smali，是可以直接将smali逆回java，体力活，只要耐心即可，示例：<br>  <figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">// smali</div><div class="line"></div><div class="line"><span class="keyword">.method</span><span class="keyword"> private</span><span class="keyword"> static</span> a(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span><span class="class">Ljava/util/Map;</span><span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/util/Map;</span></div><div class="line"><span class="keyword">    .locals</span> 7</div><div class="line"><span class="keyword">    .annotation</span><span class="keyword"> system</span> <span class="class">Ldalvik/annotation/Signature;</span></div><div class="line">        value = &#123;</div><div class="line">            <span class="string">"("</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"Ljava/util/Map"</span>,</div><div class="line">            <span class="string">"&lt;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"&gt;;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">")"</span>,</div><div class="line">            <span class="string">"Ljava/util/Map"</span>,</div><div class="line">            <span class="string">"&lt;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"Ljava/lang/String;"</span>,</div><div class="line">            <span class="string">"&gt;;"</span></div><div class="line">        &#125;</div><div class="line"><span class="keyword">    .end annotation</span></div><div class="line"></div><div class="line"><span class="keyword">    .prologue</span></div><div class="line">   <span class="built_in"> const/4 </span>v0, 0x0</div><div class="line"></div><div class="line">   <span class="built_in"> if-nez </span>p2,<span class="keyword"> :cond_0</span></div><div class="line"></div><div class="line">   <span class="built_in"> new-instance </span>v1, <span class="class">Ljava/util/HashMap;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-direct </span>&#123;v1&#125;, <span class="class">Ljava/util/HashMap;</span>-&gt;&lt;init&gt;()V</div><div class="line"></div><div class="line">   <span class="keyword"> :goto_0</span></div><div class="line">   <span class="built_in"> if-eqz </span>p0,<span class="keyword"> :cond_1</span></div><div class="line"></div><div class="line">   <span class="keyword"> :try_start_0</span></div><div class="line">   <span class="built_in"> const-string </span>v2, <span class="string">"Yw=="</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static/range </span>&#123;v2 .. v2&#125;, <span class="class">La/auu/a;</span>-&gt;c(<span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v2</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0, v2&#125;, <span class="class">Ljava/lang/String;</span>-&gt;split(<span class="class">Ljava/lang/String;</span>)[<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v2</div><div class="line"></div><div class="line">   <span class="built_in"> array-length </span>v3, v2</div><div class="line"></div><div class="line">   <span class="keyword"> :goto_1</span></div><div class="line">   <span class="built_in"> if-ge </span>v0, v3,<span class="keyword"> :cond_1</span></div><div class="line"></div><div class="line">   <span class="built_in"> aget-object </span>v4, v2, v0</div><div class="line"></div><div class="line">   <span class="built_in"> const-string </span>v5, <span class="string">"eA=="</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static/range </span>&#123;v5 .. v5&#125;, <span class="class">La/auu/a;</span>-&gt;c(<span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v5</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v4, v5&#125;, <span class="class">Ljava/lang/String;</span>-&gt;split(<span class="class">Ljava/lang/String;</span>)[<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v4</div><div class="line"></div><div class="line">   <span class="built_in"> const/4 </span>v5, 0x0</div><div class="line"></div><div class="line">   <span class="built_in"> aget-object </span>v5, v4, v5</div><div class="line"></div><div class="line">   <span class="built_in"> const/4 </span>v6, 0x1</div><div class="line"></div><div class="line">   <span class="built_in"> aget-object </span>v4, v4, v6</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v1, v5, v4&#125;, <span class="class">Ljava/util/Map;</span>-&gt;put(<span class="class">Ljava/lang/Object;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/Object;</span></div><div class="line">   <span class="keyword"> :try_end_0</span></div><div class="line"><span class="keyword">    .catch</span> <span class="class">Lorg/json/JSONException;</span> &#123;:try_start_0 ..<span class="keyword"> :try_end_0</span>&#125;<span class="keyword"> :catch_0</span></div><div class="line"></div><div class="line">   <span class="built_in"> add-int/lit8 </span>v0, v0, 0x1</div><div class="line"></div><div class="line">   <span class="built_in"> goto </span>:goto_1</div><div class="line"></div><div class="line">   <span class="keyword"> :cond_0</span></div><div class="line">   <span class="built_in"> new-instance </span>v1, <span class="class">Ljava/util/HashMap;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-direct </span>&#123;v1, p2&#125;, <span class="class">Ljava/util/HashMap;</span>-&gt;&lt;init&gt;(<span class="class">Ljava/util/Map;</span>)V</div><div class="line"></div><div class="line">   <span class="built_in"> goto </span>:goto_0</div><div class="line"></div><div class="line">   <span class="keyword"> :cond_1</span></div><div class="line">   <span class="keyword"> :try_start_1</span></div><div class="line">   <span class="built_in"> new-instance </span>v2, <span class="class">Lorg/json/JSONObject;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-direct </span>&#123;v2&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;&lt;init&gt;()V</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v1&#125;, <span class="class">Ljava/util/Map;</span>-&gt;keySet()<span class="class">Ljava/util/Set;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v0&#125;, <span class="class">Ljava/util/Set;</span>-&gt;iterator()<span class="class">Ljava/util/Iterator;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v3</div><div class="line"></div><div class="line">   <span class="keyword"> :goto_2</span></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v3&#125;, <span class="class">Ljava/util/Iterator;</span>-&gt;hasNext()Z</div><div class="line"></div><div class="line">   <span class="built_in"> move-result </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> if-eqz </span>v0,<span class="keyword"> :cond_2</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v3&#125;, <span class="class">Ljava/util/Iterator;</span>-&gt;next()<span class="class">Ljava/lang/Object;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> check-cast </span>v0, <span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v1, v0&#125;, <span class="class">Ljava/util/Map;</span>-&gt;get(<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/Object;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v4</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v2, v0, v4&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;put(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Lorg/json/JSONObject;</span></div><div class="line">   <span class="keyword"> :try_end_1</span></div><div class="line"><span class="keyword">    .catch</span> <span class="class">Lorg/json/JSONException;</span> &#123;:try_start_1 ..<span class="keyword"> :try_end_1</span>&#125;<span class="keyword"> :catch_0</span></div><div class="line"></div><div class="line">   <span class="built_in"> goto </span>:goto_2</div><div class="line"></div><div class="line">   <span class="keyword"> :catch_0</span></div><div class="line">   <span class="built_in"> move-exception </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v0&#125;, <span class="class">Lorg/json/JSONException;</span>-&gt;printStackTrace()V</div><div class="line"></div><div class="line">   <span class="keyword"> :goto_3</span></div><div class="line">   <span class="built_in"> return-object </span>v1</div><div class="line"></div><div class="line">   <span class="keyword"> :cond_2</span></div><div class="line">   <span class="keyword"> :try_start_2</span></div><div class="line">   <span class="built_in"> new-instance </span>v3, <span class="class">Lorg/json/JSONObject;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-direct </span>&#123;v3&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;&lt;init&gt;()V</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;&#125;, <span class="class">Lcom/netease/cloudmusic/i/f;</span>-&gt;f()<span class="class">Ljava/util/List;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v0&#125;, <span class="class">Ljava/util/List;</span>-&gt;iterator()<span class="class">Ljava/util/Iterator;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v4</div><div class="line"></div><div class="line">   <span class="keyword"> :goto_4</span></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v4&#125;, <span class="class">Ljava/util/Iterator;</span>-&gt;hasNext()Z</div><div class="line"></div><div class="line">   <span class="built_in"> move-result </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> if-eqz </span>v0,<span class="keyword"> :cond_3</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v4&#125;, <span class="class">Ljava/util/Iterator;</span>-&gt;next()<span class="class">Ljava/lang/Object;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> check-cast </span>v0, <span class="class">Lorg/apache/http/cookie/Cookie;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v0&#125;, <span class="class">Lorg/apache/http/cookie/Cookie;</span>-&gt;getName()<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v5</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v0&#125;, <span class="class">Lorg/apache/http/cookie/Cookie;</span>-&gt;getValue()<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v3, v5, v0&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;put(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Lorg/json/JSONObject;</span></div><div class="line"></div><div class="line">   <span class="built_in"> goto </span>:goto_4</div><div class="line"></div><div class="line">   <span class="keyword"> :cond_3</span></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"NwsSBxwDAAwK"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static/range </span>&#123;v0 .. v0&#125;, <span class="class">La/auu/a;</span>-&gt;c(<span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v3, v0, p3&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;put(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Lorg/json/JSONObject;</span></div><div class="line"></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"LQsCFhwC"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static/range </span>&#123;v0 .. v0&#125;, <span class="class">La/auu/a;</span>-&gt;c(<span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v2, v0, v3&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;put(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Lorg/json/JSONObject;</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v1&#125;, <span class="class">Ljava/util/Map;</span>-&gt;clear()V</div><div class="line"></div><div class="line">   <span class="built_in"> const-string </span>v0, <span class="string">"NQ8RExQD"</span></div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static/range </span>&#123;v0 .. v0&#125;, <span class="class">La/auu/a;</span>-&gt;c(<span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v0</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-virtual </span>&#123;v2&#125;, <span class="class">Lorg/json/JSONObject;</span>-&gt;toString()<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v2</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-static </span>&#123;p1, v2&#125;, <span class="class">Lcom/netease/cloudmusic/utils/NeteaseMusicUtils;</span>-&gt;serialdata(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)<span class="class">Ljava/lang/String;</span></div><div class="line"></div><div class="line">   <span class="built_in"> move-result-object </span>v2</div><div class="line"></div><div class="line">   <span class="built_in"> invoke-interface </span>&#123;v1, v0, v2&#125;, <span class="class">Ljava/util/Map;</span>-&gt;put(<span class="class">Ljava/lang/Object;</span><span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/Object;</span></div><div class="line">   <span class="keyword"> :try_end_2</span></div><div class="line"><span class="keyword">    .catch</span> <span class="class">Lorg/json/JSONException;</span> &#123;:try_start_2 ..<span class="keyword"> :try_end_2</span>&#125;<span class="keyword"> :catch_0</span></div><div class="line"></div><div class="line">   <span class="built_in"> goto </span>:goto_3</div><div class="line"><span class="keyword">.end method</span></div></pre></td></tr></table></figure></p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//java</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, String&gt; <span class="title">a</span><span class="params">(String query, String path, Map&lt;String, String&gt; params, String requestId)</span></span>&#123;</div><div class="line">  Map&lt;String, Object&gt; body;</div><div class="line">  </div><div class="line">  <span class="keyword">if</span> (params == <span class="keyword">null</span>) &#123;</div><div class="line">      body = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">      body = <span class="keyword">new</span> HashMap&lt;&gt;(params);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">if</span> (query != <span class="keyword">null</span>) &#123;</div><div class="line">      String[] kvs = query.split(<span class="string">"&amp;"</span>);</div><div class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, len = kvs.length; i &lt; len; i++) &#123;</div><div class="line">        String[] kv = kvs[i].split(<span class="string">"="</span>);</div><div class="line">        body.put(kv[<span class="number">0</span>], kv[<span class="number">1</span>]);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    JSONObject paramObject = <span class="keyword">new</span> JSONObject();</div><div class="line">    Iterator&lt;String&gt; paramIterator = body.keySet().iterator();</div><div class="line">    <span class="keyword">while</span> (paramIterator.hasNext()) &#123;</div><div class="line">      String key = paramIterator.next();</div><div class="line">      paramObject.put(key, body.get(key));</div><div class="line">    &#125;</div><div class="line">    Iterator&lt;Cookie&gt; cookieIterator = f().iterator();</div><div class="line">    JSONObject header = <span class="keyword">new</span> JSONObject();</div><div class="line">    <span class="keyword">while</span> (cookieIterator.hasNext()) &#123;</div><div class="line">      Cookie cookie = cookieIterator.next();</div><div class="line">      header.put(cookie.getName(), cookie.getValue());</div><div class="line">    &#125;</div><div class="line">    header.put(<span class="string">"requestId"</span>, requestId);</div><div class="line">    paramObject.put(<span class="string">"header"</span>, header);</div><div class="line">    body.clear();</div><div class="line">    body.put(<span class="string">"params"</span>, NeteaseMusicUtils.serialdata(path, paramObject.toString()));</div><div class="line">  &#125; <span class="keyword">catch</span> (JSONException e) &#123;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> body;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="编写程序"><a href="#编写程序" class="headerlink" title="编写程序"></a>编写程序</h3><p>当你获取了网易云音乐的接口后，肯定是开始练手，编写程序业务。我自己搞了一下，效果图如下：</p>
+<p><img src="/images/android-decompile-share-1/android-netease-screenshot.jpg" alt="image"></p>
+
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Android/">Android</a>
+            
+              <a href="/tags/反编译/">反编译</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/06/04/java-interview-programming/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">笔试题</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2017/04/26/android-binder-note/">
+        <span class="next-text nav-default">Android IPC机制</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>

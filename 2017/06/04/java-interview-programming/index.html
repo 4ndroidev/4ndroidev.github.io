@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="笔试题"/>
+
+
+
+
+  <meta name="keywords" content="java,笔试题," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/06/04/java-interview-programming/"/>
+
+
+<meta name="description" content="第n个无平方数因数的数如果一个正整数不能被大于1的完全平方数所整除，那么我们就将该数称为无平方数因子的数。例如，靠前的一些无平方数因数的数是{1,2,3,5,6,7,10,11,13,14,15,17,19…}。给出一个整数n,返回第n个无平方数因子的数。 输入:  输入一个整数n. n 的取值范围为1到1,000,000(其中包括1和1,000,000)  输出:  返回第n个无平方数因数的数">
+<meta name="keywords" content="java,笔试题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔试题">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/06/04/java-interview-programming/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="第n个无平方数因数的数如果一个正整数不能被大于1的完全平方数所整除，那么我们就将该数称为无平方数因子的数。例如，靠前的一些无平方数因数的数是{1,2,3,5,6,7,10,11,13,14,15,17,19…}。给出一个整数n,返回第n个无平方数因子的数。 输入:  输入一个整数n. n 的取值范围为1到1,000,000(其中包括1和1,000,000)  输出:  返回第n个无平方数因数的数">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2017-09-18T02:08:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="笔试题">
+<meta name="twitter:description" content="第n个无平方数因数的数如果一个正整数不能被大于1的完全平方数所整除，那么我们就将该数称为无平方数因子的数。例如，靠前的一些无平方数因数的数是{1,2,3,5,6,7,10,11,13,14,15,17,19…}。给出一个整数n,返回第n个无平方数因子的数。 输入:  输入一个整数n. n 的取值范围为1到1,000,000(其中包括1和1,000,000)  输出:  返回第n个无平方数因数的数">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> 笔试题 · 4ndroidev Note </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          笔试题
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年6月4日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#第n个无平方数因数的数"><span class="toc-text">第n个无平方数因数的数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#n阶乘结果0的个数"><span class="toc-text">n阶乘结果0的个数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#出现一次的数字"><span class="toc-text">出现一次的数字</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反转链表"><span class="toc-text">反转链表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#跳台阶"><span class="toc-text">跳台阶</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二进制位中1的个数"><span class="toc-text">二进制位中1的个数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数组变换"><span class="toc-text">数组变换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第K大元素"><span class="toc-text">第K大元素</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连续整数"><span class="toc-text">连续整数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#序列和"><span class="toc-text">序列和</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#循环单词"><span class="toc-text">循环单词</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <h2 id="第n个无平方数因数的数"><a href="#第n个无平方数因数的数" class="headerlink" title="第n个无平方数因数的数"></a>第n个无平方数因数的数</h2><p>如果一个正整数不能被大于1的完全平方数所整除，那么我们就将该数称为无平方数因子的数。例如，靠前的一些无平方数因数的数是{1,2,3,5,6,7,10,11,13,14,15,17,19…}。给出一个整数n,返回第n个无平方数因子的数。</p>
+<p>输入:</p>
+<blockquote>
+<p>输入一个整数n. n 的取值范围为1到1,000,000(其中包括1和1,000,000)</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>返回第n个无平方数因数的数</p>
+</blockquote>
+<p>举例:</p>
+<blockquote>
+<p>n = 13, 返回19.</p>
+</blockquote>
+<p>思路:</p>
+<blockquote>
+<p>统计 start = 1 到 end = n 中平方数倍数的个数cnt（注意避免重复），如果cnt&gt;0， 继续统计 start = end+1 到 end = end+cnt 中平方数倍数的个数k，直至 cnt==0，输出 end </p>
+</blockquote>
+<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> cnt, start = <span class="number">1</span>, end = scanner.nextInt();</div><div class="line">    <span class="keyword">while</span> ((cnt=count(start, end)) &gt; <span class="number">0</span>) &#123;</div><div class="line">      start = end + <span class="number">1</span>;</div><div class="line">      end += cnt;</div><div class="line">    &#125;</div><div class="line">    System.out.println(end);</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">count</span><span class="params">(<span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</div><div class="line">    Set&lt;Integer&gt; factors = <span class="keyword">new</span> HashSet&lt;Integer&gt;();</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i * i &lt;= end; i++) &#123;</div><div class="line">      <span class="keyword">int</span> square = i * i;</div><div class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> s = start / square, e = end / square; s &lt;= e; s++) &#123;</div><div class="line">        <span class="keyword">int</span> factor = s * square;</div><div class="line">        <span class="keyword">if</span> (factor &gt;= start &amp;&amp; factor &lt;= end) &#123;</div><div class="line">          factors.add(factor);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> factors.size();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="n阶乘结果0的个数"><a href="#n阶乘结果0的个数" class="headerlink" title="n阶乘结果0的个数"></a>n阶乘结果0的个数</h2><p>输入:</p>
+<blockquote>
+<p>输入一个整数n</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>输出n阶乘结果0的个数</p>
+</blockquote>
+<p>例子:</p>
+<blockquote>
+<p>n = 100， 返回 24</p>
+</blockquote>
+<p>思路:</p>
+<blockquote>
+<p>统计n阶乘因式分解中5的个数</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span> cnt = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span>(n&gt;<span class="number">0</span>)&#123;</div><div class="line">      cnt+=(n/<span class="number">5</span>);</div><div class="line">      n/=<span class="number">5</span>;</div><div class="line">    &#125;</div><div class="line">    System.out.println(cnt);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="出现一次的数字"><a href="#出现一次的数字" class="headerlink" title="出现一次的数字"></a>出现一次的数字</h2><p>描述:</p>
+<blockquote>
+<p>给定一个数组，仅有一个数字出现了一次，其他数字都出现两次，请找出这个出现一次的数字</p>
+</blockquote>
+<p>leetcode: <a href="https://leetcode.com/problems/single-number/#/description" target="_blank" rel="external">https://leetcode.com/problems/single-number/#/description</a></p>
+<p>思路:</p>
+<blockquote>
+<p> a^b^a = b</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">singleNumber</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> len = nums.length;</div><div class="line">    <span class="keyword">int</span> num = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span>(--len&gt;=<span class="number">0</span>)&#123;</div><div class="line">      num ^= nums[len];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> num;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="反转链表"><a href="#反转链表" class="headerlink" title="反转链表"></a>反转链表</h2><p>leetcode: <a href="https://leetcode.com/problems/reverse-linked-list/#/description" target="_blank" rel="external">https://leetcode.com/problems/reverse-linked-list/#/description</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * Definition for singly-linked list.</span></div><div class="line"><span class="comment"> * public class ListNode &#123;</span></div><div class="line"><span class="comment"> *     int val;</span></div><div class="line"><span class="comment"> *     ListNode next;</span></div><div class="line"><span class="comment"> *     ListNode(int x) &#123; val = x; &#125;</span></div><div class="line"><span class="comment"> * &#125;</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">reverseList</span><span class="params">(ListNode head)</span> </span>&#123;</div><div class="line">        ListNode P, Q = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">while</span>(head!=<span class="keyword">null</span>)&#123;</div><div class="line">            P = head;</div><div class="line">            head = head.next;</div><div class="line">            P.next = Q;</div><div class="line">            Q = P;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> Q;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="跳台阶"><a href="#跳台阶" class="headerlink" title="跳台阶"></a>跳台阶</h2><p>描述:</p>
+<blockquote>
+<p>一只青蛙一次可以跳上1级台阶，也可以跳上2级。求该青蛙跳上一个n级的台阶总共有多少种跳法。</p>
+</blockquote>
+<p>牛客: <a href="https://www.nowcoder.com/questionTerminal/8c82a5b80378478f9484d87d1c5f12a4" target="_blank" rel="external">https://www.nowcoder.com/questionTerminal/8c82a5b80378478f9484d87d1c5f12a4</a></p>
+<p>思路:</p>
+<blockquote>
+<p>f(n) = f(n-1) + f(n-2)</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">JumpFloor</span><span class="params">(<span class="keyword">int</span> target)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> previous = <span class="number">0</span>, next = <span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span>(--target&gt;=<span class="number">0</span>)&#123;</div><div class="line">      next += previous;</div><div class="line">      previous = next - previous;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> next;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="二进制位中1的个数"><a href="#二进制位中1的个数" class="headerlink" title="二进制位中1的个数"></a>二进制位中1的个数</h2><p>leetcode: <a href="https://leetcode.com/problems/number-of-1-bits/#/description" target="_blank" rel="external">https://leetcode.com/problems/number-of-1-bits/#/description</a></p>
+<p>例子:</p>
+<p>输入 5， 5的二进制表示为101, 所以输出为2</p>
+<p>思路:</p>
+<blockquote>
+<p>规律：n &amp;= (n-1) 二进制中1的位数减一， 如 111 &amp; 110 = 110 </p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">  <span class="comment">// you need to treat n as an unsigned value</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hammingWeight</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> cnt = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span>(i!=<span class="number">0</span>)&#123;</div><div class="line">      cnt ++;</div><div class="line">      i &amp;= (i-<span class="number">1</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> cnt;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="数组变换"><a href="#数组变换" class="headerlink" title="数组变换"></a>数组变换</h2><p>描述:</p>
+<blockquote>
+<p>牛牛有一个数组，里面的数可能不相等，现在他想把数组变为：所有的数都相等。问是否可行。<br>牛牛可以进行的操作是：将数组中的任意一个数改为这个数的两倍。<br>这个操作的使用次数不限，也可以不使用，并且可以对同一个位置使用多次。</p>
+</blockquote>
+<p>输入描述:</p>
+<blockquote>
+<p>输入一个正整数N (N &lt;= 50)<br>接下来一行输入N个正整数，每个数均小于等于1e9.</p>
+</blockquote>
+<p>输出描述:</p>
+<blockquote>
+<p>假如经过若干次操作可以使得N个数都相等，那么输出”YES”, 否则输出”NO”</p>
+</blockquote>
+<p>输入例子:</p>
+<blockquote>
+<p>2<br>1 2</p>
+</blockquote>
+<p>输出例子:</p>
+<blockquote>
+<p>YES</p>
+</blockquote>
+<p>思路:</p>
+<blockquote>
+<p>满足YES条件，可知所有数因式分解后，只有2的个数不同.<br>因此一个循环，两个两个处理，用大数除以小数，得到商和余数.<br>如果商不是2的幂，或者余数不等于0，则终止循环，输出NO。</p>
+<p>证明商是否2的指数幂，可以使用二进制规律，2的指数幂对应的二进制中1的个数为1.</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"> </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span></span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span>[] a = <span class="keyword">new</span> <span class="keyword">int</span>[n];</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</div><div class="line">      a[i] = scanner.nextInt();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</div><div class="line">      <span class="keyword">int</span> small, big;</div><div class="line">      <span class="keyword">if</span>(a[i]&gt;a[i-<span class="number">1</span>])&#123;</div><div class="line">        small = a[i-<span class="number">1</span>];</div><div class="line">        big = a[i];</div><div class="line">      &#125;<span class="keyword">else</span>&#123;</div><div class="line">        small = a[i];</div><div class="line">        big = a[i-<span class="number">1</span>];</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">int</span> remainder = big % small;</div><div class="line">      <span class="keyword">int</span> quotient = big / small;</div><div class="line">      <span class="keyword">if</span>(remainder!=<span class="number">0</span>||(quotient&amp;(quotient-<span class="number">1</span>))!=<span class="number">0</span>)</div><div class="line">      &#123;</div><div class="line">        System.out.println(<span class="string">"NO"</span>);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println(<span class="string">"YES"</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="第K大元素"><a href="#第K大元素" class="headerlink" title="第K大元素"></a>第K大元素</h2><p>描述:</p>
+<blockquote>
+<p>找出数组中第k大元素</p>
+</blockquote>
+<p>输入:</p>
+<blockquote>
+<p>k: 整数（1&lt;=k&lt;=n）， n: 整数，数组长度， nums: 长度为n的数组</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>第k大元素</p>
+</blockquote>
+<p>例子:</p>
+<blockquote>
+<p>输入: 3 5<br>4 2 1 5 3</p>
+<p>输出: 3</p>
+</blockquote>
+<p>思路: </p>
+<blockquote>
+<p>解法一: 利用小顶堆构造k堆，最后插入调整后，nums[0]即为答案，复杂度： nlogk<br>解法二: quickselect，利用快速排序的分区思想，复杂度：最好n， 最差n平方<br>quickselect wiki: <a href="https://zh.wikipedia.org/wiki/%E5%BF%AB%E9%80%9F%E9%80%89%E6%8B%A9" target="_blank" rel="external">https://zh.wikipedia.org/wiki/%E5%BF%AB%E9%80%9F%E9%80%89%E6%8B%A9</a></p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line"><span class="comment"> * 解法一</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> k = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span>[] nums = <span class="keyword">new</span> <span class="keyword">int</span>[n];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</div><div class="line">      nums[i] = scanner.nextInt();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = k / <span class="number">2</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</div><div class="line">      adjust(nums, i, n);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = k; i &lt; n; i++) &#123;</div><div class="line">      <span class="keyword">if</span> (nums[i] &gt; nums[<span class="number">0</span>]) &#123;</div><div class="line">        nums[<span class="number">0</span>] = nums[i];</div><div class="line">        adjust(nums, <span class="number">0</span>, k);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println(nums[<span class="number">0</span>]);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">adjust</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> parent, <span class="keyword">int</span> length)</span> </span>&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> child = <span class="number">2</span> * parent + <span class="number">1</span>; child &lt; length; child = <span class="number">2</span> * parent + <span class="number">1</span>) &#123;</div><div class="line">      <span class="keyword">if</span> (child + <span class="number">1</span> &lt; length &amp;&amp; nums[child + <span class="number">1</span>] &lt; nums[child]) &#123;</div><div class="line">        child++;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (nums[parent] &gt; nums[child]) &#123;</div><div class="line">        <span class="keyword">int</span> temp = nums[parent];</div><div class="line">        nums[parent] = nums[child];</div><div class="line">        nums[child] = temp;</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">      parent = child;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/*</span></div><div class="line"><span class="comment"> * 解法二</span></div><div class="line"><span class="comment"> */</span> </div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> k = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span>[] nums = <span class="keyword">new</span> <span class="keyword">int</span>[n];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</div><div class="line">      nums[i] = scanner.nextInt();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">int</span> i, low = <span class="number">0</span>, high = n - <span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span> ((i = partition(nums, low, high)) != n - k) &#123;</div><div class="line">      <span class="keyword">if</span>(i+k&gt;n) high = i-<span class="number">1</span>;</div><div class="line">      <span class="keyword">else</span> low = i+<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    System.out.println(nums[i]);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> x = nums[low];</div><div class="line">    <span class="keyword">while</span> (low &lt; high) &#123;</div><div class="line">      <span class="keyword">while</span> (low &lt; high &amp;&amp; nums[high] &gt;= x)</div><div class="line">        high--;</div><div class="line">      nums[low] = nums[high];</div><div class="line">      <span class="keyword">while</span> (low &lt; high &amp;&amp; nums[low] &lt;= x)</div><div class="line">        low++;</div><div class="line">      nums[high] = nums[low];</div><div class="line">    &#125;</div><div class="line">    nums[low] = x;</div><div class="line">    <span class="keyword">return</span> low;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="连续整数"><a href="#连续整数" class="headerlink" title="连续整数"></a>连续整数</h2><p>牛牛的好朋友羊羊在纸上写了n+1个整数，羊羊接着抹除掉了一个整数，给牛牛猜他抹除掉的数字是什么。牛牛知道羊羊写的整数神排序之后是一串连续的正整数，牛牛现在要猜出所有可能是抹除掉的整数。例如：<br>10 7 12 8 11 那么抹除掉的整数只可能是9<br>5 6 7 8 那么抹除掉的整数可能是4也可能是9</p>
+<p>输入描述:</p>
+<blockquote>
+<p>输入包括2行：<br>第一行为整数n(1 &lt;= n &lt;= 50)，即抹除一个数之后剩下的数字个数<br>第二行为n个整数num[i] (1 &lt;= num[i] &lt;= 1000000000)</p>
+</blockquote>
+<p>输出描述:</p>
+<blockquote>
+<p>在一行中输出所有可能是抹除掉的数,从小到大输出,用空格分割,行末无空格。如果没有可能的数，则输出mistake</p>
+</blockquote>
+<p>输入例子:</p>
+<blockquote>
+<p>2<br>3 6</p>
+</blockquote>
+<p>输出例子:</p>
+<blockquote>
+<p>mistake</p>
+</blockquote>
+<p>解题思路:</p>
+<blockquote>
+<p>找出最大值，最小值，求等差数列和，判断得出结果</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span></span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span>[] a = <span class="keyword">new</span> <span class="keyword">int</span>[n];</div><div class="line">    <span class="keyword">int</span> s = <span class="number">0</span>, min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</div><div class="line">      a[i] = scanner.nextInt();</div><div class="line">      s += a[i];</div><div class="line">      <span class="keyword">if</span>(a[i]&gt;max) max = a[i];</div><div class="line">      <span class="keyword">if</span>(a[i]&lt;min) min = a[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span>(max-min+<span class="number">1</span>==n)&#123;</div><div class="line">      <span class="keyword">if</span>(s==(max+min)*n/<span class="number">2</span>)&#123;</div><div class="line">        <span class="keyword">if</span>(min&gt;<span class="number">1</span>)&#123;</div><div class="line">          System.out.println((min-<span class="number">1</span>)+<span class="string">" "</span>+(max+<span class="number">1</span>));</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">          System.out.println(max+<span class="number">1</span>);</div><div class="line">        &#125;</div><div class="line">      &#125;<span class="keyword">else</span>&#123;</div><div class="line">        System.out.println(<span class="string">"mistake"</span>);</div><div class="line">      &#125;</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">      <span class="keyword">int</span> m = (max+min)*(n+<span class="number">1</span>)/<span class="number">2</span>-s;</div><div class="line">      <span class="keyword">if</span>(max-min!=n||m&lt;=min||m&gt;=max)&#123;</div><div class="line">        System.out.println(<span class="string">"mistake"</span>);</div><div class="line">      &#125;<span class="keyword">else</span>&#123;</div><div class="line">        System.out.println(m);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="序列和"><a href="#序列和" class="headerlink" title="序列和"></a>序列和</h2><p>给出一个正整数N和长度L，找出一段长度大于等于L的连续非负整数，他们的和恰好为N。答案可能有多个，我我们需要找出长度最小的那个。<br>例如 N = 18 L = 2：<br>5 + 6 + 7 = 18<br>3 + 4 + 5 + 6 = 18<br>都是满足要求的，但是我们输出更短的 5 6 7</p>
+<p>输入描述:</p>
+<blockquote>
+<p>输入数据包括一行：<br>两个正整数N(1 ≤ N ≤ 1000000000),L(2 ≤ L ≤ 100)</p>
+</blockquote>
+<p>输出描述:</p>
+<blockquote>
+<p>从小到大输出这段连续非负整数，以空格分隔，行末无空格。如果没有这样的序列或者找出的序列长度大于100，则输出No</p>
+</blockquote>
+<p>输入例子:</p>
+<blockquote>
+<p>18 2</p>
+</blockquote>
+<p>输出例子:</p>
+<blockquote>
+<p>5 6 7</p>
+</blockquote>
+<p>解题思路:</p>
+<blockquote>
+<p>假设已知Sn和n，要求a1，由等差数列求和公式 Sn = (a1+an)*n/2 得： a1 = (2*Sn/n-(n-1)*d)/2<br>已知Sn等于N，L&lt;=n&lt;=100，d=1，只要满足条件即有解 a1 = (2*Sn-n*n+n)/(2*n);</p>
+</blockquote>
+<p>代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span></span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> N = scanner.nextInt();</div><div class="line">    <span class="keyword">int</span> L = scanner.nextInt();</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=L;i&lt;=<span class="number">100</span>;i++)&#123;</div><div class="line">      <span class="keyword">if</span>((<span class="number">2</span>*N-i*i+i)%(<span class="number">2</span>*i)==<span class="number">0</span>)&#123;</div><div class="line">        <span class="keyword">int</span> a = (<span class="number">2</span>*N-i*i+i)/(<span class="number">2</span>*i);</div><div class="line">        <span class="keyword">while</span>(i--&gt;<span class="number">0</span>)&#123;</div><div class="line">          System.out.print(a++);</div><div class="line">          <span class="keyword">if</span>(i&gt;<span class="number">0</span>) System.out.print(<span class="string">" "</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println(<span class="string">'No'</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="循环单词"><a href="#循环单词" class="headerlink" title="循环单词"></a>循环单词</h2><p>如果一个单词通过循环右移获得的单词，我们称这些单词都为一种循环单词。 例如：picture 和 turepic 就是属于同一种循环单词。 现在给出n个单词，需要统计这个n个单词中有多少种循环单词。 </p>
+<p>输入描述:</p>
+<blockquote>
+<p>输入包括n+1行：<br>第一行为单词个数n(1 ≤ n ≤ 50)<br>接下来的n行，每行一个单词word[i]，长度length(1 ≤ length ≤ 50)。由小写字母构成</p>
+</blockquote>
+<p>输出描述:</p>
+<blockquote>
+<p>输出循环单词的种数</p>
+</blockquote>
+<p>输入例子:</p>
+<blockquote>
+<p>5<br>picture<br>turepic<br>icturep<br>word<br>ordw</p>
+</blockquote>
+<p>输出例子:</p>
+<blockquote>
+<p>2</p>
+</blockquote>
+<p>解题思路：</p>
+<blockquote>
+<p>旋转字符串，单词拼接自身，查找并标记同类单词。</p>
+</blockquote>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span></span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">    Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</div><div class="line">    <span class="keyword">int</span> n = scanner.nextInt();</div><div class="line">    String[] a = <span class="keyword">new</span> String[n];</div><div class="line">    <span class="keyword">boolean</span>[] b = <span class="keyword">new</span> <span class="keyword">boolean</span>[n];</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</div><div class="line">      a[i] = scanner.next();</div><div class="line">    &#125;</div><div class="line">    Arrays.fill(b, <span class="keyword">false</span>);</div><div class="line">    <span class="keyword">int</span> c = <span class="number">0</span>;</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</div><div class="line">      <span class="keyword">if</span>(b[i]) <span class="keyword">continue</span>;</div><div class="line">      c++;</div><div class="line">      String s = a[i]+a[i];</div><div class="line">      <span class="keyword">for</span>(<span class="keyword">int</span> j=i+<span class="number">1</span>;j&lt;n;j++)&#123;</div><div class="line">        <span class="keyword">if</span>(a[i].length()!=a[j].length()||!s.contains(a[j]))</div><div class="line">          <span class="keyword">continue</span>;</div><div class="line">        b[j] = <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println(c);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/java/">java</a>
+            
+              <a href="/tags/笔试题/">笔试题</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/08/11/python-wallpaper/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">爱壁纸爬虫</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2017/05/02/android-decompile-share-1/">
+        <span class="next-text nav-default">Android反编译分享</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  </body>
+</html>
