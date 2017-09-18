@@ -1,0 +1,17 @@
+// ==============================
+// Logo
+// =============================
+
+.logo-wrapper {
+  float: left;
+
+  .logo {
+    font-size: $logo-font-size;
+  }
+}
+
+@include max-screen() {
+  .logo-wrapper {
+    display: none;
+  }
+}
