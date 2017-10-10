@@ -640,3 +640,90 @@ private void offsetVertical(int offset) {
 github: [RefreshLayout](https://github.com/4ndroidev/RefreshLayout)
 
 ![recyclerview_sample.gif](/images/android-practical-layout/recyclerview_sample.gif)![nestedscrollview_sample.gif](/images/android-practical-layout/nestedscrollview_sample.gif)
+
+由于代码稍微有点多，仅贴嵌套滑动相关代码，其实该部分代码是参照`SwipeRefreshLayout`的。
+
+```java
+@Override
+public void onNestedScrollAccepted(View child, View target, int axes) {
+    mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
+    startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
+    // set it to current offset
+    // because maybe content view will get a touch down event while flinging hasn't been completed
+    mTotalUnconsumed = mCurrentOffset;
+    isNestedScrolling = true;
+    isOffset = mCurrentOffset > 0;
+}
+
+@Override
+public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    if (dy > 0 && mTotalUnconsumed > 0) {
+        // make header invisible
+        offsetChildren(-Math.min(mTotalUnconsumed, dy));
+        if (canRefresh && mRefreshHeader != null) {
+            mRefreshHeader.onPull(mCurrentOffset >= mRefreshThreshold, mCurrentOffset);
+        }
+        if (dy > mTotalUnconsumed) {
+            consumed[1] = dy - mTotalUnconsumed;
+            mTotalUnconsumed = 0;
+        } else {
+            mTotalUnconsumed -= dy;
+            consumed[1] = dy;
+        }
+    }
+    final int[] parentConsumed = mParentScrollConsumed;
+    if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
+        consumed[0] += parentConsumed[0];
+        consumed[1] += parentConsumed[1];
+    }
+}
+
+@Override
+public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, mParentOffsetInWindow);
+    int dy = dyUnconsumed + mParentOffsetInWindow[1];
+    if (dy < 0 && !mContent.canScrollVertically(DIRECTION_NEGATIVE)) {
+        if (mCurrentOffset == 0 && canRefresh && mRefreshHeader != null) {
+            mRefreshHeader.onPrepare();
+        }
+        int offset = (int) (Math.abs(dy) * DRAGGING_RATE);
+        mTotalUnconsumed += offset;
+        // make header visible
+        offsetChildren(offset);
+        if (!isOffset) {
+            isOffset = true;
+        }
+        if (canRefresh && mRefreshHeader != null) {
+            mRefreshHeader.onPull(mCurrentOffset >= mRefreshThreshold, mCurrentOffset);
+        }
+    }
+}
+
+@Override
+public void onStopNestedScroll(View target) {
+    mNestedScrollingParentHelper.onStopNestedScroll(target);
+    isNestedScrolling = false;
+    isOffset = false;
+    if (mCurrentOffset >= mRefreshThreshold) {
+        if (canRefresh) {
+            isRefreshing = true;
+            canRefresh = false;
+            if (mRefreshHeader != null) mRefreshHeader.onStart();
+            if (mListener != null) mListener.onRefresh();
+        }
+        if (isRefreshing) animateOffsetToRefreshPosition();
+        else animateOffsetToStartPosition();
+    } else if (!isRefreshing) {
+        if (mCurrentOffset > 0)
+            animateOffsetToStartPosition();
+        else {
+            canRefresh = true;
+        }
+    }
+    stopNestedScroll();
+}
+```
+
+## 总结
+
+根据自己需求定制组件，考虑通用性时，切勿过度定制。不要因为太简单而不做，不要因为太难而放弃。
