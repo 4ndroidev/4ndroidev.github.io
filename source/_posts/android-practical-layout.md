@@ -27,9 +27,19 @@ A: 别人的劳斯莱斯轮子未必适合我这破单车。另外，做自己�
 
 <!-- more -->
 
+## 样例
+
+国际惯例，先上个`Sample`，让大爷们玩玩。
+
+下载: [LayoutSample.apk](http://fir.im/v1j2)
+
+github: [https://github.com/4ndroidev/LayoutSample](https://github.com/4ndroidev/LayoutSample)
+
 ## FlowLayout
 
 描述：相对简单，只需要关注满行后换行操作。`onMeasure`和`onLayout`都是一个`for`循环的操作。另外使用`ListAdapter`实现子视图适配相对好，不局限于仅适合文本视图，其次在`RecyclerView`中使用时，`ViewHolder`的重用也可以达到子视图重用。由于比较简单，直接贴代码。
+
+![flowlayout.png](/images/android-practical-layout/flowlayout.png)
 
 ```java
 public class FlowLayout extends ViewGroup {
@@ -195,7 +205,9 @@ public class FlowLayout extends ViewGroup {
 
 ## NineGridLayout
 
-描述：相对简单，根据容器大小，分成三栏，额外根据子视图数目，特殊地，当子视图数目为一时，视图占两行两列；当子视图数目为四时，分布为两行两列；其余按照三个一排即可。同样适合使用`ListAdapter`作适配，上代码。
+描述：相对简单，根据容器大小，分成三栏；根据子视图数目布局，特殊地，当子视图数目为一时，视图占两行两列；当子视图数目为四时，分布为两行两列；其余按照三个一排即可。同样适合使用`ListAdapter`作适配，上代码。
+
+![ninegridlayout.png](/images/android-practical-layout/ninegridlayout.png)
 
 ```java
 public class NineGridLayout extends ViewGroup {
