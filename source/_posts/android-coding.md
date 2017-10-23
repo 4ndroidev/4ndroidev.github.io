@@ -9,7 +9,8 @@ tags:
 
 效果：
 
-<img height=640 width=360 src="/images/android-coding/coding.gif"></img>
+<iframe height=640 width=360 src="http://player.youku.com/embed/XMzEwNTUzNzAzMg" frameborder=0></iframe>
+
 
 github: https://github.com/4ndroidev/Coding
 
