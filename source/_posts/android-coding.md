@@ -9,7 +9,7 @@ tags:
 
 效果：
 
-<iframe height=640 width=360 src="/images/android-coding/coding.mp4"></iframe>
+<img height=640 width=360 src="/images/android-coding/coding.gif"></img>
 
 github: https://github.com/4ndroidev/Coding
 
