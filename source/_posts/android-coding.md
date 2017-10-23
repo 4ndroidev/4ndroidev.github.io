@@ -9,7 +9,7 @@ tags:
 
 效果：
 
-<iframe height=640 width=360 src="http://player.youku.com/embed/XMzEwNTUzNzAzMg" frameborder=0></iframe>
+<iframe height=640 width=360 src="http://player.youku.com/embed/XMzEwNTUzNzAzMg"></iframe>
 
 
 github: https://github.com/4ndroidev/Coding
