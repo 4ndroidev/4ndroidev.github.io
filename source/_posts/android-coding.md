@@ -11,7 +11,7 @@ tags:
 
 使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 coding 一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的 coding ，本文是 coding 的分享笔记，以后再做 okhttp 源码笔记。
 
-`开放接口` : [`https://developer.github.com/v3/`](`https://developer.github.com/v3/`)
+`开放接口` : [`https://developer.github.com/v3/`](https://developer.github.com/v3/)
 
 `项目地址` : [`https://github.com/4ndroidev/Coding`](https://github.com/4ndroidev/Coding)
 
