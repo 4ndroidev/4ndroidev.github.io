@@ -44,7 +44,7 @@
 <meta property="og:locale" content="zh-cn">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth.png">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth-result.png">
-<meta property="og:updated_time" content="2017-10-25T06:03:12.000Z">
+<meta property="og:updated_time" content="2017-10-25T06:15:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Coding">
 <meta name="twitter:description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
@@ -172,7 +172,7 @@
   <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#效果"><span class="toc-text">效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#手机视频测试"><span class="toc-text">手机视频测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码结构"><span class="toc-text">代码结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目依赖"><span class="toc-text">项目依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mvp结构"><span class="toc-text">mvp结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发题纲"><span class="toc-text">开发题纲</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#请求接口定义"><span class="toc-text">请求接口定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#view-amp-presenter"><span class="toc-text">view & presenter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#oauth-授权"><span class="toc-text">oauth 授权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#效果"><span class="toc-text">效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码结构"><span class="toc-text">代码结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目依赖"><span class="toc-text">项目依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mvp结构"><span class="toc-text">mvp结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发题纲"><span class="toc-text">开发题纲</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#请求接口定义"><span class="toc-text">请求接口定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#view-amp-presenter"><span class="toc-text">view & presenter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#oauth-授权"><span class="toc-text">oauth 授权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     </div>
   </div>
 
@@ -186,8 +186,7 @@
 <blockquote>
 <p><strong>声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标</strong></p>
 </blockquote>
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><div id="dplayer0" class="dplayer" style="margin-bottom: 20px; width:360px; height:640px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":0,"loop":1,"video":{"url":"/images/android-coding/coding.mp4","pic":"/images/android-coding/coding.png"}});</script>
-<h2 id="手机视频测试"><a href="#手机视频测试" class="headerlink" title="手机视频测试"></a>手机视频测试</h2><div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":0,"theme":"#FADFA3","loop":1,"video":{"url":"http://devtest.qiniudn.com/若能绽放光芒.mp4","pic":"http://devtest.qiniudn.com/若能绽放光芒.png"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo","addition":["https://dplayer.daoapp.io/bilibili?aid"]}});</script>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><div id="dplayer0" class="dplayer" style="margin-bottom: 20px; width:360px; height:640px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":0,"loop":1,"video":{"url":"https://raw.githubusercontent.com/4ndroidev/4ndroidev.github.io/master/images/android-coding/coding.mp4","pic":"https://raw.githubusercontent.com/4ndroidev/4ndroidev.github.io/master/images/android-coding/coding.png"}});</script>
 <a id="more"></a>
 <hr>
 <h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><h3 id="项目依赖"><a href="#项目依赖" class="headerlink" title="项目依赖"></a>项目依赖</h3><p>coding 使用了一些热门库：</p>
