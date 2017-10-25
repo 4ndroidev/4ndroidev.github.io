@@ -7,27 +7,15 @@ tags:
   - OAuth
 ---
 
-## 闲话
-
-使用[`okhttp`](https://github.com/square/okhttp)很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了下[`okhttp`](https://github.com/square/okhttp)源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用`github`的[`rest api v3`](https://developer.github.com/v3/)开放接口实现了评论系统[`comment.js`](https://github.com/wzpan/comment.js)，于是demo代码中的网络请求就试试`github`的[`rest api v3`](https://developer.github.com/v3/)开放接口。又因为之前也实现过类似`coding`一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的`coding`。
-
-如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。
-
 ## 简述
+
+使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 coding 一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的 coding ，本文是 coding 的分享笔记，以后再做 okhttp 源码笔记。
 
 `开放接口` : [`https://developer.github.com/v3/`](`https://developer.github.com/v3/`)
 
-`github` : [`https://github.com/4ndroidev/Coding`](https://github.com/4ndroidev/Coding)
+`项目地址` : [`https://github.com/4ndroidev/Coding`](https://github.com/4ndroidev/Coding)
 
-`coding`使用了一些比较热门的库，包括以下依赖：
-
-- [`okhttp`](https://github.com/square/okhttp)
-- [`retrofit`](https://github.com/square/retrofit)
-- [`rxjava`](https://github.com/ReactiveX/RxJava)
-- [`jackson`](https://github.com/FasterXML/jackson)
-- [`glide`](https://github.com/bumptech/glide)
-
-相信这些库都耳熟能详了，这里不介绍他们具体使用教程，只会用来举些例子。项目使用了`lambda`表达式结合`rxjava`，使用假`mvp`结构（后续说明），代码相对简洁。
+如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。
 
 > **声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标**
 
@@ -38,6 +26,18 @@ tags:
 <!-- more -->
 
 ## 代码结构
+
+### 项目依赖
+
+coding 使用了一些热门库：
+
+- [`okhttp`](https://github.com/square/okhttp)
+- [`retrofit`](https://github.com/square/retrofit)
+- [`rxjava`](https://github.com/ReactiveX/RxJava)
+- [`jackson`](https://github.com/FasterXML/jackson)
+- [`glide`](https://github.com/bumptech/glide)
+
+此外，项目使用了`lambda`表达式结合`rxjava`，使用假`mvp`结构（后续说明），代码比较简洁
 
 ### 目录结构
 
@@ -100,7 +100,7 @@ coding/src/main/java/com/androidev/coding/module
 
 github rest api v3 支持挺丰富的，而目前需要的信息: repo, commit, tree 和 blob，其他以后再关注。
 
-在定义接口时，往往需要知道实体类内容，可以直接到[`https://developer.github.com/v3/`](`https://developer.github.com/v3/`)找相关json格式，或自行在浏览器中发起请求。实体类可以通过 Android Studio 的 GsonFormat 插件直接生成。
+在定义接口时，往往需要知道实体类内容，可以直接到[`https://developer.github.com/v3/`](`https://developer.github.com/v3/`)找相关 json 格式，或自行在浏览器中发起请求。实体类可以通过 Android Studio 的 GsonFormat 插件直接生成。
 
 
 定义请求接口代码
