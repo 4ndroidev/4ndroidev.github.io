@@ -1,4 +1,4 @@
-title: android-coding
+title: Android Coding
 date: 2017-10-23 21:45:38
 tags:
   - Android
@@ -24,6 +24,8 @@ tags:
 {% dplayer "width=360px" "height=640px" "url=/images/android-coding/coding.mp4" "pic=/images/android-coding/coding.png" "loop=yes" "autoplay=false" %}
 
 <!-- more -->
+
+---
 
 ## 代码结构
 
@@ -89,6 +91,8 @@ coding/src/main/java/com/androidev/coding/module
     ├── MainFragment.java
     └── MainPresenter.java
 ```
+
+---
 
 ## 开发题纲
 
@@ -459,8 +463,183 @@ class CodePresenter {
 }
 
 ```
+---
 
 ### oauth 授权
 
 github rest api v3 有访问限制，[`https://developer.github.com/v3/#rate-limiting`](https://developer.github.com/v3/#rate-limiting)；短时间内，同一个 ip 访问开放接口的次数不大于*60次*。然而用户通过 oauth 进行登录授权，即可访问次数即可增大至*5000次*，够大方的，amazing!
 
+github oauth 文档 : [点我查阅](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/)
+
+完成整个 oauth 授权，需要以下步骤:
+
+1. 注册 oauth 应用
+2. 登录授权，获取 access_token
+3. 使用 access_token 进行请求访问
+
+**1. 注册 oauth 应用**
+
+官方图文步骤 : [点我查阅](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/registering-oauth-apps/)
+
+*注册流程*
+
+![register-oauth](/images/android-coding/register-oauth.png)
+
+*注册结果*
+
+![register-oauth-result](/images/android-coding/register-oauth-result.png)
+
+**2. 登录获取 access_token**
+
+使用 webview 加载登录页面，登录完会重定向至第一步填写的 Authorization callback URL 并拼接上了 code 参数，接下来，使用 code, client id 以及 client secret 获取 access_token；在这里，遇到个巨坑，貌似 Android 5.0.2 的 user-agent 被 github 拉黑了，授权时提示不再支持你的浏览器，于是随便设置了其他 user-agent 便没问题。
+
+```java
+public class AuthActivity extends BaseActivity {
+
+  private WebView mWebView;
+  private AuthPresenter mPresenter;
+
+  @Override
+  @SuppressWarnings("all")
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.coding_activity_auth);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    mWebView = (WebView) findViewById(R.id.coding_web_view);
+    WebSettings settings = mWebView.getSettings();
+    settings.setJavaScriptEnabled(true);
+    settings.setUserAgentString(APP); //遇到个巨坑，Android 5.0.2 的 UA 已经被 github 拉黑
+    mWebView.setBackgroundColor(Color.TRANSPARENT);
+    mWebView.setWebViewClient(new WebViewClient() {
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if (url.startsWith(REDIRECT_URI)) {
+          mPresenter.code4token(Uri.parse(url).getQueryParameter(KEY_AUTHORIZE_CODE));
+          return true;
+        }
+        return super.shouldOverrideUrlLoading(view, url);
+      }
+
+      @Override
+      public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+        showLoading();
+      }
+
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        if (!url.startsWith(REDIRECT_URI)) {
+          dismissLoading();
+        }
+      }
+
+    });
+    mPresenter = new AuthPresenter(this);
+    mPresenter.startAuthorize();
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    mWebView.destroy();
+  }
+
+  void loadUrl(String url) {
+    mWebView.loadUrl(url);
+  }
+
+  void onResult(boolean success) {
+    mWebView.post(() -> {
+      dismissLoading();
+      int message = success ? R.string.coding_authorize_success : R.string.coding_authorize_failure;
+      Toast.makeText(AuthActivity.this, message, Toast.LENGTH_SHORT).show();
+      setResult(success ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
+      finish();
+    });
+  }
+
+}
+
+class AuthPresenter {
+
+  private AuthActivity mView;
+
+  AuthPresenter(AuthActivity view) {
+      mView = view;
+  }
+
+  void startAuthorize() {
+    String format = "%s?client_id=%s&redirect_uri=%s";
+    String url = String.format(format, AUTHORIZE_URL, CLIENT_ID, REDIRECT_URI);
+    mView.loadUrl(url);
+  }
+
+  void code4token(String code) {
+    OkHttpClient okHttpClient = GitHub.getHttpClient();
+    RequestBody body = new FormBody.Builder()
+        .add(KEY_CLIENT_ID, CLIENT_ID)
+        .add(KEY_CLIENT_SECRET, CLIENT_SECRET)
+        .add(KEY_AUTHORIZE_CODE, code)
+        .build();
+    Request request = new Request.Builder()
+        .url(ACCESS_TOKEN_URL)
+        .post(body)
+        .header("Accept", "application/json")
+        .build();
+    okHttpClient.newCall(request).enqueue(new Callback() {
+      @Override
+      public void onFailure(Call call, IOException e) {
+        onResult(null);
+      }
+
+      @Override
+      public void onResponse(Call call, Response response) throws IOException {
+        ResponseBody responseBody = response.body();
+        if (responseBody == null) {
+          onResult(null);
+          return;
+        }
+        Auth auth = GitHub.getObjectMapper().readValue(responseBody.bytes(), Auth.class);
+        onResult(auth.access_token);
+      }
+    });
+  }
+
+  private void onResult(String token) {
+    GitHub.getInstance().authorize(token);
+    mView.getSharedPreferences(APP, Context.MODE_PRIVATE).edit().putString(KEY_TOKEN, token).apply();
+    mView.onResult(!TextUtils.isEmpty(token));
+  }
+
+}
+```
+
+**3. 使用 access_token 进行请求 **
+
+github 推介将 access_token 作为名为 Authorization 的请求头，因此可以直接给 okhttpclient 设置拦截器，拦截器代码如下:
+
+```java
+public class AuthorizeInterceptor implements Interceptor {
+
+    private String token;
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        if (TextUtils.isEmpty(token)) {
+            return chain.proceed(chain.request());
+        }
+        Headers.Builder headersBuilder = chain.request().headers().newBuilder();
+        headersBuilder.add("Authorization", "token " + token);
+        return chain.proceed(chain.request().newBuilder().headers(headersBuilder.build()).build());
+    }
+}
+```
+
+## 总结
+
+使用 github-rest-api-v3 进行练手还是挺舒服的，同时可以练习 retrofit, rxjava等框架代码。okhttp 代码至今也学习了些知识，后续会做些通俗易懂的分享。
