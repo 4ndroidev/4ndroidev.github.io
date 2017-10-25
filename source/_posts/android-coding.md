@@ -15,6 +15,8 @@ tags:
 
 `项目地址` : [`https://github.com/4ndroidev/Coding`](https://github.com/4ndroidev/Coding)
 
+`下载样例` : [`http://fir.im/hb1w`](http://fir.im/hb1w)
+
 如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。
 
 > **声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标**
