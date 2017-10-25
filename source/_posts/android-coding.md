@@ -103,7 +103,7 @@ github rest api v3 支持挺丰富的，而目前需要的信息: repo, commit, 
 在定义接口时，往往需要知道实体类内容，可以直接到[`https://developer.github.com/v3/`](`https://developer.github.com/v3/`)找相关 json 格式，或自行在浏览器中发起请求。实体类可以通过 Android Studio 的 GsonFormat 插件直接生成。
 
 
-定义请求接口代码
+**定义请求接口代码**
 
 ```java
 public interface RestApi {
@@ -136,7 +136,7 @@ public interface RestApi {
 }
 ```
 
-创建 retrofit 对象代码
+**创建 retrofit 对象代码**
 
 ```java
 public void initialize(Context context) {
@@ -164,11 +164,18 @@ public void initialize(Context context) {
 
 ### view & presenter
 
-mvp 目前比较热门，将业务功能从 view 层抽离到 presenter 中才处理，presenter 作为中间层，联系 model 和 view， view 不会对 model 写数据，只会读取 model 数据进行展示。这样一方面代码相对清晰，另一方面更便于维护。
+mvp 目前比较热门，将业务逻辑从 view 层抽离到 presenter 中才处理，presenter 作为中间层，联系 model 和 view， view 不会对 model 写数据，只会读取 model 数据进行展示。这样一方面代码相对清晰，另一方面更便于维护。
 
-view 层代码中，如大部分 app 一样，coding 使用 recyclerview 展示列表数据，包括 commit 列表，diff 列表和代码目录；代码展示和 markdown 展示则使用 webview 加载模板与内容。
+view 层代码中，如大部分 app 一样，coding 使用 recyclerview 展示列表数据，实现**下拉刷新**和**上拉加载**更多功能。coding 中使用 recyclerview 的地方包括 commit 列表，diff 列表和代码目录；coding 的代码展示和 markdown 展示，读取本地 html 模板和拉取网络内容进行合并，再用 webview 加载。
 
-CommitsActivity.java
+presenter 层代码中，使用 retrofit 结合 rxjava，配合 lambda 表达式，如英雄联盟界的大司马老师说：**舒服!**
+
+以下将贴一下** commit 列表 **和** 代码展示 **进行举例
+
+
+** commit 列表**
+
+*com/androidev/coding/module/commit/CommitsActivity.java*
 
 ```java
 public class CommitsActivity extends BaseActivity {
@@ -222,7 +229,7 @@ public class CommitsActivity extends BaseActivity {
 }
 ```
 
-CommitsPresenter.java 
+*com/androidev/coding/module/commit/CommitsPresenter.java*
 
 ```java
 class CommitsPresenter {
@@ -276,3 +283,184 @@ class CommitsPresenter {
 }
 
 ```
+
+---
+
+** 代码展示 **
+
+*com/androidev/coding/module/code/CodeActivity.java*
+
+```
+public class CodeActivity extends BaseActivity {
+
+    private WebView mWebView;
+
+    @Override
+    @SuppressWarnings("all")
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.coding_activity_code);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mWebView = (WebView) findViewById(R.id.coding_web_view);
+        mWebView.setBackgroundColor(Color.TRANSPARENT);
+        WebSettings settings = mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setTextZoom(80);
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                stopLoading();
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+                return true;
+            }
+        });
+        new CodePresenter(this).load();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mWebView.destroy();
+    }
+
+    void startLoading() {
+        findViewById(R.id.coding_loading).setVisibility(View.VISIBLE);
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.coding_loading_rotate_animation);
+        animation.setRepeatMode(Animation.INFINITE);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setInterpolator(new LinearInterpolator());
+        animation.setDuration(3000);
+        findViewById(R.id.coding_loading_anim).startAnimation(animation);
+    }
+
+    void stopLoading() {
+        findViewById(R.id.coding_loading_anim).clearAnimation();
+        findViewById(R.id.coding_loading).setVisibility(View.GONE);
+    }
+
+    void setError(Throwable throwable) {
+        stopLoading();
+        throwable.printStackTrace();
+    }
+
+    void setData(String data) {
+        mWebView.loadDataWithBaseURL(BASE_URL, data, "text/html", "UTF-8", null);
+    }
+
+}
+```
+
+*com/androidev/coding/module/code/CodePresenter.java*
+
+```java
+class CodePresenter {
+
+    private CodeActivity mView;
+    private String mPath;
+    private String mOwner;
+    private String mRepo;
+    private String mSha;
+    private int mType;
+
+    CodePresenter(CodeActivity view) {
+        mView = view;
+        Intent intent = mView.getIntent();
+        mOwner = intent.getStringExtra(OWNER);
+        mRepo = intent.getStringExtra(REPO);
+        mPath = intent.getStringExtra(PATH);
+        mSha = intent.getStringExtra(SHA);
+        mType = intent.getIntExtra(TYPE, TYPE_CODE);
+        if (TYPE_README == mType) {
+            mView.setTitle(R.string.coding_readme);
+            mPath = README_MD_LOWERCASE;
+        } else {
+            mView.setTitle(mPath.substring(mPath.lastIndexOf("/") + 1));
+        }
+    }
+
+    // 读取 html 模版，请求文件内容，合并，以及展示
+    void load() {
+        mView.startLoading();
+        RestApi api = GitHub.getApi();
+        Observable<String> readTemplate = readTemplate();
+        Observable<ResponseBody> requestRaw;
+        switch (mType) {
+            case TYPE_DIFF:
+                requestRaw = Observable.just(ResponseBody.create(null, mView.getIntent().getStringExtra(PATCH)));
+                break;
+            case TYPE_README:
+                requestRaw = api.tree(mOwner, mRepo, mSha).switchMap(tree -> api.raw(mOwner, mRepo, tree4readme(tree)));
+                break;
+            case TYPE_CODE:
+            default:
+                requestRaw = api.raw(mOwner, mRepo, mSha);
+                break;
+        }
+        // 类似 javascript 的 Promise.all 方法，舒服，有兴趣的同学自行学习
+        Observable.zip(readTemplate, requestRaw, this::applyTemplate)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mView::setData, mView::setError);
+    }
+
+    private String tree4readme(Tree data) {
+        for (Tree.Node node : data.tree) {
+            if (node.path.toLowerCase().equals(README_MD_LOWERCASE)) {
+                return node.sha;
+            }
+        }
+        throw new IllegalStateException("can not find readme in the repo.");
+    }
+
+    // 目前三种模版，diff.html，markdown.html 和 code.html，提取自真 coding 开源代码
+    private Observable<String> readTemplate() {
+        return Observable.create(e -> {
+            String path;
+            switch (mType) {
+                case TYPE_DIFF:
+                    path = "coding/diff.html";
+                    break;
+                case TYPE_README:
+                    path = "coding/markdown.html";
+                    break;
+                case TYPE_CODE:
+                default:
+                    path = mPath.endsWith(".md") ? "coding/markdown.html" : "coding/code.html";
+                    break;
+            }
+            BufferedSource source = Okio.buffer(Okio.source(mView.getAssets().open(path)));
+            String template = new String(source.readByteArray());
+            source.close();
+            e.onNext(template);
+            e.onComplete();
+        });
+    }
+
+    // 合并请求内容到模版中，处理一些特殊字符
+    private String applyTemplate(String template, ResponseBody body) throws IOException {
+        String content = body.string();
+        if (TYPE_DIFF == mType) {
+            content = content.replace("\u2028", "").replace("\u2029", "");
+        } else if (TYPE_README == mType || mPath.endsWith(".md")) {
+            content = content.replace("\n", "\\n").replace("\"", "\\\"").replace("'", "\\'");
+        } else {
+            content = content.replace("\u2028", "").replace("\u2029", "")
+                    .replace("<", "&lt;").replace(">", "&gt;");
+        }
+        return template.replace("${content_placeholder}", content)
+                .replace("${lang_placeholder}", mPath.substring(mPath.lastIndexOf(".") + 1));
+    }
+}
+
+```
+
+### oauth 授权
+
+github rest api v3 有访问限制，[`https://developer.github.com/v3/#rate-limiting`](https://developer.github.com/v3/#rate-limiting)；短时间内，同一个 ip 访问开放接口的次数不大于*60次*。然而用户通过 oauth 进行登录授权，即可访问次数即可增大至*5000次*，够大方的，amazing!
+
