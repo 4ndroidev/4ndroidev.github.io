@@ -21,7 +21,7 @@ tags:
 
 ## 效果
 
-{% dplayer "width=360px" "height=640px" "url=/images/android-coding/coding.mp4" "pic=/images/android-coding/coding.png" "loop=yes" "autoplay=false" %}
+<img src=/images/android-coding/main.png width=252 height=448/><img src=/images/android-coding/commits.png width=252 height=448/><img src=/images/android-coding/commit.png width=252 height=448/><img src=/images/android-coding/diff.png width=252 height=448/><img src=/images/android-coding/tree.png width=252 height=448/><img src=/images/android-coding/code.png width=252 height=448/>
 
 <!-- more -->
 
