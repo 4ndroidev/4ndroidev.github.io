@@ -69,7 +69,7 @@
 
 
     <title> 4ndroidev Note </title>
-  </head>
+  <script src="/assets/js/DPlayer.min.js"></script></head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
   <div class="mobile-header-logo">
@@ -145,6 +145,56 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts">
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          <a class="post-link" href="/2017/10/23/android-coding/">Android Coding</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年10月23日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 coding 一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的 coding ，本文是 coding 的分享笔记，以后再做 okhttp 源码笔记。</p>
+<p><code>开放接口</code> : <a href="`https://developer.github.com/v3/`"><code>https://developer.github.com/v3/</code></a></p>
+<p><code>项目地址</code> : <a href="https://github.com/4ndroidev/Coding" target="_blank" rel="external"><code>https://github.com/4ndroidev/Coding</code></a></p>
+<p>如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。</p>
+<blockquote>
+<p><strong>声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标</strong></p>
+</blockquote>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><div id="dplayer0" class="dplayer" style="margin-bottom: 20px; width:360px; height:640px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":0,"loop":1,"video":{"url":"/images/android-coding/coding.mp4","pic":"/images/android-coding/coding.png"}});</script>
+<h2 id="手机视频测试"><a href="#手机视频测试" class="headerlink" title="手机视频测试"></a>手机视频测试</h2><div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":0,"theme":"#FADFA3","loop":1,"video":{"url":"http://devtest.qiniudn.com/若能绽放光芒.mp4","pic":"http://devtest.qiniudn.com/若能绽放光芒.png"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo","addition":["https://dplayer.daoapp.io/bilibili?aid"]}});</script>
+          <div class="read-more">
+            <a href="/2017/10/23/android-coding/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
     
       
   <article class="post">
@@ -733,5 +783,4 @@
 <script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
 
     
-  </body>
-</html>
+  <link rel="stylesheet" type="text/css" href="/assets/css/DPlayer.min.css"></link>

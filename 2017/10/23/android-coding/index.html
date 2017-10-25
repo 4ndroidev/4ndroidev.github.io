@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Android Coding"/>
+
+
+
+
+  <meta name="keywords" content="Android,Coding,Github Restful API,OAuth," />
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="4ndroidev Note">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=2.4.x" />
+
+
+
+<link rel="canonical" href="http://4ndroidev.github.io/2017/10/23/android-coding/"/>
+
+
+<meta name="description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
+<meta name="keywords" content="Android,Coding,Github Restful API,OAuth">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Coding">
+<meta property="og:url" content="http://4ndroidev.github.io/2017/10/23/android-coding/index.html">
+<meta property="og:site_name" content="4ndroidev Note">
+<meta property="og:description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth-result.png">
+<meta property="og:updated_time" content="2017-10-25T06:03:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Coding">
+<meta name="twitter:description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
+
+
+
+
+
+
+
+<script>
+  var CONFIG = {
+    search: false,
+    searchPath: "/search.xml",
+    fancybox: false,
+    toc: true,
+  }
+</script>
+
+
+
+
+  
+
+
+
+    <title> Android Coding · 4ndroidev Note </title>
+  <script src="/assets/js/DPlayer.min.js"></script></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">4ndroidev Note</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            Home
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            Archives
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">4ndroidev Note</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android Coding
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年10月23日
+        </span>
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#效果"><span class="toc-text">效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#手机视频测试"><span class="toc-text">手机视频测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码结构"><span class="toc-text">代码结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目依赖"><span class="toc-text">项目依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mvp结构"><span class="toc-text">mvp结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发题纲"><span class="toc-text">开发题纲</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#请求接口定义"><span class="toc-text">请求接口定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#view-amp-presenter"><span class="toc-text">view & presenter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#oauth-授权"><span class="toc-text">oauth 授权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 coding 一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的 coding ，本文是 coding 的分享笔记，以后再做 okhttp 源码笔记。</p>
+<p><code>开放接口</code> : <a href="`https://developer.github.com/v3/`"><code>https://developer.github.com/v3/</code></a></p>
+<p><code>项目地址</code> : <a href="https://github.com/4ndroidev/Coding" target="_blank" rel="external"><code>https://github.com/4ndroidev/Coding</code></a></p>
+<p>如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。</p>
+<blockquote>
+<p><strong>声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标</strong></p>
+</blockquote>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><div id="dplayer0" class="dplayer" style="margin-bottom: 20px; width:360px; height:640px;"></div><script>var dplayer0 = new DPlayer({"element":document.getElementById("dplayer0"),"autoplay":0,"loop":1,"video":{"url":"/images/android-coding/coding.mp4","pic":"/images/android-coding/coding.png"}});</script>
+<h2 id="手机视频测试"><a href="#手机视频测试" class="headerlink" title="手机视频测试"></a>手机视频测试</h2><div id="dplayer1" class="dplayer" style="margin-bottom: 20px;"></div><script>var dplayer1 = new DPlayer({"element":document.getElementById("dplayer1"),"autoplay":0,"theme":"#FADFA3","loop":1,"video":{"url":"http://devtest.qiniudn.com/若能绽放光芒.mp4","pic":"http://devtest.qiniudn.com/若能绽放光芒.png"},"danmaku":{"api":"http://dplayer.daoapp.io","id":"9E2E3368B56CDBB4","token":"tokendemo","addition":["https://dplayer.daoapp.io/bilibili?aid"]}});</script>
+<a id="more"></a>
+<hr>
+<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><h3 id="项目依赖"><a href="#项目依赖" class="headerlink" title="项目依赖"></a>项目依赖</h3><p>coding 使用了一些热门库：</p>
+<ul>
+<li><a href="https://github.com/square/okhttp" target="_blank" rel="external"><code>okhttp</code></a></li>
+<li><a href="https://github.com/square/retrofit" target="_blank" rel="external"><code>retrofit</code></a></li>
+<li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="external"><code>rxjava</code></a></li>
+<li><a href="https://github.com/FasterXML/jackson" target="_blank" rel="external"><code>jackson</code></a></li>
+<li><a href="https://github.com/bumptech/glide" target="_blank" rel="external"><code>glide</code></a></li>
+</ul>
+<p>此外，项目使用了<code>lambda</code>表达式结合<code>rxjava</code>，使用假<code>mvp</code>结构（后续说明），代码比较简洁</p>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><figure class="highlight dts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">coding<span class="meta-keyword">/src/</span>main<span class="meta-keyword">/java/</span>com<span class="meta-keyword">/androidev/</span>coding/</div><div class="line">├── misc             <span class="comment">// 常量和工具类</span></div><div class="line">├── model            <span class="comment">// 实体类                                                  </span></div><div class="line">├── module           <span class="comment">// 功能模块</span></div><div class="line">│   ├── auth         <span class="comment">// github登录授权</span></div><div class="line">│   ├── base         <span class="comment">// 基础类</span></div><div class="line">│   ├── code         <span class="comment">// 代码目录及展示页面</span></div><div class="line">│   ├── commit       <span class="comment">// commit列表与单个commit的diff列表页面</span></div><div class="line">│   ├── image        <span class="comment">// 图片展示页面</span></div><div class="line">│   └── main         <span class="comment">// 主页</span></div><div class="line">├── network          <span class="comment">// 网络模块</span></div><div class="line">│   └── interceptor  <span class="comment">// 网络请求拦截器，主要用于登录鉴权，增大访问限制</span></div><div class="line">└── widget           <span class="comment">// UI组件</span></div></pre></td></tr></table></figure>
+<h3 id="mvp结构"><a href="#mvp结构" class="headerlink" title="mvp结构"></a>mvp结构</h3><blockquote>
+<p>假<code>mvp</code>，这里没有像<code>google</code>推荐的那样<code>view</code>层和<code>presenter</code>层定义成接口存于一个<code>contract</code>类中。because <code>view</code>层和<code>presenter</code>层目前都只有单一实现，无需定义成接口，方便定位问题。老实说，个人认为不应随便定义接口，项目大了后容易出现混乱，接口最好在多态或回调时定义，尽可能减少单一实现的接口定义，maybe 这是个歪理。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">coding/src/main/java/com/androidev/coding/module</div><div class="line">├── auth</div><div class="line">│   ├── AuthActivity.java</div><div class="line">│   └── AuthPresenter.java</div><div class="line">├── base</div><div class="line">│   └── BaseActivity.java</div><div class="line">├── code</div><div class="line">│   ├── CodeActivity.java</div><div class="line">│   ├── CodePresenter.java</div><div class="line">│   ├── TreeActivity.java</div><div class="line">│   ├── TreePresenter.java</div><div class="line">│   └── adapter</div><div class="line">│       └── TreeAdapter.java</div><div class="line">├── commit</div><div class="line">│   ├── CommitActivity.java</div><div class="line">│   ├── CommitPresenter.java</div><div class="line">│   ├── CommitsActivity.java</div><div class="line">│   ├── CommitsPresenter.java</div><div class="line">│   └── adapter</div><div class="line">│       ├── CommitAdapter.java</div><div class="line">│       └── CommitsAdapter.java</div><div class="line">├── image</div><div class="line">│   └── ImageActivity.java</div><div class="line">└── main</div><div class="line">    ├── MainFragment.java</div><div class="line">    └── MainPresenter.java</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="开发题纲"><a href="#开发题纲" class="headerlink" title="开发题纲"></a>开发题纲</h2><ul>
+<li>定义请求接口，创建 retrofit 对象</li>
+<li>编写 view 和 presenter，实现查阅功能</li>
+<li>实现 oauth 授权功能，增大访问限制</li>
+</ul>
+<h3 id="请求接口定义"><a href="#请求接口定义" class="headerlink" title="请求接口定义"></a>请求接口定义</h3><p>github rest api v3 支持挺丰富的，而目前需要的信息: repo, commit, tree 和 blob，其他以后再关注。</p>
+<p>在定义接口时，往往需要知道实体类内容，可以直接到<a href="`https://developer.github.com/v3/`"><code>https://developer.github.com/v3/</code></a>找相关 json 格式，或自行在浏览器中发起请求。实体类可以通过 Android Studio 的 GsonFormat 插件直接生成。</p>
+<p><strong>定义请求接口代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RestApi</span> </span>&#123;</div><div class="line"></div><div class="line">    String REPO_FORMAT = <span class="string">"repos/&#123;owner&#125;/&#123;repo&#125;"</span>;</div><div class="line"></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT)</div><div class="line">    <span class="function">Observable&lt;Repo&gt; <span class="title">repo</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo)</span>;</div><div class="line"></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/commits"</span>)</div><div class="line">    Observable&lt;List&lt;Commit&gt;&gt; commits(<span class="meta">@Path</span>(<span class="string">"owner"</span>) String owner, <span class="meta">@Path</span>(<span class="string">"repo"</span>) String repo, <span class="meta">@QueryMap</span> Map&lt;String, Object&gt; data);</div><div class="line"></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/commits/&#123;sha&#125;"</span>)</div><div class="line">    <span class="function">Observable&lt;Commit&gt; <span class="title">commit</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo, @<span class="title">Path</span><span class="params">(<span class="string">"sha"</span>)</span> String sha)</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 暂时用不到</span></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/branches/&#123;branch&#125;"</span>)</div><div class="line">    <span class="function">Observable&lt;Branch&gt; <span class="title">branch</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo, @<span class="title">Path</span><span class="params">(<span class="string">"branch"</span>)</span> String branch)</span>;</div><div class="line"></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/git/trees/&#123;sha&#125;"</span>)</div><div class="line">    <span class="function">Observable&lt;Tree&gt; <span class="title">tree</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo, @<span class="title">Path</span><span class="params">(<span class="string">"sha"</span>)</span> String sha)</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 暂时用不到</span></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/git/blobs/&#123;sha&#125;"</span>)</div><div class="line">    <span class="function">Observable&lt;Blob&gt; <span class="title">blob</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo, @<span class="title">Path</span><span class="params">(<span class="string">"sha"</span>)</span> String sha)</span>;</div><div class="line"></div><div class="line">    <span class="meta">@GET</span>(REPO_FORMAT + <span class="string">"/git/blobs/&#123;sha&#125;"</span>)</div><div class="line">    <span class="meta">@Headers</span>(&#123;HEADER_ACCEPT + <span class="string">": "</span> + MEDIA_TYPE_RAW&#125;)</div><div class="line">    <span class="function">Observable&lt;ResponseBody&gt; <span class="title">raw</span><span class="params">(@Path(<span class="string">"owner"</span>)</span> String owner, @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo, @<span class="title">Path</span><span class="params">(<span class="string">"sha"</span>)</span> String sha)</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>创建 retrofit 对象代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        authorizeInterceptor = <span class="keyword">new</span> AuthorizeInterceptor();</div><div class="line">        authorizeInterceptor.setToken(context.getSharedPreferences(APP, Context.MODE_PRIVATE).getString(KEY_TOKEN, <span class="string">""</span>));</div><div class="line">        File cachePath = <span class="keyword">new</span> File(context.getExternalCacheDir(), <span class="string">"coding"</span>);</div><div class="line">        okHttpClient = <span class="keyword">new</span> OkHttpClient.Builder()</div><div class="line">                .cache(<span class="keyword">new</span> Cache(cachePath, <span class="number">30</span> * <span class="number">1024</span> * <span class="number">1024</span><span class="comment">/* 30MB */</span>))</div><div class="line">                .addInterceptor(authorizeInterceptor)</div><div class="line">                .addNetworkInterceptor(<span class="keyword">new</span> RateLimitInterceptor())</div><div class="line">                .build();</div><div class="line">        objectMapper = <span class="keyword">new</span> ObjectMapper();</div><div class="line">        Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">                .baseUrl(BASE_URL)</div><div class="line">                .callFactory(okHttpClient)</div><div class="line">                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())</div><div class="line">                .addConverterFactory(JacksonConverterFactory.create(objectMapper))</div><div class="line">                .build();</div><div class="line">        restApi = retrofit.create(RestApi.class);</div><div class="line">        rateLimit = <span class="keyword">new</span> RateLimit();</div><div class="line">        uiHandler = <span class="keyword">new</span> Handler(Looper.getMainLooper());</div><div class="line">        onRateLimitChangedListeners = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h3 id="view-amp-presenter"><a href="#view-amp-presenter" class="headerlink" title="view &amp; presenter"></a>view &amp; presenter</h3><p>mvp 目前比较热门，将业务逻辑从 view 层抽离到 presenter 中才处理，presenter 作为中间层，联系 model 和 view， view 不会对 model 写数据，只会读取 model 数据进行展示。这样一方面代码相对清晰，另一方面更便于维护。</p>
+<p>view 层代码中，如大部分 app 一样，coding 使用 recyclerview 展示列表数据，实现<strong>下拉刷新</strong>和<strong>上拉加载</strong>更多功能。coding 中使用 recyclerview 的地方包括 commit 列表，diff 列表和代码目录；coding 的代码展示和 markdown 展示，读取本地 html 模板和拉取网络内容进行合并，再用 webview 加载。</p>
+<p>presenter 层代码中，使用 retrofit 结合 rxjava，配合 lambda 表达式，如英雄联盟界的大司马老师说：<strong>舒服!</strong></p>
+<p>以下将贴一下<strong> commit 列表 </strong>和<strong> 代码展示 </strong>进行举例</p>
+<p><strong> commit 列表</strong></p>
+<p><em>com/androidev/coding/module/commit/CommitsActivity.java</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommitsActivity</span> <span class="keyword">extends</span> <span class="title">BaseActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> RefreshLayout mRefreshLayout;</div><div class="line">    <span class="keyword">private</span> CommitsAdapter mAdapter;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        SwipeBackLayout.attachTo(<span class="keyword">this</span>);</div><div class="line">        setContentView(R.layout.coding_activity_commits);</div><div class="line">        CommitsPresenter presenter = <span class="keyword">new</span> CommitsPresenter(<span class="keyword">this</span>);</div><div class="line">        mAdapter = <span class="keyword">new</span> CommitsAdapter();</div><div class="line">        mAdapter.setOnLoadListener(presenter::load);</div><div class="line">        mAdapter.setOnItemClickListener((v, position, data) -&gt; &#123;</div><div class="line">            Intent intent = getIntent();</div><div class="line">            intent.putExtra(SHA, data.sha);</div><div class="line">            intent.setClass(<span class="keyword">this</span>, CommitActivity.class);</div><div class="line">            startActivity(intent);</div><div class="line">        &#125;);</div><div class="line">        mRefreshLayout = (RefreshLayout) findViewById(R.id.coding_refresh_layout);</div><div class="line">        mRefreshLayout.setOnRefreshListener(presenter::refresh);</div><div class="line">        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.coding_recycler_view);</div><div class="line">        recyclerView.setLayoutManager(<span class="keyword">new</span> LinearLayoutManager(<span class="keyword">this</span>, LinearLayoutManager.VERTICAL, <span class="keyword">false</span>));</div><div class="line">        recyclerView.setAdapter(mAdapter);</div><div class="line">        presenter.refresh();</div><div class="line">        showLoading(); <span class="comment">//just one time</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setData</span><span class="params">(List&lt;Commit&gt; commits)</span> </span>&#123;</div><div class="line">        dismissLoading();</div><div class="line">        mRefreshLayout.setRefreshing(<span class="keyword">false</span>);</div><div class="line">        mAdapter.setData(commits);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setError</span><span class="params">(Throwable throwable)</span> </span>&#123;</div><div class="line">        dismissLoading();</div><div class="line">        mRefreshLayout.setRefreshing(<span class="keyword">false</span>);</div><div class="line">        throwable.printStackTrace();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">appendData</span><span class="params">(List&lt;Commit&gt; commits)</span> </span>&#123;</div><div class="line">        setLoading(<span class="keyword">false</span>);</div><div class="line">        mAdapter.appendData(commits);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setLoading</span><span class="params">(<span class="keyword">boolean</span> loading)</span> </span>&#123;</div><div class="line">        mAdapter.setLoading(loading);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>com/androidev/coding/module/commit/CommitsPresenter.java</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CommitsPresenter</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> PAGE_NO = <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> PER_PAGE = <span class="number">20</span>;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String mSha;</div><div class="line">    <span class="keyword">private</span> String mOwner;</div><div class="line">    <span class="keyword">private</span> String mRepo;</div><div class="line">    <span class="keyword">private</span> CommitsActivity mView;</div><div class="line"></div><div class="line">    CommitsPresenter(CommitsActivity view) &#123;</div><div class="line">        mView = view;</div><div class="line">        Intent intent = mView.getIntent();</div><div class="line">        mOwner = intent.getStringExtra(OWNER);</div><div class="line">        mRepo = intent.getStringExtra(REPO);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> </span>&#123;</div><div class="line">        Map&lt;String, Object&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">        data.put(<span class="string">"page"</span>, PAGE_NO);</div><div class="line">        data.put(<span class="string">"per_page"</span>, PER_PAGE);</div><div class="line">        GitHub.getApi().commits(mOwner, mRepo, data)</div><div class="line">                .subscribeOn(Schedulers.io())</div><div class="line">                .observeOn(AndroidSchedulers.mainThread())</div><div class="line">                .doAfterNext(<span class="keyword">this</span>::setSha)</div><div class="line">                .subscribe(mView::setData, mView::setError);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">load</span><span class="params">()</span> </span>&#123;</div><div class="line">        mView.setLoading(<span class="keyword">true</span>);</div><div class="line">        Map&lt;String, Object&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">        data.put(<span class="string">"page"</span>, PAGE_NO);</div><div class="line">        data.put(<span class="string">"per_page"</span>, PER_PAGE);</div><div class="line">        data.put(<span class="string">"sha"</span>, mSha);</div><div class="line">        GitHub.getApi().commits(mOwner, mRepo, data)</div><div class="line">                .subscribeOn(Schedulers.io())</div><div class="line">                .observeOn(AndroidSchedulers.mainThread())</div><div class="line">                .doAfterNext(<span class="keyword">this</span>::setSha)</div><div class="line">                .subscribe(mView::appendData, mView::setError);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setSha</span><span class="params">(List&lt;Commit&gt; commits)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (commits == <span class="keyword">null</span> || commits.size() == <span class="number">0</span>) <span class="keyword">return</span>;</div><div class="line">        List&lt;Commit.Parents&gt; parents = commits.get(commits.size() - <span class="number">1</span>).parents;</div><div class="line">        <span class="keyword">if</span> (parents == <span class="keyword">null</span> || parents.size() == <span class="number">0</span>) <span class="keyword">return</span>;</div><div class="line">        mSha = parents.get(<span class="number">0</span>).sha;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p><strong> 代码展示 </strong></p>
+<p><em>com/androidev/coding/module/code/CodeActivity.java</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CodeActivity</span> <span class="keyword">extends</span> <span class="title">BaseActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> WebView mWebView;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"all"</span>)</div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.coding_activity_code);</div><div class="line">        getSupportActionBar().setDisplayHomeAsUpEnabled(<span class="keyword">true</span>);</div><div class="line">        mWebView = (WebView) findViewById(R.id.coding_web_view);</div><div class="line">        mWebView.setBackgroundColor(Color.TRANSPARENT);</div><div class="line">        WebSettings settings = mWebView.getSettings();</div><div class="line">        settings.setJavaScriptEnabled(<span class="keyword">true</span>);</div><div class="line">        settings.setTextZoom(<span class="number">80</span>);</div><div class="line">        mWebView.setWebViewClient(<span class="keyword">new</span> WebViewClient() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPageFinished</span><span class="params">(WebView view, String url)</span> </span>&#123;</div><div class="line">                stopLoading();</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">shouldOverrideUrlLoading</span><span class="params">(WebView view, String url)</span> </span>&#123;</div><div class="line">                Intent intent = <span class="keyword">new</span> Intent(Intent.ACTION_VIEW);</div><div class="line">                intent.setData(Uri.parse(url));</div><div class="line">                startActivity(intent);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        <span class="keyword">new</span> CodePresenter(<span class="keyword">this</span>).load();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">        mWebView.destroy();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">startLoading</span><span class="params">()</span> </span>&#123;</div><div class="line">        findViewById(R.id.coding_loading).setVisibility(View.VISIBLE);</div><div class="line">        Animation animation = AnimationUtils.loadAnimation(<span class="keyword">this</span>, R.anim.coding_loading_rotate_animation);</div><div class="line">        animation.setRepeatMode(Animation.INFINITE);</div><div class="line">        animation.setRepeatCount(Animation.INFINITE);</div><div class="line">        animation.setInterpolator(<span class="keyword">new</span> LinearInterpolator());</div><div class="line">        animation.setDuration(<span class="number">3000</span>);</div><div class="line">        findViewById(R.id.coding_loading_anim).startAnimation(animation);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stopLoading</span><span class="params">()</span> </span>&#123;</div><div class="line">        findViewById(R.id.coding_loading_anim).clearAnimation();</div><div class="line">        findViewById(R.id.coding_loading).setVisibility(View.GONE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setError</span><span class="params">(Throwable throwable)</span> </span>&#123;</div><div class="line">        stopLoading();</div><div class="line">        throwable.printStackTrace();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setData</span><span class="params">(String data)</span> </span>&#123;</div><div class="line">        mWebView.loadDataWithBaseURL(BASE_URL, data, <span class="string">"text/html"</span>, <span class="string">"UTF-8"</span>, <span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>com/androidev/coding/module/code/CodePresenter.java</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CodePresenter</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> CodeActivity mView;</div><div class="line">    <span class="keyword">private</span> String mPath;</div><div class="line">    <span class="keyword">private</span> String mOwner;</div><div class="line">    <span class="keyword">private</span> String mRepo;</div><div class="line">    <span class="keyword">private</span> String mSha;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mType;</div><div class="line"></div><div class="line">    CodePresenter(CodeActivity view) &#123;</div><div class="line">        mView = view;</div><div class="line">        Intent intent = mView.getIntent();</div><div class="line">        mOwner = intent.getStringExtra(OWNER);</div><div class="line">        mRepo = intent.getStringExtra(REPO);</div><div class="line">        mPath = intent.getStringExtra(PATH);</div><div class="line">        mSha = intent.getStringExtra(SHA);</div><div class="line">        mType = intent.getIntExtra(TYPE, TYPE_CODE);</div><div class="line">        <span class="keyword">if</span> (TYPE_README == mType) &#123;</div><div class="line">            mView.setTitle(R.string.coding_readme);</div><div class="line">            mPath = README_MD_LOWERCASE;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            mView.setTitle(mPath.substring(mPath.lastIndexOf(<span class="string">"/"</span>) + <span class="number">1</span>));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 读取 html 模版，请求文件内容，合并，以及展示</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">load</span><span class="params">()</span> </span>&#123;</div><div class="line">        mView.startLoading();</div><div class="line">        RestApi api = GitHub.getApi();</div><div class="line">        Observable&lt;String&gt; readTemplate = readTemplate();</div><div class="line">        Observable&lt;ResponseBody&gt; requestRaw;</div><div class="line">        <span class="keyword">switch</span> (mType) &#123;</div><div class="line">            <span class="keyword">case</span> TYPE_DIFF:</div><div class="line">                requestRaw = Observable.just(ResponseBody.create(<span class="keyword">null</span>, mView.getIntent().getStringExtra(PATCH)));</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> TYPE_README:</div><div class="line">                requestRaw = api.tree(mOwner, mRepo, mSha).switchMap(tree -&gt; api.raw(mOwner, mRepo, tree4readme(tree)));</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> TYPE_CODE:</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                requestRaw = api.raw(mOwner, mRepo, mSha);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 类似 javascript 的 Promise.all 方法，舒服，有兴趣的同学自行学习</span></div><div class="line">        Observable.zip(readTemplate, requestRaw, <span class="keyword">this</span>::applyTemplate)</div><div class="line">                .subscribeOn(Schedulers.io())</div><div class="line">                .observeOn(AndroidSchedulers.mainThread())</div><div class="line">                .subscribe(mView::setData, mView::setError);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">tree4readme</span><span class="params">(Tree data)</span> </span>&#123;</div><div class="line">        <span class="keyword">for</span> (Tree.Node node : data.tree) &#123;</div><div class="line">            <span class="keyword">if</span> (node.path.toLowerCase().equals(README_MD_LOWERCASE)) &#123;</div><div class="line">                <span class="keyword">return</span> node.sha;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"can not find readme in the repo."</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 目前三种模版，diff.html，markdown.html 和 code.html，提取自真 coding 开源代码</span></div><div class="line">    <span class="function"><span class="keyword">private</span> Observable&lt;String&gt; <span class="title">readTemplate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Observable.create(e -&gt; &#123;</div><div class="line">            String path;</div><div class="line">            <span class="keyword">switch</span> (mType) &#123;</div><div class="line">                <span class="keyword">case</span> TYPE_DIFF:</div><div class="line">                    path = <span class="string">"coding/diff.html"</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> TYPE_README:</div><div class="line">                    path = <span class="string">"coding/markdown.html"</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> TYPE_CODE:</div><div class="line">                <span class="keyword">default</span>:</div><div class="line">                    path = mPath.endsWith(<span class="string">".md"</span>) ? <span class="string">"coding/markdown.html"</span> : <span class="string">"coding/code.html"</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            BufferedSource source = Okio.buffer(Okio.source(mView.getAssets().open(path)));</div><div class="line">            String template = <span class="keyword">new</span> String(source.readByteArray());</div><div class="line">            source.close();</div><div class="line">            e.onNext(template);</div><div class="line">            e.onComplete();</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 合并请求内容到模版中，处理一些特殊字符</span></div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">applyTemplate</span><span class="params">(String template, ResponseBody body)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        String content = body.string();</div><div class="line">        <span class="keyword">if</span> (TYPE_DIFF == mType) &#123;</div><div class="line">            content = content.replace(<span class="string">"\u2028"</span>, <span class="string">""</span>).replace(<span class="string">"\u2029"</span>, <span class="string">""</span>);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (TYPE_README == mType || mPath.endsWith(<span class="string">".md"</span>)) &#123;</div><div class="line">            content = content.replace(<span class="string">"\n"</span>, <span class="string">"\\n"</span>).replace(<span class="string">"\""</span>, <span class="string">"\\\""</span>).replace(<span class="string">"'"</span>, <span class="string">"\\'"</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            content = content.replace(<span class="string">"\u2028"</span>, <span class="string">""</span>).replace(<span class="string">"\u2029"</span>, <span class="string">""</span>)</div><div class="line">                    .replace(<span class="string">"&lt;"</span>, <span class="string">"&amp;lt;"</span>).replace(<span class="string">"&gt;"</span>, <span class="string">"&amp;gt;"</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> template.replace(<span class="string">"$&#123;content_placeholder&#125;"</span>, content)</div><div class="line">                .replace(<span class="string">"$&#123;lang_placeholder&#125;"</span>, mPath.substring(mPath.lastIndexOf(<span class="string">"."</span>) + <span class="number">1</span>));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="oauth-授权"><a href="#oauth-授权" class="headerlink" title="oauth 授权"></a>oauth 授权</h3><p>github rest api v3 有访问限制，<a href="https://developer.github.com/v3/#rate-limiting" target="_blank" rel="external"><code>https://developer.github.com/v3/#rate-limiting</code></a>；短时间内，同一个 ip 访问开放接口的次数不大于<em>60次</em>。然而用户通过 oauth 进行登录授权，即可访问次数即可增大至<em>5000次</em>，够大方的，amazing!</p>
+<p>github oauth 文档 : <a href="https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/" target="_blank" rel="external">点我查阅</a></p>
+<p>完成整个 oauth 授权，需要以下步骤:</p>
+<ol>
+<li>注册 oauth 应用</li>
+<li>登录授权，获取 access_token</li>
+<li>使用 access_token 进行请求访问</li>
+</ol>
+<p><strong>1. 注册 oauth 应用</strong></p>
+<p>官方图文步骤 : <a href="https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/registering-oauth-apps/" target="_blank" rel="external">点我查阅</a></p>
+<p><em>注册流程</em></p>
+<p><img src="/images/android-coding/register-oauth.png" alt="register-oauth"></p>
+<p><em>注册结果</em></p>
+<p><img src="/images/android-coding/register-oauth-result.png" alt="register-oauth-result"></p>
+<p><strong>2. 登录获取 access_token</strong></p>
+<p>使用 webview 加载登录页面，登录完会重定向至第一步填写的 Authorization callback URL 并拼接上了 code 参数，接下来，使用 code, client id 以及 client secret 获取 access_token；在这里，遇到个巨坑，貌似 Android 5.0.2 的 user-agent 被 github 拉黑了，授权时提示不再支持你的浏览器，于是随便设置了其他 user-agent 便没问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthActivity</span> <span class="keyword">extends</span> <span class="title">BaseActivity</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> WebView mWebView;</div><div class="line">  <span class="keyword">private</span> AuthPresenter mPresenter;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"all"</span>)</div><div class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    setContentView(R.layout.coding_activity_auth);</div><div class="line">    getSupportActionBar().setDisplayHomeAsUpEnabled(<span class="keyword">true</span>);</div><div class="line">    mWebView = (WebView) findViewById(R.id.coding_web_view);</div><div class="line">    WebSettings settings = mWebView.getSettings();</div><div class="line">    settings.setJavaScriptEnabled(<span class="keyword">true</span>);</div><div class="line">    settings.setUserAgentString(APP); <span class="comment">//遇到个巨坑，Android 5.0.2 的 UA 已经被 github 拉黑</span></div><div class="line">    mWebView.setBackgroundColor(Color.TRANSPARENT);</div><div class="line">    mWebView.setWebViewClient(<span class="keyword">new</span> WebViewClient() &#123;</div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">shouldOverrideUrlLoading</span><span class="params">(WebView view, String url)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (url.startsWith(REDIRECT_URI)) &#123;</div><div class="line">          mPresenter.code4token(Uri.parse(url).getQueryParameter(KEY_AUTHORIZE_CODE));</div><div class="line">          <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.shouldOverrideUrlLoading(view, url);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPageStarted</span><span class="params">(WebView view, String url, Bitmap favicon)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onPageStarted(view, url, favicon);</div><div class="line">        showLoading();</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPageFinished</span><span class="params">(WebView view, String url)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onPageFinished(view, url);</div><div class="line">        <span class="keyword">if</span> (!url.startsWith(REDIRECT_URI)) &#123;</div><div class="line">          dismissLoading();</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">    &#125;);</div><div class="line">    mPresenter = <span class="keyword">new</span> AuthPresenter(<span class="keyword">this</span>);</div><div class="line">    mPresenter.startAuthorize();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onDestroy();</div><div class="line">    mWebView.destroy();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">loadUrl</span><span class="params">(String url)</span> </span>&#123;</div><div class="line">    mWebView.loadUrl(url);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onResult</span><span class="params">(<span class="keyword">boolean</span> success)</span> </span>&#123;</div><div class="line">    mWebView.post(() -&gt; &#123;</div><div class="line">      dismissLoading();</div><div class="line">      <span class="keyword">int</span> message = success ? R.string.coding_authorize_success : R.string.coding_authorize_failure;</div><div class="line">      Toast.makeText(AuthActivity.<span class="keyword">this</span>, message, Toast.LENGTH_SHORT).show();</div><div class="line">      setResult(success ? Activity.RESULT_OK : Activity.RESULT_CANCELED);</div><div class="line">      finish();</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AuthPresenter</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> AuthActivity mView;</div><div class="line"></div><div class="line">  AuthPresenter(AuthActivity view) &#123;</div><div class="line">      mView = view;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">startAuthorize</span><span class="params">()</span> </span>&#123;</div><div class="line">    String format = <span class="string">"%s?client_id=%s&amp;redirect_uri=%s"</span>;</div><div class="line">    String url = String.format(format, AUTHORIZE_URL, CLIENT_ID, REDIRECT_URI);</div><div class="line">    mView.loadUrl(url);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">code4token</span><span class="params">(String code)</span> </span>&#123;</div><div class="line">    OkHttpClient okHttpClient = GitHub.getHttpClient();</div><div class="line">    RequestBody body = <span class="keyword">new</span> FormBody.Builder()</div><div class="line">        .add(KEY_CLIENT_ID, CLIENT_ID)</div><div class="line">        .add(KEY_CLIENT_SECRET, CLIENT_SECRET)</div><div class="line">        .add(KEY_AUTHORIZE_CODE, code)</div><div class="line">        .build();</div><div class="line">    Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">        .url(ACCESS_TOKEN_URL)</div><div class="line">        .post(body)</div><div class="line">        .header(<span class="string">"Accept"</span>, <span class="string">"application/json"</span>)</div><div class="line">        .build();</div><div class="line">    okHttpClient.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">        onResult(<span class="keyword">null</span>);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        ResponseBody responseBody = response.body();</div><div class="line">        <span class="keyword">if</span> (responseBody == <span class="keyword">null</span>) &#123;</div><div class="line">          onResult(<span class="keyword">null</span>);</div><div class="line">          <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">        Auth auth = GitHub.getObjectMapper().readValue(responseBody.bytes(), Auth.class);</div><div class="line">        onResult(auth.access_token);</div><div class="line">      &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onResult</span><span class="params">(String token)</span> </span>&#123;</div><div class="line">    GitHub.getInstance().authorize(token);</div><div class="line">    mView.getSharedPreferences(APP, Context.MODE_PRIVATE).edit().putString(KEY_TOKEN, token).apply();</div><div class="line">    mView.onResult(!TextUtils.isEmpty(token));</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>3. 使用 access_token 进行请求 </strong></p>
+<p>github 推介将 access_token 作为名为 Authorization 的请求头，因此可以直接给 okhttpclient 设置拦截器，拦截器代码如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthorizeInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String token;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setToken</span><span class="params">(String token)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.token = token;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="keyword">if</span> (TextUtils.isEmpty(token)) &#123;</div><div class="line">            <span class="keyword">return</span> chain.proceed(chain.request());</div><div class="line">        &#125;</div><div class="line">        Headers.Builder headersBuilder = chain.request().headers().newBuilder();</div><div class="line">        headersBuilder.add(<span class="string">"Authorization"</span>, <span class="string">"token "</span> + token);</div><div class="line">        <span class="keyword">return</span> chain.proceed(chain.request().newBuilder().headers(headersBuilder.build()).build());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>使用 github-rest-api-v3 进行练手还是挺舒服的，同时可以练习 retrofit, rxjava等框架代码。okhttp 代码至今也学习了些知识，后续会做些通俗易懂的分享。</p>
+
+      
+    </div>
+
+    
+      
+      
+
+
+
+      
+      
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Android/">Android</a>
+            
+              <a href="/tags/Coding/">Coding</a>
+            
+              <a href="/tags/Github-Restful-API/">Github Restful API</a>
+            
+              <a href="/tags/OAuth/">OAuth</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2017/10/09/android-practical-layout/">
+        <span class="next-text nav-default">Android 实用布局</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>  
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:4ndroidev@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/4ndroidev" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2017
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">4ndroidev</span>
+  </span>
+</div>
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+
+  
+  
+
+
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.4.x"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.4.x"></script>
+
+    
+  <link rel="stylesheet" type="text/css" href="/assets/css/DPlayer.min.css"></link>
