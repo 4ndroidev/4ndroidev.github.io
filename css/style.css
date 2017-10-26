@@ -365,7 +365,7 @@ th {
   padding: 0; }
 
 html {
-  font-size: 16px;
+  font-size: 14px;
   box-sizing: border-box; }
 
 body {
@@ -400,11 +400,11 @@ a {
   text-decoration: none; }
 
 h1 {
-  font-size: 2em;
+  font-size: 1.8em;
   font-family: Athelas, STHeiti, Microsoft Yahei, serif; }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.4em;
   font-family: Athelas, STHeiti, Microsoft Yahei, serif; }
 
 h3 {
@@ -433,7 +433,7 @@ h6 {
     box-shadow: -1px -5px 5px #cacaca; } }
 
 .content-wrapper {
-  padding: 0 20px; }
+  padding: 0 12px; }
 
 .video-container {
   position: relative;
@@ -450,7 +450,7 @@ h6 {
   height: 100%; }
 
 .header {
-  padding: 20px 20px; }
+  padding: 12px 12px; }
   .header:before, .header:after {
     content: " ";
     display: table; }
@@ -459,7 +459,7 @@ h6 {
   .header .logo-wrapper {
     float: left; }
     .header .logo-wrapper .logo {
-      font-size: 48px; }
+      font-size: 36px; }
   @media screen and (max-width: 800px) {
     .header .logo-wrapper {
       display: none; } }
@@ -523,7 +523,7 @@ h6 {
           border-radius: 50px;
           box-sizing: border-box; }
       .header .site-navbar .menu .menu-item-link {
-        font-size: 18px; }
+        font-size: 15px; }
   @media screen and (max-width: 800px) {
     .header .site-navbar {
       display: none; } }
@@ -543,7 +543,7 @@ h6 {
     border-top: 1px solid #e6e6e6; }
   .post .post-header .post-title {
     margin: 0;
-    font-size: 27px;
+    font-size: 22px;
     font-weight: 400;
     font-family: Athelas, STHeiti, Microsoft Yahei, serif; }
   .post .post-header .post-link {
@@ -588,11 +588,11 @@ h6 {
     overflow-y: auto; }
     .post .post-toc .post-toc-title {
       margin: 0 10px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 400;
       text-transform: uppercase; }
     .post .post-toc .post-toc-content {
-      font-size: 15px; }
+      font-size: 16px; }
       .post .post-toc .post-toc-content .toc,
       .post .post-toc .post-toc-content .toc-child {
         list-style: square; }
@@ -661,7 +661,7 @@ h6 {
       border: 1px double #f4efe1; }
   .post .post-content code, .post .post-content pre {
     padding: 7px;
-    font-size: 13px;
+    font-size: 10px;
     font-family: Consolas, Monaco, Menlo, Consolas, monospace;
     background: #f8f5ec; }
   .post .post-content code {
@@ -682,7 +682,7 @@ h6 {
         right: 0;
         left: 0;
         padding: 2px 7px;
-        font-size: 13px;
+        font-size: 10px;
         font-weight: bold;
         color: #b1b1b1;
         background: #f4efe1;
@@ -818,7 +818,7 @@ h6 {
       top: 0;
       width: 100%;
       padding: 2px 7px;
-      font-size: 13px;
+      font-size: 10px;
       font-weight: bold;
       color: #b1b1b1;
       background: #f4efe1;
@@ -836,15 +836,15 @@ h6 {
           border: 0; }
     .post .post-content .highlight .code pre {
       margin: 0;
-      padding: 30px 10px 10px; }
+      padding: 30px 5px 5px; }
     .post .post-content .highlight .gutter {
       width: 10px;
       color: #cacaca; }
       .post .post-content .highlight .gutter pre {
         margin: 0;
-        padding: 30px 7px 10px; }
+        padding: 30px 5px 6px; }
     .post .post-content .highlight .line {
-      height: 20px; }
+      height: 17px; }
     .post .post-content .highlight table, .post .post-content .highlight tr, .post .post-content .highlight td {
       margin: 0;
       padding: 0;
@@ -952,7 +952,7 @@ h6 {
       .post .post-footer .post-nav .prev,
       .post .post-footer .post-nav .next {
         font-weight: 600;
-        font-size: 18px;
+        font-size: 15px;
         font-family: Athelas, STHeiti, Microsoft Yahei, serif;
         transition-property: transform;
         transition-timing-function: ease-out;
@@ -1259,7 +1259,7 @@ h6 {
     display: inline-block;
     margin-right: 50px; }
     .mobile-navbar .mobile-header-logo .logo {
-      font-size: 22px;
+      font-size: 18px;
       line-height: 50px;
       font-family: "Chancery", cursive, LiSu, sans-serif; }
   .mobile-navbar .mobile-navbar-icon {
