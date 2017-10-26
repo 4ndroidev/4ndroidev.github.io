@@ -115,31 +115,31 @@ github rest api v3 支持挺丰富的，而目前需要的信息: repo, commit, 
 ```java
 public interface RestApi {
 
-    String REPO_FORMAT = "repos/{owner}/{repo}";
+  String REPO_FORMAT = "repos/{owner}/{repo}";
 
-    @GET(REPO_FORMAT)
-    Observable<Repo> repo(@Path("owner") String owner, @Path("repo") String repo);
+  @GET(REPO_FORMAT)
+  Observable<Repo> repo(@Path("owner") String owner, @Path("repo") String repo);
 
-    @GET(REPO_FORMAT + "/commits")
-    Observable<List<Commit>> commits(@Path("owner") String owner, @Path("repo") String repo, @QueryMap Map<String, Object> data);
+  @GET(REPO_FORMAT + "/commits")
+  Observable<List<Commit>> commits(@Path("owner") String owner, @Path("repo") String repo, @QueryMap Map<String, Object> data);
 
-    @GET(REPO_FORMAT + "/commits/{sha}")
-    Observable<Commit> commit(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
+  @GET(REPO_FORMAT + "/commits/{sha}")
+  Observable<Commit> commit(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
 
-    // 暂时用不到
-    @GET(REPO_FORMAT + "/branches/{branch}")
-    Observable<Branch> branch(@Path("owner") String owner, @Path("repo") String repo, @Path("branch") String branch);
+  // 暂时用不到
+  @GET(REPO_FORMAT + "/branches/{branch}")
+  Observable<Branch> branch(@Path("owner") String owner, @Path("repo") String repo, @Path("branch") String branch);
 
-    @GET(REPO_FORMAT + "/git/trees/{sha}")
-    Observable<Tree> tree(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
+  @GET(REPO_FORMAT + "/git/trees/{sha}")
+  Observable<Tree> tree(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
 
-    // 暂时用不到
-    @GET(REPO_FORMAT + "/git/blobs/{sha}")
-    Observable<Blob> blob(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
+  // 暂时用不到
+  @GET(REPO_FORMAT + "/git/blobs/{sha}")
+  Observable<Blob> blob(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
 
-    @GET(REPO_FORMAT + "/git/blobs/{sha}")
-    @Headers({HEADER_ACCEPT + ": " + MEDIA_TYPE_RAW})
-    Observable<ResponseBody> raw(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
+  @GET(REPO_FORMAT + "/git/blobs/{sha}")
+  @Headers({HEADER_ACCEPT + ": " + MEDIA_TYPE_RAW})
+  Observable<ResponseBody> raw(@Path("owner") String owner, @Path("repo") String repo, @Path("sha") String sha);
 }
 ```
 
@@ -147,26 +147,26 @@ public interface RestApi {
 
 ```java
 public void initialize(Context context) {
-        authorizeInterceptor = new AuthorizeInterceptor();
-        authorizeInterceptor.setToken(context.getSharedPreferences(APP, Context.MODE_PRIVATE).getString(KEY_TOKEN, ""));
-        File cachePath = new File(context.getExternalCacheDir(), "coding");
-        okHttpClient = new OkHttpClient.Builder()
-                .cache(new Cache(cachePath, 30 * 1024 * 1024/* 30MB */))
-                .addInterceptor(authorizeInterceptor)
-                .addNetworkInterceptor(new RateLimitInterceptor())
-                .build();
-        objectMapper = new ObjectMapper();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .callFactory(okHttpClient)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                .build();
-        restApi = retrofit.create(RestApi.class);
-        rateLimit = new RateLimit();
-        uiHandler = new Handler(Looper.getMainLooper());
-        onRateLimitChangedListeners = new ArrayList<>();
-    }
+    authorizeInterceptor = new AuthorizeInterceptor();
+    authorizeInterceptor.setToken(context.getSharedPreferences(APP, Context.MODE_PRIVATE).getString(KEY_TOKEN, ""));
+    File cachePath = new File(context.getExternalCacheDir(), "coding");
+    okHttpClient = new OkHttpClient.Builder()
+        .cache(new Cache(cachePath, 30 * 1024 * 1024/* 30MB */))
+        .addInterceptor(authorizeInterceptor)
+        .addNetworkInterceptor(new RateLimitInterceptor())
+        .build();
+    objectMapper = new ObjectMapper();
+    Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .callFactory(okHttpClient)
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+        .build();
+    restApi = retrofit.create(RestApi.class);
+    rateLimit = new RateLimit();
+    uiHandler = new Handler(Looper.getMainLooper());
+    onRateLimitChangedListeners = new ArrayList<>();
+  }
 ```
 
 ### view & presenter
@@ -187,52 +187,52 @@ presenter 层代码中，使用 retrofit 结合 rxjava，配合 lambda 表达式
 ```java
 public class CommitsActivity extends BaseActivity {
 
-    private RefreshLayout mRefreshLayout;
-    private CommitsAdapter mAdapter;
+  private RefreshLayout mRefreshLayout;
+  private CommitsAdapter mAdapter;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SwipeBackLayout.attachTo(this);
-        setContentView(R.layout.coding_activity_commits);
-        CommitsPresenter presenter = new CommitsPresenter(this);
-        mAdapter = new CommitsAdapter();
-        mAdapter.setOnLoadListener(presenter::load);
-        mAdapter.setOnItemClickListener((v, position, data) -> {
-            Intent intent = getIntent();
-            intent.putExtra(SHA, data.sha);
-            intent.setClass(this, CommitActivity.class);
-            startActivity(intent);
-        });
-        mRefreshLayout = (RefreshLayout) findViewById(R.id.coding_refresh_layout);
-        mRefreshLayout.setOnRefreshListener(presenter::refresh);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.coding_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(mAdapter);
-        presenter.refresh();
-        showLoading(); //just one time
-    }
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    SwipeBackLayout.attachTo(this);
+    setContentView(R.layout.coding_activity_commits);
+    CommitsPresenter presenter = new CommitsPresenter(this);
+    mAdapter = new CommitsAdapter();
+    mAdapter.setOnLoadListener(presenter::load);
+    mAdapter.setOnItemClickListener((v, position, data) -> {
+      Intent intent = getIntent();
+      intent.putExtra(SHA, data.sha);
+      intent.setClass(this, CommitActivity.class);
+      startActivity(intent);
+    });
+    mRefreshLayout = (RefreshLayout) findViewById(R.id.coding_refresh_layout);
+    mRefreshLayout.setOnRefreshListener(presenter::refresh);
+    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.coding_recycler_view);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+    recyclerView.setAdapter(mAdapter);
+    presenter.refresh();
+    showLoading(); //just one time
+  }
 
-    void setData(List<Commit> commits) {
-        dismissLoading();
-        mRefreshLayout.setRefreshing(false);
-        mAdapter.setData(commits);
-    }
+  void setData(List<Commit> commits) {
+    dismissLoading();
+    mRefreshLayout.setRefreshing(false);
+    mAdapter.setData(commits);
+  }
 
-    void setError(Throwable throwable) {
-        dismissLoading();
-        mRefreshLayout.setRefreshing(false);
-        throwable.printStackTrace();
-    }
+  void setError(Throwable throwable) {
+    dismissLoading();
+    mRefreshLayout.setRefreshing(false);
+    throwable.printStackTrace();
+  }
 
-    void appendData(List<Commit> commits) {
-        setLoading(false);
-        mAdapter.appendData(commits);
-    }
+  void appendData(List<Commit> commits) {
+    setLoading(false);
+    mAdapter.appendData(commits);
+  }
 
-    void setLoading(boolean loading) {
-        mAdapter.setLoading(loading);
-    }
+  void setLoading(boolean loading) {
+    mAdapter.setLoading(loading);
+  }
 }
 ```
 
@@ -241,51 +241,51 @@ public class CommitsActivity extends BaseActivity {
 ```java
 class CommitsPresenter {
 
-    private final static int PAGE_NO = 1;
-    private final static int PER_PAGE = 20;
+  private final static int PAGE_NO = 1;
+  private final static int PER_PAGE = 20;
 
-    private String mSha;
-    private String mOwner;
-    private String mRepo;
-    private CommitsActivity mView;
+  private String mSha;
+  private String mOwner;
+  private String mRepo;
+  private CommitsActivity mView;
 
-    CommitsPresenter(CommitsActivity view) {
-        mView = view;
-        Intent intent = mView.getIntent();
-        mOwner = intent.getStringExtra(OWNER);
-        mRepo = intent.getStringExtra(REPO);
-    }
+  CommitsPresenter(CommitsActivity view) {
+    mView = view;
+    Intent intent = mView.getIntent();
+    mOwner = intent.getStringExtra(OWNER);
+    mRepo = intent.getStringExtra(REPO);
+  }
 
-    void refresh() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("page", PAGE_NO);
-        data.put("per_page", PER_PAGE);
-        GitHub.getApi().commits(mOwner, mRepo, data)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doAfterNext(this::setSha)
-                .subscribe(mView::setData, mView::setError);
-    }
+  void refresh() {
+    Map<String, Object> data = new HashMap<>();
+    data.put("page", PAGE_NO);
+    data.put("per_page", PER_PAGE);
+    GitHub.getApi().commits(mOwner, mRepo, data)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterNext(this::setSha)
+        .subscribe(mView::setData, mView::setError);
+  }
 
-    void load() {
-        mView.setLoading(true);
-        Map<String, Object> data = new HashMap<>();
-        data.put("page", PAGE_NO);
-        data.put("per_page", PER_PAGE);
-        data.put("sha", mSha);
-        GitHub.getApi().commits(mOwner, mRepo, data)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doAfterNext(this::setSha)
-                .subscribe(mView::appendData, mView::setError);
-    }
+  void load() {
+    mView.setLoading(true);
+    Map<String, Object> data = new HashMap<>();
+    data.put("page", PAGE_NO);
+    data.put("per_page", PER_PAGE);
+    data.put("sha", mSha);
+    GitHub.getApi().commits(mOwner, mRepo, data)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterNext(this::setSha)
+        .subscribe(mView::appendData, mView::setError);
+  }
 
-    private void setSha(List<Commit> commits) {
-        if (commits == null || commits.size() == 0) return;
-        List<Commit.Parents> parents = commits.get(commits.size() - 1).parents;
-        if (parents == null || parents.size() == 0) return;
-        mSha = parents.get(0).sha;
-    }
+  private void setSha(List<Commit> commits) {
+    if (commits == null || commits.size() == 0) return;
+    List<Commit.Parents> parents = commits.get(commits.size() - 1).parents;
+    if (parents == null || parents.size() == 0) return;
+    mSha = parents.get(0).sha;
+  }
 
 }
 
@@ -300,65 +300,65 @@ class CommitsPresenter {
 ```
 public class CodeActivity extends BaseActivity {
 
-    private WebView mWebView;
+  private WebView mWebView;
 
-    @Override
-    @SuppressWarnings("all")
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.coding_activity_code);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mWebView = (WebView) findViewById(R.id.coding_web_view);
-        mWebView.setBackgroundColor(Color.TRANSPARENT);
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setTextZoom(80);
-        mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                stopLoading();
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
-                startActivity(intent);
-                return true;
-            }
-        });
-        new CodePresenter(this).load();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mWebView.destroy();
-    }
-
-    void startLoading() {
-        findViewById(R.id.coding_loading).setVisibility(View.VISIBLE);
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.coding_loading_rotate_animation);
-        animation.setRepeatMode(Animation.INFINITE);
-        animation.setRepeatCount(Animation.INFINITE);
-        animation.setInterpolator(new LinearInterpolator());
-        animation.setDuration(3000);
-        findViewById(R.id.coding_loading_anim).startAnimation(animation);
-    }
-
-    void stopLoading() {
-        findViewById(R.id.coding_loading_anim).clearAnimation();
-        findViewById(R.id.coding_loading).setVisibility(View.GONE);
-    }
-
-    void setError(Throwable throwable) {
+  @Override
+  @SuppressWarnings("all")
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.coding_activity_code);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    mWebView = (WebView) findViewById(R.id.coding_web_view);
+    mWebView.setBackgroundColor(Color.TRANSPARENT);
+    WebSettings settings = mWebView.getSettings();
+    settings.setJavaScriptEnabled(true);
+    settings.setTextZoom(80);
+    mWebView.setWebViewClient(new WebViewClient() {
+      @Override
+      public void onPageFinished(WebView view, String url) {
         stopLoading();
-        throwable.printStackTrace();
-    }
+      }
 
-    void setData(String data) {
-        mWebView.loadDataWithBaseURL(BASE_URL, data, "text/html", "UTF-8", null);
-    }
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+        return true;
+      }
+    });
+    new CodePresenter(this).load();
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    mWebView.destroy();
+  }
+
+  void startLoading() {
+    findViewById(R.id.coding_loading).setVisibility(View.VISIBLE);
+    Animation animation = AnimationUtils.loadAnimation(this, R.anim.coding_loading_rotate_animation);
+    animation.setRepeatMode(Animation.INFINITE);
+    animation.setRepeatCount(Animation.INFINITE);
+    animation.setInterpolator(new LinearInterpolator());
+    animation.setDuration(3000);
+    findViewById(R.id.coding_loading_anim).startAnimation(animation);
+  }
+
+  void stopLoading() {
+    findViewById(R.id.coding_loading_anim).clearAnimation();
+    findViewById(R.id.coding_loading).setVisibility(View.GONE);
+  }
+
+  void setError(Throwable throwable) {
+    stopLoading();
+    throwable.printStackTrace();
+  }
+
+  void setData(String data) {
+    mWebView.loadDataWithBaseURL(BASE_URL, data, "text/html", "UTF-8", null);
+  }
 
 }
 ```
@@ -368,101 +368,101 @@ public class CodeActivity extends BaseActivity {
 ```java
 class CodePresenter {
 
-    private CodeActivity mView;
-    private String mPath;
-    private String mOwner;
-    private String mRepo;
-    private String mSha;
-    private int mType;
+  private CodeActivity mView;
+  private String mPath;
+  private String mOwner;
+  private String mRepo;
+  private String mSha;
+  private int mType;
 
-    CodePresenter(CodeActivity view) {
-        mView = view;
-        Intent intent = mView.getIntent();
-        mOwner = intent.getStringExtra(OWNER);
-        mRepo = intent.getStringExtra(REPO);
-        mPath = intent.getStringExtra(PATH);
-        mSha = intent.getStringExtra(SHA);
-        mType = intent.getIntExtra(TYPE, TYPE_CODE);
-        if (TYPE_README == mType) {
-            mView.setTitle(R.string.coding_readme);
-            mPath = README_MD_LOWERCASE;
-        } else {
-            mView.setTitle(mPath.substring(mPath.lastIndexOf("/") + 1));
-        }
+  CodePresenter(CodeActivity view) {
+    mView = view;
+    Intent intent = mView.getIntent();
+    mOwner = intent.getStringExtra(OWNER);
+    mRepo = intent.getStringExtra(REPO);
+    mPath = intent.getStringExtra(PATH);
+    mSha = intent.getStringExtra(SHA);
+    mType = intent.getIntExtra(TYPE, TYPE_CODE);
+    if (TYPE_README == mType) {
+      mView.setTitle(R.string.coding_readme);
+      mPath = README_MD_LOWERCASE;
+    } else {
+      mView.setTitle(mPath.substring(mPath.lastIndexOf("/") + 1));
     }
+  }
 
-    // 读取 html 模版，请求文件内容，合并，以及展示
-    void load() {
-        mView.startLoading();
-        RestApi api = GitHub.getApi();
-        Observable<String> readTemplate = readTemplate();
-        Observable<ResponseBody> requestRaw;
-        switch (mType) {
-            case TYPE_DIFF:
-                requestRaw = Observable.just(ResponseBody.create(null, mView.getIntent().getStringExtra(PATCH)));
-                break;
-            case TYPE_README:
-                requestRaw = api.tree(mOwner, mRepo, mSha).switchMap(tree -> api.raw(mOwner, mRepo, tree4readme(tree)));
-                break;
-            case TYPE_CODE:
-            default:
-                requestRaw = api.raw(mOwner, mRepo, mSha);
-                break;
-        }
-        // 类似 javascript 的 Promise.all 方法，舒服，有兴趣的同学自行学习
-        Observable.zip(readTemplate, requestRaw, this::applyTemplate)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mView::setData, mView::setError);
+  // 读取 html 模版，请求文件内容，合并，以及展示
+  void load() {
+    mView.startLoading();
+    RestApi api = GitHub.getApi();
+    Observable<String> readTemplate = readTemplate();
+    Observable<ResponseBody> requestRaw;
+    switch (mType) {
+      case TYPE_DIFF:
+        requestRaw = Observable.just(ResponseBody.create(null, mView.getIntent().getStringExtra(PATCH)));
+        break;
+      case TYPE_README:
+        requestRaw = api.tree(mOwner, mRepo, mSha).switchMap(tree -> api.raw(mOwner, mRepo, tree4readme(tree)));
+        break;
+      case TYPE_CODE:
+      default:
+        requestRaw = api.raw(mOwner, mRepo, mSha);
+        break;
     }
+    // 类似 javascript 的 Promise.all 方法，舒服，有兴趣的同学自行学习
+    Observable.zip(readTemplate, requestRaw, this::applyTemplate)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(mView::setData, mView::setError);
+  }
 
-    private String tree4readme(Tree data) {
-        for (Tree.Node node : data.tree) {
-            if (node.path.toLowerCase().equals(README_MD_LOWERCASE)) {
-                return node.sha;
-            }
-        }
-        throw new IllegalStateException("can not find readme in the repo.");
+  private String tree4readme(Tree data) {
+    for (Tree.Node node : data.tree) {
+      if (node.path.toLowerCase().equals(README_MD_LOWERCASE)) {
+        return node.sha;
+      }
     }
+    throw new IllegalStateException("can not find readme in the repo.");
+  }
 
-    // 目前三种模版，diff.html，markdown.html 和 code.html，提取自真 coding 开源代码
-    private Observable<String> readTemplate() {
-        return Observable.create(e -> {
-            String path;
-            switch (mType) {
-                case TYPE_DIFF:
-                    path = "coding/diff.html";
-                    break;
-                case TYPE_README:
-                    path = "coding/markdown.html";
-                    break;
-                case TYPE_CODE:
-                default:
-                    path = mPath.endsWith(".md") ? "coding/markdown.html" : "coding/code.html";
-                    break;
-            }
-            BufferedSource source = Okio.buffer(Okio.source(mView.getAssets().open(path)));
-            String template = new String(source.readByteArray());
-            source.close();
-            e.onNext(template);
-            e.onComplete();
-        });
-    }
+  // 目前三种模版，diff.html，markdown.html 和 code.html，提取自真 coding 开源代码
+  private Observable<String> readTemplate() {
+    return Observable.create(e -> {
+      String path;
+      switch (mType) {
+        case TYPE_DIFF:
+          path = "coding/diff.html";
+          break;
+        case TYPE_README:
+          path = "coding/markdown.html";
+          break;
+        case TYPE_CODE:
+        default:
+          path = mPath.endsWith(".md") ? "coding/markdown.html" : "coding/code.html";
+          break;
+      }
+      BufferedSource source = Okio.buffer(Okio.source(mView.getAssets().open(path)));
+      String template = new String(source.readByteArray());
+      source.close();
+      e.onNext(template);
+      e.onComplete();
+    });
+  }
 
-    // 合并请求内容到模版中，处理一些特殊字符
-    private String applyTemplate(String template, ResponseBody body) throws IOException {
-        String content = body.string();
-        if (TYPE_DIFF == mType) {
-            content = content.replace("\u2028", "").replace("\u2029", "");
-        } else if (TYPE_README == mType || mPath.endsWith(".md")) {
-            content = content.replace("\n", "\\n").replace("\"", "\\\"").replace("'", "\\'");
-        } else {
-            content = content.replace("\u2028", "").replace("\u2029", "")
-                    .replace("<", "&lt;").replace(">", "&gt;");
-        }
-        return template.replace("${content_placeholder}", content)
-                .replace("${lang_placeholder}", mPath.substring(mPath.lastIndexOf(".") + 1));
+  // 合并请求内容到模版中，处理一些特殊字符
+  private String applyTemplate(String template, ResponseBody body) throws IOException {
+    String content = body.string();
+    if (TYPE_DIFF == mType) {
+      content = content.replace("\u2028", "").replace("\u2029", "");
+    } else if (TYPE_README == mType || mPath.endsWith(".md")) {
+      content = content.replace("\n", "\\n").replace("\"", "\\\"").replace("'", "\\'");
+    } else {
+      content = content.replace("\u2028", "").replace("\u2029", "")
+          .replace("<", "&lt;").replace(">", "&gt;");
     }
+    return template.replace("${content_placeholder}", content)
+        .replace("${lang_placeholder}", mPath.substring(mPath.lastIndexOf(".") + 1));
+  }
 }
 
 ```
@@ -569,7 +569,7 @@ class AuthPresenter {
   private AuthActivity mView;
 
   AuthPresenter(AuthActivity view) {
-      mView = view;
+    mView = view;
   }
 
   void startAuthorize() {
@@ -625,21 +625,21 @@ github 推介将 access_token 作为名为 Authorization 的请求头，因此�
 ```java
 public class AuthorizeInterceptor implements Interceptor {
 
-    private String token;
+  private String token;
 
-    public void setToken(String token) {
-        this.token = token;
-    }
+  public void setToken(String token) {
+    this.token = token;
+  }
 
-    @Override
-    public Response intercept(Chain chain) throws IOException {
-        if (TextUtils.isEmpty(token)) {
-            return chain.proceed(chain.request());
-        }
-        Headers.Builder headersBuilder = chain.request().headers().newBuilder();
-        headersBuilder.add("Authorization", "token " + token);
-        return chain.proceed(chain.request().newBuilder().headers(headersBuilder.build()).build());
+  @Override
+  public Response intercept(Chain chain) throws IOException {
+    if (TextUtils.isEmpty(token)) {
+      return chain.proceed(chain.request());
     }
+    Headers.Builder headersBuilder = chain.request().headers().newBuilder();
+    headersBuilder.add("Authorization", "token " + token);
+    return chain.proceed(chain.request().newBuilder().headers(headersBuilder.build()).build());
+  }
 }
 ```
 

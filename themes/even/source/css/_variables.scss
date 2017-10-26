@@ -42,13 +42,13 @@ $dark-gray: #8a8a8a !default;
 $global-font-color: #34495e !default;
 
 // Font size attribute applied to '<html>' and '<body>'.
-$global-font-size: 16px !default;
+$global-font-size: 14px !default;
 
 // Global width of '<body>'.
 $global-body-width: 800px !default;
 
 // Padding of container main
-$global-container-padding: 0 20px !default;
+$global-container-padding: 0 12px !default;
 
 // Default line height for all type. `$global-lineheight` is 24px while `$global-font-size` is 16px.
 $global-lineheight: 1.5 !default;
@@ -64,8 +64,8 @@ $global-background: $white !default;
 
 // Headings font size of the site.
 $global-headings: (
-  h1: 2em,
-  h2: 1.5em,
+  h1: 1.8em,
+  h2: 1.4em,
   h3: 1.2em,
   h4: 1em,
   h5: 0.8em,
@@ -75,7 +75,7 @@ $global-headings: (
 
 // ========== Header ========== //
 // Padding of the site header.
-$header-padding: 20px 20px !default;
+$header-padding: 12px 12px !default;
 
 // Font family: Chancery
 @font-face {
@@ -91,7 +91,7 @@ $header-padding: 20px 20px !default;
 }
 
 // Font size of the logo.
-$logo-font-size: 48px !default;
+$logo-font-size: 36px !default;
 
 // Font family of the logo.
 $logo-font-family: 'Chancery', cursive, LiSu, sans-serif !default;
@@ -103,7 +103,7 @@ $menu-item-margin-left: 10px !default;
 $menu-item-mobile-margin: 5px !default;
 
 // Font size of menu item link.
-$menu-link-font-size: 18px !default;
+$menu-link-font-size: 15px !default;
 
 // Height of the mobile header.
 $mobile-navbar-height: 50px !default;
@@ -119,7 +119,7 @@ $post-padding: 5em 0 5em !default;
 $post-border: 1px solid $light-gray !default;
 
 // Font size of post title.
-$post-title-font-size: 27px !default;
+$post-title-font-size: 22px !default;
 
 // Font weight of post title.
 $post-title-font-weight: 400 !default;
@@ -143,7 +143,7 @@ $post-footer-border-top: 1px solid $light-gray !default;
 $post-tags-padding: 15px 0 !default;
 
 // Font size of post pagination.
-$post-nav-font-size: 18px !default;
+$post-nav-font-size: 15px !default;
 
 
 // ========== TOC ========== //
@@ -154,10 +154,10 @@ $post-toc-width: 200px !default;
 $post-toc-backgroud: rgba($deputy-color, 0.6) !default;
 
 // Font size of the post toc title.
-$post-toc-title-size: 20px !default;
+$post-toc-title-size: 18px !default;
 
 // Font size of the post toc content.
-$post-toc-content: 15px !default;
+$post-toc-content: 16px !default;
 
 // List style of the post toc list.
 $post-toc-list-style: square !default;
@@ -183,7 +183,7 @@ $content-table-border-color: darken($deputy-color, 3%) !default;
 $code-color: #c7254e !default;
 
 // Font size of code.
-$code-font-size: 13px !default;
+$code-font-size: 10px !default;
 
 // Font family of the code.
 $code-font-family: Consolas, Monaco, Menlo, Consolas, monospace !default;

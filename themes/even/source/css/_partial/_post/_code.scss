@@ -81,7 +81,7 @@ code {
   .code {
     pre {
       margin: 0;
-      padding: 30px 10px 10px;
+      padding: 30px 5px 5px;
     }
   }
 
@@ -91,14 +91,14 @@ code {
 
     pre {
       margin: 0;
-      padding: 30px 7px 10px;
+      padding: 30px 5px 6px;
     }
   }
 
   .line {
     // Fix code block null line height and
     // Synchronous gutter and code line highly.
-    height: round($code-font-size * 1.5);
+    height: round($code-font-size * 1.7);
   }
 
   table, tr, td {
