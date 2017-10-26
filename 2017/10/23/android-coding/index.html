@@ -42,19 +42,15 @@
 <meta property="og:site_name" content="4ndroidev Note">
 <meta property="og:description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
 <meta property="og:locale" content="zh-cn">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/main.png">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/commits.png">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/commit.png">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/diff.png">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/tree.png">
-<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/code.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/screenshot1.png">
+<meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/screenshot2.png">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth.png">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-coding/register-oauth-result.png">
-<meta property="og:updated_time" content="2017-10-25T08:31:07.000Z">
+<meta property="og:updated_time" content="2017-10-26T01:39:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Coding">
 <meta name="twitter:description" content="简述使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 cod">
-<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-coding/main.png">
+<meta name="twitter:image" content="http://4ndroidev.github.io/images/android-coding/screenshot1.png">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.4.x" />
@@ -186,13 +182,14 @@
     <div class="post-content">
       
         <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>使用 okhttp 很长时间了，但一直没时间弄懂其中各种奥妙。上周相对空闲，于是阅读了 okhttp 源码，准备写写笔记。习惯写笔记时，写写比较核心的demo代码，想起前阵子朋友使用 github 的 rest api v3 开放接口实现了评论系统 comment.js ，于是 demo 代码中的网络请求就试试 github 的 rest api v3 开放接口。又因为之前也实现过类似 coding 一样的功能，一发不可收拾，便实现一个可关注动态，下载源码，查看文档和查看代码的 coding ，本文是 coding 的分享笔记，以后再做 okhttp 源码笔记。</p>
-<p><code>开放接口</code> : <a href="`https://developer.github.com/v3/`"><code>https://developer.github.com/v3/</code></a></p>
+<p><code>开放接口</code> : <a href="https://developer.github.com/v3/" target="_blank" rel="external"><code>https://developer.github.com/v3/</code></a></p>
 <p><code>项目地址</code> : <a href="https://github.com/4ndroidev/Coding" target="_blank" rel="external"><code>https://github.com/4ndroidev/Coding</code></a></p>
+<p><code>下载样例</code> : <a href="http://fir.im/hb1w" target="_blank" rel="external"><code>http://fir.im/hb1w</code></a></p>
 <p>如果你的项目想集成该功能，拷贝 coding 代码后，像 sample 一样，添加一行代码即可。</p>
 <blockquote>
 <p><strong>声明：感谢真coding，此假coding使用了真coding开源代码中的3个html和一些图标</strong></p>
 </blockquote>
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p><img src="/images/android-coding/main.png" width="252" height="448/"><img src="/images/android-coding/commits.png" width="252" height="448/"><img src="/images/android-coding/commit.png" width="252" height="448/"><img src="/images/android-coding/diff.png" width="252" height="448/"><img src="/images/android-coding/tree.png" width="252" height="448/"><img src="/images/android-coding/code.png" width="252" height="448/"></p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p><img src="/images/android-coding/screenshot1.png" alt="screenshot1"><br><img src="/images/android-coding/screenshot2.png" alt="screenshot2"></p>
 <a id="more"></a>
 <hr>
 <h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><h3 id="项目依赖"><a href="#项目依赖" class="headerlink" title="项目依赖"></a>项目依赖</h3><p>coding 使用了一些热门库：</p>
