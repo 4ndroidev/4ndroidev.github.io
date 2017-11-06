@@ -46,7 +46,7 @@ coding 使用了一些热门库：
 
 ### 目录结构
 
-```
+```java
 coding/src/main/java/com/androidev/coding/
 ├── misc             // 常量和工具类
 ├── model            // 实体类                                                  
@@ -66,7 +66,7 @@ coding/src/main/java/com/androidev/coding/
 
 > 假`mvp`，这里没有像`google`推荐的那样`view`层和`presenter`层定义成接口存于一个`contract`类中。because `view`层和`presenter`层目前都只有单一实现，无需定义成接口，方便定位问题。老实说，个人认为不应随便定义接口，项目大了后容易出现混乱，接口最好在多态或回调时定义，尽可能减少单一实现的接口定义，maybe 这是个歪理。
 
-```code
+```java
 coding/src/main/java/com/androidev/coding/module
 ├── auth
 │   ├── AuthActivity.java
@@ -297,7 +297,7 @@ class CommitsPresenter {
 
 *com/androidev/coding/module/code/CodeActivity.java*
 
-```
+```java
 public class CodeActivity extends BaseActivity {
 
   private WebView mWebView;
