@@ -272,12 +272,36 @@ android 进程间通讯除了 binder 通讯，还有另外一种比较常见的 
 
 在 android 系统，socket 通讯为 c/s 模式，其中服务器在 init 进程 fork 各个 service 进程时创建，即 socket 服务器依附于 service 进程，而客户端在运行时连接服务器。
 
+一般情况下，我们只关注以下 socket 提供的函数，下文涉及。
+
+```cpp
+// 创建 socket
+__socketcall int socket(int, int, int);
+
+// 服务端关注的 bind，accept，listen 函数
+__socketcall int bind(int, const struct sockaddr*, int);
+__socketcall int accept(int, struct sockaddr*, socklen_t*);
+__socketcall int listen(int, int);
+
+// 客户端关注 connect 函数
+__socketcall int connect(int, const struct sockaddr*, socklen_t);
+
+// 服务端与客户端都关注的收发数据函数
+extern ssize_t send(int, const void*, size_t, int);
+extern ssize_t recv(int, void*, size_t, int);
+
+// 当然还有一个关闭函数
+close(int)
+
+```
+
 ### 服务启动
 
-这里描述的服务启动不单单是 socket 服务器启动，而是整个服务进程创建和启动过程，包含两个步骤：
+这里描述的服务启动不单单是 socket 服务器启动，而是整个服务进程创建和启动过程，包含三个步骤：
 
 1. 脚本解释
 2. 启动服务
+3. 程序运行
 
 其中第二步，启动服务，才是真正从 init 进程 fork 出服务进程，并创建相关的 socket 服务器
 
@@ -322,8 +346,8 @@ service vold /system/bin/vold \
 - 第1行，创建 vold 服务进程，其中二进制程序为 /system/bin/vold
 - 第2-3行，启动 /system/bin/vold 程序的四个参数
 - 第4行，ServiceManager 会对相应类别的服务执行相应方法，略
-- 第5行，创建名为 vold，类别为流的 socket 服务器，设置用户及用户组，对应文件 /dev/socket/vold
-- 第6行，创建名为 cryptd，类别为流的 socket 服务器，设置用户及用户组，对应文件 /dev/socket/cryptd
+- 第5行，创建名为 vold，类别为流的 socket 服务器，设置权限，用户及用户组，对应文件 /dev/socket/vold
+- 第6行，创建名为 cryptd，类别为流的 socket 服务器，设置权限，用户及用户组，对应文件 /dev/socket/cryptd
 - 第7行，设置 io 优先级，范围 0-7
 - 第8行，fork 调用后得到的子进程号写入到文件 /dev/cpuset/foreground/tasks
 
@@ -422,6 +446,8 @@ bool Service::Start() {
 
     // fork 写时拷贝，若成功调用一次则返回两个值，子进程返回0，父进程返回子进程标记
     pid_t pid = fork();
+
+    // 子进程相关操作
     if (pid == 0) {
         umask(077);
 
@@ -532,6 +558,7 @@ bool Service::Start() {
 ```
 
 创建 socket 服务器 - **system/core/init/util.cpp**
+此处 socket 服务器仅完成了 bind 操作，而 listen 和 accept 操作在二进制程序运行时才执行
 
 ```cpp
 int create_socket(const char *name, int type, mode_t perm, uid_t uid,
@@ -539,8 +566,9 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
 {
     struct sockaddr_un addr;
     int fd, ret, savederrno;
-    char *filecon;
+    char *filecon; // 自 Android 支持 SeLinux 之后很多代码都加入这些安全检测操作
 
+    // 设置 selinux context
     if (socketcon) {
         if (setsockcreatecon(socketcon) == -1) {
             ERROR("setsockcreatecon(\"%s\") failed: %s\n", socketcon, strerror(errno));
@@ -548,6 +576,7 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
         }
     }
 
+    // 获取 socket 文件描述符
     fd = socket(PF_UNIX, type, 0);
     if (fd < 0) {
         ERROR("Failed to open socket '%s': %s\n", name, strerror(errno));
@@ -557,6 +586,7 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
     if (socketcon)
         setsockcreatecon(NULL);
 
+    // 赋值 sockaddr_um，文件地址格式：/dev/socket/${name}
     memset(&addr, 0 , sizeof(addr));
     addr.sun_family = AF_UNIX;
     snprintf(addr.sun_path, sizeof(addr.sun_path), ANDROID_SOCKET_DIR"/%s",
@@ -575,6 +605,7 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
             setfscreatecon(filecon);
     }
 
+    // 绑定 socket 到目标地址
     ret = bind(fd, (struct sockaddr *) &addr, sizeof (addr));
     savederrno = errno;
 
@@ -586,11 +617,14 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
         goto out_unlink;
     }
 
+    // 设置用户和用户组
     ret = lchown(addr.sun_path, uid, gid);
     if (ret) {
         ERROR("Failed to lchown socket '%s': %s\n", addr.sun_path, strerror(errno));
         goto out_unlink;
     }
+
+    // 设置权限
     ret = fchmodat(AT_FDCWD, addr.sun_path, perm, AT_SYMLINK_NOFOLLOW);
     if (ret) {
         ERROR("Failed to fchmodat socket '%s': %s\n", addr.sun_path, strerror(errno));
@@ -600,6 +634,7 @@ int create_socket(const char *name, int type, mode_t perm, uid_t uid,
     INFO("Created socket '%s' with mode '%o', user '%d', group '%d'\n",
          addr.sun_path, perm, uid, gid);
 
+    // 返回文件描述符，并存入启动二进制程序的环境变量 ENV 中
     return fd;
 
 out_unlink:
@@ -609,6 +644,11 @@ out_close:
     return -1;
 }
 ```
+
+**3. 程序运行**
+
+
+
 
 ## 参照
 
