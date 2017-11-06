@@ -272,9 +272,37 @@ android 进程间通讯除了 binder 通讯，还有另外一种比较常见的 
 
 在 android 系统，socket 通讯为 c/s 模式，其中服务器在 init 进程 fork 各个 service 进程时创建，即 socket 服务器依附于 service 进程，而客户端在运行时连接服务器。
 
-### 服务器创建
+### 服务启动
 
-在 android 启动时，init 进程开始执行初始化，其中会解释 init.rc 并执行，在 init.rc 引入其他 rc 格式脚本文件，其中有服务声明，部分服务带有 socket 声明。以 vold.rc 为例：
+这里描述的服务启动不单单是 socket 服务器启动，而是整个服务进程创建和启动过程，包含两个步骤：
+
+1. 脚本解释
+2. 启动服务
+
+其中第二步，启动服务，才是真正从 init 进程 fork 出服务进程，并创建相关的 socket 服务器
+
+** 1. 服务脚本解释 **
+
+在 android 启动时，init 进程开始执行初始化，其中会解释 init.rc 并执行，在 init.rc 引入其他 rc 格式脚本文件，其中有服务声明，部分服务带有 socket 声明。研究三星上锁时涉及到 vold 进程，因此下文将围绕 vold 进程相关 socket 知识展开。
+
+**/system/core/init/init.cpp**
+
+```cpp
+int main(int argc, char** argv) {
+    ...
+    // 获取解释器单例
+    Parser& parser = Parser::GetInstance();
+    // 创建 service, on, import 节点解释器
+    parser.AddSectionParser("service",std::make_unique<ServiceParser>());
+    parser.AddSectionParser("on", std::make_unique<ActionParser>());
+    parser.AddSectionParser("import", std::make_unique<ImportParser>());
+    // 解释执行 init.rc
+    parser.ParseConfig("/init.rc");
+    ...
+}
+```
+
+
 
 **system/vold/vold.rc**
 
@@ -289,20 +317,296 @@ service vold /system/bin/vold \
     writepid /dev/cpuset/foreground/tasks
 ```
 
-**/system/core/init/init.cpp**
+脚本说明:
 
-```c
-int main(int argc, char** argv) {
+- 第1行，创建 vold 服务进程，其中二进制程序为 /system/bin/vold
+- 第2-3行，启动 /system/bin/vold 程序的四个参数
+- 第4行，ServiceManager 会对相应类别的服务执行相应方法，略
+- 第5行，创建名为 vold，类别为流的 socket 服务器，设置用户及用户组，对应文件 /dev/socket/vold
+- 第6行，创建名为 cryptd，类别为流的 socket 服务器，设置用户及用户组，对应文件 /dev/socket/cryptd
+- 第7行，设置 io 优先级，范围 0-7
+- 第8行，fork 调用后得到的子进程号写入到文件 /dev/cpuset/foreground/tasks
+
+服务解释器代码 - **system/core/init/service.cpp** :
+
+```cpp
+// 服务解释器可处理的参数列表
+Service::OptionHandlerMap::Map& Service::OptionHandlerMap::map() const {
+    constexpr std::size_t kMax = std::numeric_limits<std::size_t>::max();
+    static const Map option_handlers = {
+        {"class",       {1,     1,    &Service::HandleClass}},
+        {"console",     {0,     0,    &Service::HandleConsole}},
+        {"critical",    {0,     0,    &Service::HandleCritical}},
+        {"disabled",    {0,     0,    &Service::HandleDisabled}},
+        {"group",       {1,     NR_SVC_SUPP_GIDS + 1, &Service::HandleGroup}},
+        {"ioprio",      {2,     2,    &Service::HandleIoprio}},
+        {"keycodes",    {1,     kMax, &Service::HandleKeycodes}},
+        {"oneshot",     {0,     0,    &Service::HandleOneshot}},
+        {"onrestart",   {1,     kMax, &Service::HandleOnrestart}},
+        {"seclabel",    {1,     1,    &Service::HandleSeclabel}},
+        {"setenv",      {2,     2,    &Service::HandleSetenv}},
+        {"socket",      {3,     6,    &Service::HandleSocket}},
+        {"user",        {1,     1,    &Service::HandleUser}},
+        {"writepid",    {1,     kMax, &Service::HandleWritepid}},
+    };
+    return option_handlers;
+}
+
+/** OptionHandlerMap 继承 KeywordMap，数据结构如下:
+ * 
+ * using FunctionInfo = std::tuple<std::size_t, std::size_t, Function>;
+ * using Map = const std::map<std::string, FunctionInfo>;
+ * 
+ * {"class",{1,1,&Service::HandleClass}} 
+ * 解释为遇到 class 节点，调用 HandleClass 函数，参数个数最少最多都为1
+ *
+ * 所有 HandleXXX 函数，基本上是收集信息参数，待 Service::Start 才正式使用这些参数信息
+ */
+...
+
+// 遇到 service 节点，创建 service_ 对象，并解释参数
+bool ServiceParser::ParseSection(const std::vector<std::string>& args,
+                                 std::string* err) {
+    if (args.size() < 3) {
+        *err = "services must have a name and a program";
+        return false;
+    }
+
+    const std::string& name = args[1];
+    if (!IsValidName(name)) {
+        *err = StringPrintf("invalid service name '%s'", name.c_str());
+        return false;
+    }
+
+    std::vector<std::string> str_args(args.begin() + 2, args.end());
+    service_ = std::make_unique<Service>(name, "default", str_args);
+    return true;
+}
+
+// 逐行解释
+bool ServiceParser::ParseLineSection(const std::vector<std::string>& args,
+                                     const std::string& filename, int line,
+                                     std::string* err) const {
+    return service_ ? service_->HandleLine(args, err) : false;
+}
+
+// 添加服务到 ServiceManager
+void ServiceParser::EndSection() {
+    if (service_) {
+        ServiceManager::GetInstance().AddService(std::move(service_));
+    }
+}
+
+// 判断是否有效服务名称
+bool ServiceParser::IsValidName(const std::string& name) const {
+    if (name.size() > 16) {
+        return false;
+    }
+    for (const auto& c : name) {
+        if (!isalnum(c) && (c != '_') && (c != '-')) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+** 2. 启动服务 **
+
+服务启动代码 - **system/core/init/service.cpp** :
+
+```cpp
+bool Service::Start() {
     ...
-    // 获取解释器单例
-    Parser& parser = Parser::GetInstance();
-    // 创建 service, on, import 节点解释器
-    parser.AddSectionParser("service",std::make_unique<ServiceParser>());
-    parser.AddSectionParser("on", std::make_unique<ActionParser>());
-    parser.AddSectionParser("import", std::make_unique<ImportParser>());
-    // 解释执行 init.rc
-    parser.ParseConfig("/init.rc");
+    NOTICE("Starting service '%s'...\n", name_.c_str());
+
+    // fork 写时拷贝，若成功调用一次则返回两个值，子进程返回0，父进程返回子进程标记
+    pid_t pid = fork();
+    if (pid == 0) {
+        umask(077);
+
+        // 添加二进制程序运行时环境变量，扩展 ENV
+        for (const auto& ei : envvars_) {
+            add_environment(ei.name.c_str(), ei.value.c_str());
+        }
+
+        // 创建 socket 服务器
+        for (const auto& si : sockets_) {
+            int socket_type = ((si.type == "stream" ? SOCK_STREAM :
+                                (si.type == "dgram" ? SOCK_DGRAM :
+                                 SOCK_SEQPACKET)));
+            const char* socketcon =
+                !si.socketcon.empty() ? si.socketcon.c_str() : scon.c_str();
+
+            int s = create_socket(si.name.c_str(), socket_type, si.perm,
+                                  si.uid, si.gid, socketcon);
+            if (s >= 0) {
+                PublishSocket(si.name, s);
+            }
+        }
+
+        // 写进程号到相关文件
+        std::string pid_str = StringPrintf("%d", getpid());
+        for (const auto& file : writepid_files_) {
+            if (!WriteStringToFile(pid_str, file)) {
+                ERROR("couldn't write %s to %s: %s\n",
+                      pid_str.c_str(), file.c_str(), strerror(errno));
+            }
+        }
+
+        // 设置 io 优先级
+        if (ioprio_class_ != IoSchedClass_NONE) {
+            if (android_set_ioprio(getpid(), ioprio_class_, ioprio_pri_)) {
+                ERROR("Failed to set pid %d ioprio = %d,%d: %s\n",
+                      getpid(), ioprio_class_, ioprio_pri_, strerror(errno));
+            }
+        }
+
+        if (needs_console) {
+            setsid();
+            OpenConsole();
+        } else {
+            ZapStdio();
+        }
+
+        setpgid(0, getpid());
+
+        // 设置 gid
+        if (gid_) {
+            if (setgid(gid_) != 0) {
+                ERROR("setgid failed: %s\n", strerror(errno));
+                _exit(127);
+            }
+        }
+        // 设置关联 gid
+        if (!supp_gids_.empty()) {
+            if (setgroups(supp_gids_.size(), &supp_gids_[0]) != 0) {
+                ERROR("setgroups failed: %s\n", strerror(errno));
+                _exit(127);
+            }
+        }
+        // 设置uid
+        if (uid_) {
+            if (setuid(uid_) != 0) {
+                ERROR("setuid failed: %s\n", strerror(errno));
+                _exit(127);
+            }
+        }
+        if (!seclabel_.empty()) {
+            if (setexeccon(seclabel_.c_str()) < 0) {
+                ERROR("cannot setexeccon('%s'): %s\n",
+                      seclabel_.c_str(), strerror(errno));
+                _exit(127);
+            }
+        }
+
+        std::vector<std::string> expanded_args;
+        std::vector<char*> strs;
+        expanded_args.resize(args_.size());
+        strs.push_back(const_cast<char*>(args_[0].c_str()));
+        for (std::size_t i = 1; i < args_.size(); ++i) {
+            if (!expand_props(args_[i], &expanded_args[i])) {
+                ERROR("%s: cannot expand '%s'\n", args_[0].c_str(), args_[i].c_str());
+                _exit(127);
+            }
+            strs.push_back(const_cast<char*>(expanded_args[i].c_str()));
+        }
+        strs.push_back(nullptr);
+
+        // 在当前子进程启动二进制执行程序
+        if (execve(strs[0], (char**) &strs[0], (char**) ENV) < 0) {
+            ERROR("cannot execve('%s'): %s\n", strs[0], strerror(errno));
+        }
+
+        _exit(127);
+    }
+
+    if (pid < 0) {
+        ERROR("failed to start '%s'\n", name_.c_str());
+        pid_ = 0;
+        return false;
+    }
     ...
+    return true;
+}
+```
+
+创建 socket 服务器 - **system/core/init/util.cpp**
+
+```cpp
+int create_socket(const char *name, int type, mode_t perm, uid_t uid,
+                  gid_t gid, const char *socketcon)
+{
+    struct sockaddr_un addr;
+    int fd, ret, savederrno;
+    char *filecon;
+
+    if (socketcon) {
+        if (setsockcreatecon(socketcon) == -1) {
+            ERROR("setsockcreatecon(\"%s\") failed: %s\n", socketcon, strerror(errno));
+            return -1;
+        }
+    }
+
+    fd = socket(PF_UNIX, type, 0);
+    if (fd < 0) {
+        ERROR("Failed to open socket '%s': %s\n", name, strerror(errno));
+        return -1;
+    }
+
+    if (socketcon)
+        setsockcreatecon(NULL);
+
+    memset(&addr, 0 , sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    snprintf(addr.sun_path, sizeof(addr.sun_path), ANDROID_SOCKET_DIR"/%s",
+             name);
+
+    ret = unlink(addr.sun_path);
+    if (ret != 0 && errno != ENOENT) {
+        ERROR("Failed to unlink old socket '%s': %s\n", name, strerror(errno));
+        goto out_close;
+    }
+
+    filecon = NULL;
+    if (sehandle) {
+        ret = selabel_lookup(sehandle, &filecon, addr.sun_path, S_IFSOCK);
+        if (ret == 0)
+            setfscreatecon(filecon);
+    }
+
+    ret = bind(fd, (struct sockaddr *) &addr, sizeof (addr));
+    savederrno = errno;
+
+    setfscreatecon(NULL);
+    freecon(filecon);
+
+    if (ret) {
+        ERROR("Failed to bind socket '%s': %s\n", name, strerror(savederrno));
+        goto out_unlink;
+    }
+
+    ret = lchown(addr.sun_path, uid, gid);
+    if (ret) {
+        ERROR("Failed to lchown socket '%s': %s\n", addr.sun_path, strerror(errno));
+        goto out_unlink;
+    }
+    ret = fchmodat(AT_FDCWD, addr.sun_path, perm, AT_SYMLINK_NOFOLLOW);
+    if (ret) {
+        ERROR("Failed to fchmodat socket '%s': %s\n", addr.sun_path, strerror(errno));
+        goto out_unlink;
+    }
+
+    INFO("Created socket '%s' with mode '%o', user '%d', group '%d'\n",
+         addr.sun_path, perm, uid, gid);
+
+    return fd;
+
+out_unlink:
+    unlink(addr.sun_path);
+out_close:
+    close(fd);
+    return -1;
 }
 ```
 
