@@ -890,22 +890,7 @@ CommandListener::CommandListener() :
 ```cpp
 int main(int argc, char **argv) {
     int sock;
-    int wait_for_socket;
-    char *progname;
-
-    progname = argv[0];
-
-    wait_for_socket = argc > 1 && strcmp(argv[1], "--wait") == 0;
-    if (wait_for_socket) {
-        argv++;
-        argc--;
-    }
-
-    if (argc < 2) {
-        usage(progname);
-        exit(5);
-    }
-
+    ...
     const char* sockname = "vold";
     // 不一定 socket vold ，根据参数判断还可能是在同一服务的 socket crypted，可查看 vdc.rc
     if (!strcmp(argv[1], "cryptfs")) {
@@ -959,6 +944,7 @@ static int do_monitor(int sock, int stop_after_seq) {
         int rc = TEMP_FAILURE_RETRY(poll(&poll_sock, 1, timeout));
         ...
         memset(buffer, 0, sizeof(buffer));
+        // 读取字节数据
         rc = TEMP_FAILURE_RETRY(read(sock, buffer, sizeof(buffer)));
         ...
     }
@@ -966,6 +952,10 @@ static int do_monitor(int sock, int stop_after_seq) {
 }
 ```
 
-## 参照
+## 引用
 
 [HTTP请求头详解: http://blog.csdn.net/kfanning/article/details/6062118/](http://blog.csdn.net/kfanning/article/details/6062118/)
+
+## 总结
+
+本文主要介绍了 socket 网络编程和进程通讯相关概念和函数，具体的读写操作，协议并没有提及，事实上在 TCP/UDP 网络编程中，还需要考虑传输数据的顺序，边界及丢失等等。更多，请阅读[《Java+TCPIP+Socket编程(中文版).pdf》]()
