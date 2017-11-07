@@ -1,15 +1,13 @@
-title: android-oem-lock-note
-date: 2017-11-06 16:08:07
+title: Android Socket 应用 - 网络编程与进程通讯
+date: 2017-11-08 00:08:07
 tags:
 ---
-
-## 闲话
 
 前阵子空闲时间学习了下 okhttp 源码，主要是重新学习 socket 网络编程，以及 okhttp 框架的一些特点。上周末，一个制作三星刷机包的朋友告诉我：国行三星手机通过官方 crom service 应用解锁手机后，才可以刷第三方刷机包，解锁后就保修就废了，很多人都不愿意解锁。于是朋友托我研究 crom service 上锁，如果研究成功，那么玩家更乐意解锁刷机。在研究上锁，刚好涉及到 android 底层 socket 通讯知识，同时分享下。
 
 ## socket 网络编程
 
-在 okhttp 中，一次网络请求，在一条拦截链中完成，拦截链中每个拦截器完成比较少的任务（如重定向，失败重连，连接池，缓存等），很多大神也分享过 okhttp 拦截链的代码，这里就不重复介绍。而查阅 okhttp 一次 https 网络请求源码，我们可以发现一次请求中，可以简化分为以下四步：
+在 okhttp 中，一次网络请求，在一条拦截链中完成，拦截链中每个拦截器完成比较少的任务（如重定向，失败重连，连接池，缓存等），很多大神也分享过拦截链的代码，就不重复介绍，这里主要介绍一次网络请求整个流程，可分以下四步：
 
 |序号|方法|描述|
 |---|---|---|
@@ -17,6 +15,8 @@ tags:
 |2|connectTls|传输层安全协议，握手|
 |3|writeRequest|写请求信息|
 |4|readResponse|读响应信息|
+
+<!-- more -->
 
 以下代码为整合的一次 https 网络请求代码：
 
@@ -190,7 +190,7 @@ public class Https implements Runnable {
 
 ```
 
-上述代码，如果不关心**传输层安全协议**，上述代码看上去还是挺简单的，先连接远程服务器，然后建立 SSLSocket ，获取输入输出流，然后写请求信息，即可得到响应消息。满足 http 其中三个特点：1. C/S模式；2. 快速简单，支持多种请求方式； 3. 灵活，支持任意类型数据对象。
+上述代码，如果不关心**传输层安全协议**，看上去还是挺简单的，先连接远程服务器，然后建立 SSLSocket ，获取输入输出流，然后写请求信息，即可得到响应消息。满足 http 其中三个特点：1. C/S模式；2. 快速简单，支持多种请求方式； 3. 灵活，支持任意类型数据对象。
 
 
 ### 请求信息
@@ -268,7 +268,7 @@ X-GitHub-Request-Id: 6821:536C:1C4665:50110F:5A004649
 
 ## socket 进程通讯
 
-android 进程间通讯除了 binder 通讯，还有另外一种比较常见的 socket 通讯，在 android 的 native 层出现比较多。如果你想更深入 android 系统，应该克隆一份 aosp 源码。对着 android 系统源码，你将更容易理解其中奥妙。虽然本人 c++ 语言比较差，但看着代码也能理解其用意，和仿照系统源码学习编写 c++ 代码（jni编程）。
+android 进程间通讯除了 binder 通讯，还有另外一种比较常见的 socket 通讯，在 native 层出现比较多。如果你想更深入 android 系统，应该克隆一份 aosp 源码。对着系统源码，你将更容易理解其中奥妙。虽然本人 c++ 语言比较差，但看着代码也能理解其用意，和仿照系统源码学习编写 c++ 代码（jni编程）。文章接下来比较多贴代码的地方，需要仔细阅读**代码注释**。
 
 在 android 系统，socket 通讯为 c/s 模式，其中服务器在 init 进程 fork 各个 service 进程时创建，即 socket 服务器依附于 service 进程，而客户端在运行时连接服务器。
 
@@ -303,9 +303,9 @@ close(int)
 2. 启动服务
 3. 程序运行
 
-其中第二步，启动服务，才是真正从 init 进程 fork 出服务进程，并创建相关的 socket 服务器
+其中第二步，启动服务，才是真正从 init 进程 fork 出服务进程，并创建相关的 socket 服务器。
 
-** 1. 服务脚本解释 **
+#### **脚本解释**
 
 在 android 启动时，init 进程开始执行初始化，其中会解释 init.rc 并执行，在 init.rc 引入其他 rc 格式脚本文件，其中有服务声明，部分服务带有 socket 声明。研究三星上锁时涉及到 vold 进程，因此下文将围绕 vold 进程相关 socket 知识展开。
 
@@ -344,7 +344,7 @@ service vold /system/bin/vold \
 脚本说明:
 
 - 第1行，创建 vold 服务进程，其中二进制程序为 /system/bin/vold
-- 第2-3行，启动 /system/bin/vold 程序的四个参数
+- 第2-3行，启动 /system/bin/vold 程序的四个参数，这两行是接着第一行的，属于 service 节点参数
 - 第4行，ServiceManager 会对相应类别的服务执行相应方法，略
 - 第5行，创建名为 vold，类别为流的 socket 服务器，设置权限，用户及用户组，对应文件 /dev/socket/vold
 - 第6行，创建名为 cryptd，类别为流的 socket 服务器，设置权限，用户及用户组，对应文件 /dev/socket/cryptd
@@ -435,7 +435,7 @@ bool ServiceParser::IsValidName(const std::string& name) const {
 }
 ```
 
-** 2. 启动服务 **
+#### **启动服务**
 
 服务启动代码 - **system/core/init/service.cpp** :
 
@@ -456,7 +456,7 @@ bool Service::Start() {
             add_environment(ei.name.c_str(), ei.value.c_str());
         }
 
-        // 创建 socket 服务器
+        // 创建相关 socket 服务器
         for (const auto& si : sockets_) {
             int socket_type = ((si.type == "stream" ? SOCK_STREAM :
                                 (si.type == "dgram" ? SOCK_DGRAM :
@@ -467,6 +467,7 @@ bool Service::Start() {
             int s = create_socket(si.name.c_str(), socket_type, si.perm,
                                   si.uid, si.gid, socketcon);
             if (s >= 0) {
+                // 保存 socket 文件描述符到环境变量中
                 PublishSocket(si.name, s);
             }
         }
@@ -645,10 +646,325 @@ out_close:
 }
 ```
 
-**3. 程序运行**
+#### **程序运行**
 
+每个服务中 socket 服务器功能不一样，实现可以在 c++ 中，也可以在 java 中，因为 android 提供了 LocalServerSocket, LocalSocket 等类实现 socket 通讯，典型的 java 实现有应用进程的 ZygoteInit。这里以 vold 程序为例，在 c++ 中实现。
 
+在 vold 程序运行时，会创建 VolumeManager 和 NetlinkManager， 并设置 CommandListener，而 CommandListener 是 socket 服务器关键，CommonListener 继承 FrameworkListener，FrameworkListener 继承 SocketListener。从名字可以推断，这里的 socket 通讯主要是用于服务端执行客户端发来的命令，并返回结果，接下来贴代码环节。
 
+vold main 函数 - **system/vold/main.cpp**
+
+```cpp
+int main(int argc, char** argv) {
+    ...
+    VolumeManager *vm;
+    CommandListener *cl;
+    CryptCommandListener *ccl;
+    NetlinkManager *nm;
+
+    parse_args(argc, argv);
+
+    sehandle = selinux_android_file_context_handle();
+    if (sehandle) {
+        selinux_android_set_sehandle(sehandle);
+    }
+
+    // Quickly throw a CLOEXEC on the socket we just inherited from init
+    fcntl(android_get_control_socket("vold"), F_SETFD, FD_CLOEXEC);
+    fcntl(android_get_control_socket("cryptd"), F_SETFD, FD_CLOEXEC);
+
+    mkdir("/dev/block/vold", 0755);
+
+    /* For when cryptfs checks and mounts an encrypted filesystem */
+    klog_set_level(6);
+
+    /* Create our singleton managers */
+    if (!(vm = VolumeManager::Instance())) {
+        LOG(ERROR) << "Unable to create VolumeManager";
+        exit(1);
+    }
+
+    if (!(nm = NetlinkManager::Instance())) {
+        LOG(ERROR) << "Unable to create NetlinkManager";
+        exit(1);
+    }
+
+    if (property_get_bool("vold.debug", false)) {
+        vm->setDebug(true);
+    }
+
+    // 初始化 CommandListener
+    cl = new CommandListener();
+    ccl = new CryptCommandListener();
+    vm->setBroadcaster((SocketListener *) cl);
+    nm->setBroadcaster((SocketListener *) cl);
+
+    if (vm->start()) {
+        PLOG(ERROR) << "Unable to start VolumeManager";
+        exit(1);
+    }
+
+    if (process_config(vm)) {
+        PLOG(ERROR) << "Error reading configuration... continuing anyways";
+    }
+
+    if (nm->start()) {
+        PLOG(ERROR) << "Unable to start NetlinkManager";
+        exit(1);
+    }
+    ...
+}
+```
+
+SocketListener - **system/core/libsysutils/src/SocketListener.cpp**
+职责：listen 和 创建线程进行 accept 客户端
+
+```cpp
+// 启动监听
+int SocketListener::startListener(int backlog) {
+
+    if (!mSocketName && mSock == -1) {
+        SLOGE("Failed to start unbound listener");
+        errno = EINVAL;
+        return -1;
+    } else if (mSocketName) {
+        // 在 init 创建子进程时 create_socket 函数保存了 socket 的文件描述符到环境变量中，现在取出
+        if ((mSock = android_get_control_socket(mSocketName)) < 0) {
+            SLOGE("Obtaining file descriptor socket '%s' failed: %s",
+                 mSocketName, strerror(errno));
+            return -1;
+        }
+        SLOGV("got mSock = %d for %s", mSock, mSocketName);
+        fcntl(mSock, F_SETFD, FD_CLOEXEC);
+    }
+
+    // socket 服务器进行监听
+    if (mListen && listen(mSock, backlog) < 0) {
+        SLOGE("Unable to listen on socket (%s)", strerror(errno));
+        return -1;
+    } else if (!mListen)
+        mClients->push_back(new SocketClient(mSock, false, mUseCmdNum));
+
+    if (pipe(mCtrlPipe)) {
+        SLOGE("pipe failed (%s)", strerror(errno));
+        return -1;
+    }
+
+    // 创建无限循环的线程，接受客户端的连入
+    if (pthread_create(&mThread, NULL, SocketListener::threadStart, this)) {
+        SLOGE("pthread_create (%s)", strerror(errno));
+        return -1;
+    }
+
+    return 0;
+}
+
+// 结束监听
+int SocketListener::stopListener() {
+    ...
+    if (mSocketName && mSock > -1) {
+        // 关闭 socket 服务器
+        close(mSock);
+        mSock = -1;
+    }
+    ...
+    return 0;
+}
+
+// 开启线程
+void *SocketListener::threadStart(void *obj) {
+    SocketListener *me = reinterpret_cast<SocketListener *>(obj);
+    me->runListener();
+    pthread_exit(NULL);
+    return NULL;
+}
+
+// 无限循环接受客户端
+void SocketListener::runListener() {
+
+    SocketClientCollection pendingList;
+
+    while(1) {
+        ...
+        if (mListen && FD_ISSET(mSock, &read_fds)) {
+            sockaddr_storage ss;
+            sockaddr* addrp = reinterpret_cast<sockaddr*>(&ss);
+            socklen_t alen;
+            int c;
+
+            // 接受客户端连入
+            do {
+                alen = sizeof(ss);
+                c = accept(mSock, addrp, &alen);
+                SLOGV("%s got %d from accept", mSocketName, c);
+            } while (c < 0 && errno == EINTR);
+            if (c < 0) {
+                SLOGE("accept failed (%s)", strerror(errno));
+                sleep(1);
+                continue;
+            }
+            fcntl(c, F_SETFD, FD_CLOEXEC);
+            pthread_mutex_lock(&mClientsLock);
+            mClients->push_back(new SocketClient(c, true, mUseCmdNum));
+            pthread_mutex_unlock(&mClientsLock);
+        }
+        ...
+    }
+}
+
+```
+
+FrameworkListener - **system/core/libsysutils/src/FrameworkListener.cpp**
+职责：主要负责收发数据，即接收和分发命令，并返回客户端执行结果
+
+```cpp
+FrameworkListener::FrameworkListener(const char *socketName, bool withSeq) :
+                            SocketListener(socketName, true, withSeq) {
+    init(socketName, withSeq);
+}
+
+// 接收命令数据
+bool FrameworkListener::onDataAvailable(SocketClient *c) {
+    char buffer[CMD_BUF_SIZE];
+    int len;
+
+    // 读取命令
+    len = TEMP_FAILURE_RETRY(read(c->getSocket(), buffer, sizeof(buffer)));
+    if (len < 0) {
+        SLOGE("read() failed (%s)", strerror(errno));
+        return false;
+    } else if (!len) {
+        return false;
+    } else if (buffer[len-1] != '\0') {
+        SLOGW("String is not zero-terminated");
+        android_errorWriteLog(0x534e4554, "29831647");
+        c->sendMsg(500, "Command too large for buffer", false);
+        mSkipToNextNullByte = true;
+        return false;
+    }
+
+    int offset = 0;
+    int i;
+
+    for (i = 0; i < len; i++) {
+        if (buffer[i] == '\0') {
+            if (mSkipToNextNullByte) {
+                mSkipToNextNullByte = false;
+            } else {
+                // 分发命令和返回结果
+                dispatchCommand(c, buffer + offset);
+            }
+            offset = i + 1;
+        }
+    }
+
+    mSkipToNextNullByte = false;
+    return true;
+}
+
+```
+
+CommandListener - **system/vold/CommandListener.cpp**
+职责：主要负责注册各种命令解释执行器，统一管理
+
+```cpp
+CommandListener::CommandListener() :
+                 FrameworkListener("vold", true) {
+    // 注册命令解释执行器
+    registerCmd(new DumpCmd());
+    registerCmd(new VolumeCmd());
+    registerCmd(new AsecCmd());
+    registerCmd(new ObbCmd());
+    registerCmd(new StorageCmd());
+    registerCmd(new FstrimCmd());
+    registerCmd(new AppFuseCmd());
+}
+```
+
+### 客户端连接
+
+客户端可以在 c++ 或 java 中连接，在 vold.rc 中， socket vold 被声明了 0660 权限，即仅 root 用户， mount 组别的客户端才可以连接进行读写，若设有 selinux_label，要求更严格，关注系统安全的同学可以深入学习 SELinux 和 SEAndroid。
+
+在源码中搜索了一番，发现只有 vdc.cpp 程序会发起 vold 的 socket 连接
+
+```cpp
+int main(int argc, char **argv) {
+    int sock;
+    int wait_for_socket;
+    char *progname;
+
+    progname = argv[0];
+
+    wait_for_socket = argc > 1 && strcmp(argv[1], "--wait") == 0;
+    if (wait_for_socket) {
+        argv++;
+        argc--;
+    }
+
+    if (argc < 2) {
+        usage(progname);
+        exit(5);
+    }
+
+    const char* sockname = "vold";
+    // 不一定 socket vold ，根据参数判断还可能是在同一服务的 socket crypted，可查看 vdc.rc
+    if (!strcmp(argv[1], "cryptfs")) {
+        sockname = "cryptd";
+    }
+
+    // 创建客户端，并连接
+    while ((sock = socket_local_client(sockname,
+                                 ANDROID_SOCKET_NAMESPACE_RESERVED,
+                                 SOCK_STREAM)) < 0) {
+        if (!wait_for_socket) {
+            fprintf(stdout, "Error connecting to %s: %s\n", sockname, strerror(errno));
+            exit(4);
+        } else {
+            usleep(10000);
+        }
+    }
+
+    if (!strcmp(argv[1], "monitor")) {
+        exit(do_monitor(sock, 0));
+    } else {
+        exit(do_cmd(sock, argc, argv));
+    }
+}
+
+// 写命令
+static int do_cmd(int sock, int argc, char **argv) {
+    ...
+    // 通过 sock 文件描述符写字节数据
+    if (TEMP_FAILURE_RETRY(write(sock, cmd.c_str(), cmd.length() + 1)) < 0) {
+        fprintf(stderr, "Failed to write command: %s\n", strerror(errno));
+        return errno;
+    }
+
+    // 读取结果
+    return do_monitor(sock, seq);
+}
+
+// 读取结果
+static int do_monitor(int sock, int stop_after_seq) {
+    char buffer[4096];
+    int timeout = kCommandTimeoutMs;
+
+    if (stop_after_seq == 0) {
+        fprintf(stderr, "Connected to vold\n");
+        timeout = -1;
+    }
+
+    while (1) {
+        struct pollfd poll_sock = { sock, POLLIN, 0 };
+        int rc = TEMP_FAILURE_RETRY(poll(&poll_sock, 1, timeout));
+        ...
+        memset(buffer, 0, sizeof(buffer));
+        rc = TEMP_FAILURE_RETRY(read(sock, buffer, sizeof(buffer)));
+        ...
+    }
+    return EIO;
+}
+```
 
 ## 参照
 
