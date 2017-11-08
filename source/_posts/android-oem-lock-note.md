@@ -3,7 +3,7 @@ date: 2017-11-08 00:08:07
 tags:
 ---
 
-前阵子空闲时间学习了下 okhttp 源码，主要是重新学习 socket 网络编程，以及 okhttp 框架的一些特点。上周末，一个制作三星刷机包的朋友告诉我：国行三星手机通过官方 crom service 应用解锁手机后，才可以刷第三方刷机包，解锁后就保修就废了，很多人都不愿意解锁。于是朋友托我研究 crom service 上锁，如果研究成功，那么玩家更乐意解锁刷机。在研究上锁，刚好涉及到 android 底层 socket 通讯知识，同时分享下。
+前阵子空闲时间学习了下 okhttp 源码，主要是重新学习 socket 网络编程，以及 okhttp 框架的一些特点。上周末，一个制作三星刷机包的朋友告诉我：国行三星手机通过官方 crom service 应用解锁手机后，才可以刷第三方刷机包，解锁后就保修就废了，很多人都不愿意解锁。于是朋友托我研究 crom service 上锁，如果研究成功，那么玩家更乐意解锁刷机。在研究上锁，刚好涉及到 android 底层 socket 通讯知识，同时分享下。文末介绍这次三星上锁之旅（反编译相关），成功但尴尬的结局。
 
 ## socket 网络编程
 
@@ -295,7 +295,7 @@ close(int)
 
 ```
 
-### 服务启动
+### 服务器启动
 
 这里描述的服务启动不单单是 socket 服务器启动，而是整个服务进程创建和启动过程，包含三个步骤：
 
@@ -952,10 +952,16 @@ static int do_monitor(int sock, int stop_after_seq) {
 }
 ```
 
+## 三星上锁
+
+目标应用（官方下载）： crom_service.apk，使用 dex2jar 反编译 dex 得到 jar文件，使用 jd-gui 查看，可得如图代码结构：
+
+![android-libkwb-jar.png](/images/android-socket/android-libkwb-jar.png)
+
 ## 引用
 
 [HTTP请求头详解: http://blog.csdn.net/kfanning/article/details/6062118/](http://blog.csdn.net/kfanning/article/details/6062118/)
 
 ## 总结
 
-本文主要介绍了 socket 网络编程和进程通讯相关概念和函数，具体的读写操作，协议并没有提及，事实上在 TCP/UDP 网络编程中，还需要考虑传输数据的顺序，边界及丢失等等。更多，请阅读[《Java+TCPIP+Socket编程.pdf》](https://github.com/4ndroidev/4ndroidev.github.io/blob/mobile/source/doc/Java%2BTCPIP%2BSocket%E7%BC%96%E7%A8%8B.pdf)
+本文主要介绍了 socket 网络编程和进程通讯相关概念和函数，具体的读写操作，协议并没有提及，事实上在 TCP/UDP 网络编程中，还需要考虑传输数据的顺序，边界及丢失等等。更多，请阅读[《Java+TCPIP+Socket编程.pdf》](https://github.com/4ndroidev/4ndroidev.github.io/blob/mobile/source/doc/Java%2BTCPIP%2BSocket%E7%BC%96%E7%A8%8B.pdf)。
