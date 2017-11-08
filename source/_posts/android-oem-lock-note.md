@@ -1,5 +1,5 @@
 title: Android Socket 应用 - 网络编程与进程通讯
-date: 2017-11-08 00:08:07
+date: 2017-11-09 00:08:07
 tags:
 ---
 
@@ -1041,7 +1041,23 @@ private final void startProcessLocked(ProcessRecord app, String hostingType,
 
 问题二：seinfo 对了，权限够了，没报错，但是没效果。
 
-答案：这种情况只能使用屠龙刀 **IDA** 静态分析 **system/lib64/libkwb.so** 了。通过 **IDA** 静态分析后，发现虽然 java 层写的上锁命令是 17， 但是 libkwb.so 只处理 0 和 23 命令，其中 0 是解锁，只要使用 hex 修改下 so 即可。另外发现三星搞了个 **kiwi brid** 解密 token，和校验各种权限。另外在 vold.rc 添加了 socket frigate ，解锁和上锁实质上是修改 /dev/block/stready 文件。上述所有 socket 通讯知识都因 socket frigate 引起我的兴趣而学习得到。
+答案：这种情况只能使用屠龙刀 **IDA** 静态分析 **system/lib64/libkwb.so** 了。通过 **IDA** 静态分析后，发现虽然 java 层写的上锁命令是 17， 但是 libkwb.so 只处理 1 和 23 命令，其中 1 是解锁，只要使用 Hex Fiend 将 23 修改为 17 即可。另外在 vold.rc 添加了 socket frigate ，解锁和上锁实质上是修改 /dev/block/steady 文件。上述所有 socket 通讯知识都因 socket frigate 引起我的兴趣而学习得到。
+
+![android-libkwb-native-unlock.png](/images/android-socket/android-libkwb-native-unlock.png)
+
+上图为 setTokenToUnlock 对应的 jni 方法，sub_1994 函数是关键，转到 sub_1994 可发现只处理 1 和 23 命令。
+
+![android-libkwb-sub1994.png](/images/android-socket/android-libkwb-sub1994.png)
+
+跳到 sub_1994 汇编指令视图，修改指令，其实我也不知道为什么这样改，只是试了几下，指令对了，32位跟64位也不一样。
+
+![android-libkwb-hex.png](/images/android-socket/android-libkwb-hex.png)
+
+修改完成，替换 **system/lib64/libkwb.so** ，运行 app ，上锁成功。重启，系统和 recovery 都不能进，只能进入三星挖煤模式-定制 bootloader，bootloader 界面显示 CROM SERVICE : Lock ，成功上锁。朋友说正常现象，上锁后只能刷官方固件才能开机。本人验证了下也是，刷官方系统，确实上锁了，不能刷第三方 recovery。朋友让我试试 knox 和 samsung pay 能不能用，发现是不行的，看来跟上锁没什么关系，听他说可能跟 bootloader 的 WARRANTY VOID 值相关。
+
+![android-samsung-bl.png](/images/android-socket/android-samsung-bl.png)
+
+整个过程中，尝试过 cat /dev/block/steady 查看，但是看不出什么，但是可以断点调试 libkwb.so ，懒得使用我那个华硕笔记本调试了，学到知识就好。以后再反编译 knox 和 samsung pay 看看到底校验了什么东西，不让使用。
 
 ## 引用
 
