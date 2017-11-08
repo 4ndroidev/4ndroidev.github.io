@@ -309,26 +309,7 @@ close(int)
 
 在 android 启动时，init 进程开始执行初始化，其中会解释 init.rc 并执行，在 init.rc 引入其他 rc 格式脚本文件，其中有服务声明，部分服务带有 socket 声明。研究三星上锁时涉及到 vold 进程，因此下文将围绕 vold 进程相关 socket 知识展开。
 
-**/system/core/init/init.cpp**
-
-```cpp
-int main(int argc, char** argv) {
-    ...
-    // 获取解释器单例
-    Parser& parser = Parser::GetInstance();
-    // 创建 service, on, import 节点解释器
-    parser.AddSectionParser("service",std::make_unique<ServiceParser>());
-    parser.AddSectionParser("on", std::make_unique<ActionParser>());
-    parser.AddSectionParser("import", std::make_unique<ImportParser>());
-    // 解释执行 init.rc
-    parser.ParseConfig("/init.rc");
-    ...
-}
-```
-
-
-
-**system/vold/vold.rc**
+vold.rc 脚本 - **system/vold/vold.rc**
 
 ```sh
 service vold /system/bin/vold \
@@ -350,6 +331,30 @@ service vold /system/bin/vold \
 - 第6行，创建名为 cryptd，类别为流的 socket 服务器，设置权限，用户及用户组，对应文件 /dev/socket/cryptd
 - 第7行，设置 io 优先级，范围 0-7
 - 第8行，fork 调用后得到的子进程号写入到文件 /dev/cpuset/foreground/tasks
+
+查看服务进程可通过 ps | grep ${name} 命令， 查看 socket 服务器可通过 ls -l /dev/socket/${name}， 如下图
+
+![android-ps-ls-vold.png](/images/android-socket/android-ps-ls-vold.png)
+
+---
+
+init 初始化 - **/system/core/init/init.cpp**
+init 进程乃所有用户进程的始祖，初始化时解释执行 init.rc ，fork 出多个服务子进程
+
+```cpp
+int main(int argc, char** argv) {
+    ...
+    // 获取解释器单例
+    Parser& parser = Parser::GetInstance();
+    // 创建 service, on, import 节点解释器
+    parser.AddSectionParser("service",std::make_unique<ServiceParser>());
+    parser.AddSectionParser("on", std::make_unique<ActionParser>());
+    parser.AddSectionParser("import", std::make_unique<ImportParser>());
+    // 解释执行 init.rc
+    parser.ParseConfig("/init.rc");
+    ...
+}
+```
 
 服务解释器代码 - **system/core/init/service.cpp** :
 
@@ -954,9 +959,89 @@ static int do_monitor(int sock, int stop_after_seq) {
 
 ## 三星上锁
 
-目标应用（官方下载）： crom_service.apk，使用 dex2jar 反编译 dex 得到 jar文件，使用 jd-gui 查看，可得如图代码结构：
+> 这里需要一定的反编译知识，不感兴趣同学直接跳过
+
+目标应用（官方下载）： crom_service.apk，使用 dex2jar 反编译 dex 得到 jar 文件，使用 jd-gui 查看，可得如图代码结构：
 
 ![android-libkwb-jar.png](/images/android-socket/android-libkwb-jar.png)
+
+通过静态分析，上图已标记各个 native 方法的功能，同时可发现解锁和上锁的流程如下：
+
+`上传用户信息和操作命令` -> `获取操作 token` -> `校验，解锁或上锁`
+
+通过 baksmali/smali 工具，干掉 ui 相关代码得到 dex 文件后，再通过 dex2jar 得 jar 文件，新建同包名应用，整理得：
+
+![android-as-locker.png](/images/android-socket/android-as-locker.png)
+
+通过 apktool 反编译 apk ，可发现 app 运行时需要是 system 用户和 system 用户组，需在 AndroidManifest.xml 的 manifest 节点添加 **android:sharedUserId="android.uid.system"**。
+
+问题一：编译运行，没停止运行，报 SEAndroid 权限错误，日志以 **avc:**开头
+
+答案：原因应用签名非官方签名，而是 as 的 debug.keystore。经验证，当安装官方 crom_service.apk，相关的 packageInfo.applicationInfo.seinfo 为 **platform**，而通过 as 安装的是 **default**。看了一下官网介绍，然而并不想研究 SEAndroid ，我比较蠢和是个急性子，遇到这种问题，不先百度，直接就反编译去改 /system/framework/service.jar 里面的 PackageManagerService，赋值 packageInfo.applicationInfo.seinfo 的函数是 **scanPackageDirtyLI**，以下贴的都是官方源码，非三星相应代码，差不多的。
+
+scanPackageDirtyLI - **frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java**
+
+```java
+private PackageParser.Package scanPackageDirtyLI(PackageParser.Package pkg,
+    final int policyFlags, final int scanFlags, long currentTime, UserHandle user)
+    throws PackageManagerException {
+    ...
+    if (mFoundPolicyFile) {
+        SELinuxMMAC.assignSeinfoValue(pkg);
+    }
+    ...
+}
+```
+
+assignSeinfoValue - **frameworks/base/services/core/java/com/android/server/pm/SELinuxMMAC.java**
+
+```java
+public static void assignSeinfoValue(PackageParser.Package pkg) {
+    synchronized (sPolicies) {
+        for (Policy policy : sPolicies) {
+            String seinfo = policy.getMatchedSeinfo(pkg);
+            if (seinfo != null) {
+                pkg.applicationInfo.seinfo = seinfo;
+                break;
+            }
+        }
+    }
+
+    if (pkg.applicationInfo.isAutoPlayApp())
+        pkg.applicationInfo.seinfo += AUTOPLAY_APP_STR;
+
+    if (pkg.applicationInfo.isPrivilegedApp())
+        pkg.applicationInfo.seinfo += PRIVILEGED_APP_STR;
+
+    if (DEBUG_POLICY_INSTALL) {
+        Slog.i(TAG, "package (" + pkg.packageName + ") labeled with " +
+                "seinfo=" + pkg.applicationInfo.seinfo);
+    }
+}
+```
+
+先简单粗暴地，判断包名是 **com.sec.android.app.kwb** ，然后直接赋值 **platform** ，相关代码插桩看[ Android 反编译分享 ](https://4ndroidev.github.io/2017/05/02/android-decompile-share-1/#代码插桩)
+
+如果想了解 seinfo 的使用和如何传到 native 层，和应用启动相关，虽然涉及到 LocalSocket 方式与 Zygote 进程通讯，但是展开需要很大的篇幅，这里不作介绍，简单说明是从 **ActivityManagerService.startProcessLocked** 可出发查看源码。
+
+startProcessLocked - **frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java**
+
+```java
+private final void startProcessLocked(ProcessRecord app, String hostingType,
+            String hostingNameStr, String abiOverride, String entryPoint, String[] entryPointArgs) {
+    ...
+	Process.ProcessStartResult startResult = Process.start(entryPoint,
+        app.processName, uid, uid, gids, debugFlags, mountExternal,
+        app.info.targetSdkVersion, app.info.seinfo, requiredAbi, instructionSet,
+        app.info.dataDir, entryPointArgs);
+    ...
+}
+
+```
+
+问题二：seinfo 对了，权限够了，没报错，但是没效果。
+
+答案：这种情况只能使用屠龙刀 **IDA** 静态分析 **system/lib64/libkwb.so** 了。通过 **IDA** 静态分析后，发现虽然 java 层写的上锁命令是 17， 但是 libkwb.so 只处理 0 和 23 命令，其中 0 是解锁，只要使用 hex 修改下 so 即可。另外发现三星搞了个 **kiwi brid** 解密 token，和校验各种权限。另外在 vold.rc 添加了 socket frigate ，解锁和上锁实质上是修改 /dev/block/stready 文件。上述所有 socket 通讯知识都因 socket frigate 引起我的兴趣而学习得到。
 
 ## 引用
 
