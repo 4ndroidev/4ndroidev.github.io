@@ -161,6 +161,80 @@
     <header class="post-header">
       <h1 class="post-title">
         
+          <a class="post-link" href="/2017/11/09/android-oem-lock-note/">Android Socket 应用 - 网络编程与进程通讯</a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017年11月9日
+        </span>
+      </div>
+    </header>
+
+    
+    
+
+    <div class="post-content">
+      
+        
+        
+          
+        
+
+        
+          <p>前阵子空闲时间学习了下 okhttp 源码，主要是重新学习 socket 网络编程，以及 okhttp 框架的一些特点。上周末，一个制作三星刷机包的朋友告诉我：国行三星手机通过官方 crom service 应用解锁手机后，才可以刷第三方刷机包，解锁后就保修就废了，很多人都不愿意解锁。于是朋友托我研究 crom service 上锁，如果研究成功，那么玩家更乐意解锁刷机。在研究上锁，刚好涉及到 android 底层 socket 通讯知识，同时分享下。文末介绍这次三星上锁之旅（反编译相关），成功但尴尬的结局。</p>
+<h2 id="socket-网络编程"><a href="#socket-网络编程" class="headerlink" title="socket 网络编程"></a>socket 网络编程</h2><p>在 okhttp 中，一次网络请求，在一条拦截链中完成，拦截链中每个拦截器完成比较少的任务（如重定向，失败重连，连接池，缓存等），很多大神也分享过拦截链的代码，就不重复介绍，这里主要介绍一次网络请求整个流程，可分以下四步：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>方法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>connectSocket</td>
+<td>通过 socket 连接远程服务器</td>
+</tr>
+<tr>
+<td>2</td>
+<td>connectTls</td>
+<td>传输层安全协议，握手</td>
+</tr>
+<tr>
+<td>3</td>
+<td>writeRequest</td>
+<td>写请求信息</td>
+</tr>
+<tr>
+<td>4</td>
+<td>readResponse</td>
+<td>读响应信息</td>
+</tr>
+</tbody>
+</table>
+          <div class="read-more">
+            <a href="/2017/11/09/android-oem-lock-note/" class="read-more-link">阅读更多</a>
+          </div>
+        
+      
+    </div>
+
+    
+
+    
+
+  </article>
+
+    
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
           <a class="post-link" href="/2017/10/23/android-coding/">Android Coding</a>
         
       </h1>
@@ -633,65 +707,16 @@
   </article>
 
     
-      
-  <article class="post">
-    <header class="post-header">
-      <h1 class="post-title">
-        
-          <a class="post-link" href="/2017/04/17/android-decompile-tools/">Android 反编译工具</a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2017年4月17日
-        </span>
-      </div>
-    </header>
-
-    
-    
-
-    <div class="post-content">
-      
-        
-        
-          
-        
-
-        
-          <h2 id="Apktool"><a href="#Apktool" class="headerlink" title="Apktool"></a>Apktool</h2><blockquote>
-<p>将Apk反编译成资源文件及<code>smali</code>代码，将Jar反编译<code>smali</code>代码</p>
-</blockquote>
-<ul>
-<li><p>github: <a href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="external">https://github.com/iBotPeaches/Apktool</a></p>
-</li>
-<li><p>website: <a href="https://ibotpeaches.github.io/Apktool" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool</a></p>
-</li>
-<li><p>usage: <a href="https://ibotpeaches.github.io/Apktool/documentation/" target="_blank" rel="external">https://ibotpeaches.github.io/Apktool/documentation/</a></p>
-</li>
-<li><p>smali syntax: <a href="http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html" target="_blank" rel="external">http://www.netmite.com/android/mydroid/dalvik/docs/dalvik-bytecode.html</a></p>
-</li>
-</ul>
-          <div class="read-more">
-            <a href="/2017/04/17/android-decompile-tools/" class="read-more-link">阅读更多</a>
-          </div>
-        
-      
-    </div>
-
-    
-
-    
-
-  </article>
-
-    
   </section>
 
   
   <nav class="pagination">
     
+    
+      <a class="next" href="/page/2/">
+        <span class="next-text">下一页</span>
+        <i class="iconfont icon-right"></i>
+      </a>
     
   </nav>
 
