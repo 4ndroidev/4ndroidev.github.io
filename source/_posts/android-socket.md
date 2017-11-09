@@ -1049,7 +1049,7 @@ private final void startProcessLocked(ProcessRecord app, String hostingType,
 
 ![android-libkwb-sub1994.png](/images/android-socket/android-libkwb-sub1994.png)
 
-跳到 sub_1994 汇编指令视图，修改指令，其实我也不知道为什么这样改，只是试了几下，指令对了，32位跟64位也不一样。
+跳到 sub_1994 汇编指令视图，修改指令，事实上，我不是很懂这些汇编指令码，但尝试左边第二个字节数值的 +4 ，指令数值就 +1 ；23 - 17 = 6 ， 0x6 * 0x4 = 0x18 ， 0x5E - 0x18 = 0x46， bingo。
 
 ![android-libkwb-hex.png](/images/android-socket/android-libkwb-hex.png)
 
