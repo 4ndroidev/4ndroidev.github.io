@@ -46,7 +46,7 @@
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-socket/android-libkwb-sub1994.png">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-socket/android-libkwb-hex.png">
 <meta property="og:image" content="http://4ndroidev.github.io/images/android-socket/android-samsung-bl.png">
-<meta property="og:updated_time" content="2017-11-08T07:03:10.000Z">
+<meta property="og:updated_time" content="2017-11-09T01:45:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Socket 应用 - 网络编程与进程通讯">
 <meta name="twitter:description" content="前阵子空闲时间学习了下 okhttp 源码，主要是重新学习 socket 网络编程，以及 okhttp 框架的一些特点。上周末，一个制作三星刷机包的朋友告诉我：国行三星手机通过官方 crom service 应用解锁手机后，才可以刷第三方刷机包，解锁后就保修就废了，很多人都不愿意解锁。于是朋友托我研究 crom service 上锁，如果研究成功，那么玩家更乐意解锁刷机。在研究上锁，刚好涉及到 a">
@@ -322,7 +322,7 @@
 <p><img src="/images/android-socket/android-libkwb-native-unlock.png" alt="android-libkwb-native-unlock.png"></p>
 <p>上图为 setTokenToUnlock 对应的 jni 方法，sub_1994 函数是关键，转到 sub_1994 可发现只处理 1 和 23 命令。</p>
 <p><img src="/images/android-socket/android-libkwb-sub1994.png" alt="android-libkwb-sub1994.png"></p>
-<p>跳到 sub_1994 汇编指令视图，修改指令，其实我也不知道为什么这样改，只是试了几下，指令对了，32位跟64位也不一样。</p>
+<p>跳到 sub_1994 汇编指令视图，修改指令，事实上，我不是很懂这些汇编指令码，但尝试左边第二个字节数值的 +4 ，指令数值就 +1 ；23 - 17 = 6 ， 0x6 * 0x4 = 0x18 ， 0x5E - 0x18 = 0x46， bingo。</p>
 <p><img src="/images/android-socket/android-libkwb-hex.png" alt="android-libkwb-hex.png"></p>
 <p>修改完成，替换 <strong>system/lib64/libkwb.so</strong> ，运行 app ，上锁成功。重启，系统和 recovery 都不能进，只能进入三星挖煤模式-定制 bootloader，bootloader 界面显示 CROM SERVICE : Lock ，成功上锁。朋友说正常现象，上锁后只能刷官方固件才能开机。本人验证了下也是，刷官方系统，确实上锁了，不能刷第三方 recovery。朋友让我试试 knox 和 samsung pay 能不能用，发现是不行的，看来跟上锁没什么关系，听他说可能跟 bootloader 的 WARRANTY VOID 值相关。</p>
 <p><img src="/images/android-socket/android-samsung-bl.png" alt="android-samsung-bl.png"></p>
